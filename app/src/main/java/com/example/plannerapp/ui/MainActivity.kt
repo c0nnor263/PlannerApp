@@ -8,15 +8,12 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.plannerapp.R
-import com.example.plannerapp.model.WaterSharedViewModel
-import com.example.plannerapp.ui.water.WaterFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -27,8 +24,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewModel: WaterSharedViewModel by viewModels()
-        val waterFragment = WaterFragment()
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.navigation_host) as NavHostFragment
         navController = navHostFragment.navController
@@ -38,15 +33,28 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             setupWithNavController(navController)
             setOnNavigationItemReselectedListener {}
         }
-
         navController.addOnDestinationChangedListener { _, destination, _ ->
+            val waterBottom = bottomNav.menu.findItem(R.id.bottom_menu_water_fragment)
+            if (waterBottom.isChecked) {
+                waterBottom.setIcon(android.R.drawable.ic_menu_add)
+                waterBottom.title = "Add task"
+            } else {
+                waterBottom.setIcon(R.drawable.ic_water_drops)
+                waterBottom.title = "Main"
+            }
             when (destination.id) {
                 R.id.bottom_menu_water_fragment -> {
                     bottomNav.visibility = View.VISIBLE
                 }
-                R.id.bottom_menu_air_fragment -> bottomNav.visibility = View.VISIBLE
-                R.id.bottom_menu_fire_fragment -> bottomNav.visibility = View.VISIBLE
-                R.id.bottom_menu_tree_fragment -> bottomNav.visibility = View.VISIBLE
+                R.id.bottom_menu_air_fragment -> {
+                    bottomNav.visibility = View.VISIBLE
+                }
+                R.id.bottom_menu_fire_fragment -> {
+                    bottomNav.visibility = View.VISIBLE
+                }
+                R.id.bottom_menu_tree_fragment -> {
+                    bottomNav.visibility = View.VISIBLE
+                }
                 else -> bottomNav.visibility = View.INVISIBLE
             }
         }
@@ -57,12 +65,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         if (ev.action == MotionEvent.ACTION_DOWN) {
             val view = currentFocus
             if (isHideInput(view, ev)) {
-                HideSoftInput(view!!.windowToken)
+                hideSoftInput(view!!.windowToken)
                 view.clearFocus()
             }
         }
         return super.dispatchTouchEvent(ev)
     }
+
     /**
      * Decide if you need to hide
      */
@@ -82,7 +91,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     /**
      * Hide soft keyboard
      */
-    private fun HideSoftInput(token: IBinder?) {
+    private fun hideSoftInput(token: IBinder?) {
         if (token != null) {
             val manager: InputMethodManager =
                 getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

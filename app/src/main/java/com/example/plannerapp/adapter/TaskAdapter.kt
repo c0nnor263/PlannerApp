@@ -22,7 +22,8 @@ import java.util.*
 class TaskAdapter(
     private val listener: OnItemClickListener
 ) : ListAdapter<TaskType, TaskAdapter.ViewHolder>(DiffCallback) {
-    var nameBuffer = ""
+    private var timer = Timer()
+    private val DELAY: Long = 1500
     companion object {
         private val DiffCallback = object : DiffUtil.ItemCallback<TaskType>() {
             override fun areItemsTheSame(oldItem: TaskType, newItem: TaskType): Boolean {
@@ -53,8 +54,6 @@ class TaskAdapter(
                         root.findNavController().navigate(directions, extras)
                     }
                 }
-
-
                 checkTask.setOnClickListener {
                     val position = adapterPosition
                     if (position != RecyclerView.NO_POSITION) {
@@ -69,18 +68,18 @@ class TaskAdapter(
                         actionId == EditorInfo.IME_ACTION_UNSPECIFIED
                     ) {
                         nameTask.clearFocus()
+                        timer.cancel()
                         val position = adapterPosition
                         if (position != RecyclerView.NO_POSITION) {
                             val task = getItem(position)
                             listener.onNameChanged(task, nameTask.text.toString())
                         }
+                        nameTask.setBackgroundColor(Color.TRANSPARENT)
                     }
                     false
                 }
                 nameTask.addTextChangedListener(
                     object : TextWatcher {
-                        private var timer = Timer()
-                        private val DELAY: Long = 1500
                         override fun onTextChanged(
                             s: CharSequence,
                             start: Int,
@@ -98,27 +97,31 @@ class TaskAdapter(
                         }
 
                         override fun afterTextChanged(s: Editable) {
-                            nameBuffer = s.toString()
                             val position = adapterPosition
                             val task = getItem(position)
-                            timer.cancel()
-                            timer = Timer()
-                            timer.schedule(
-                                object : TimerTask() {
-                                    override fun run() {
-                                        if (position != RecyclerView.NO_POSITION) {
-                                            listener.onNameChanged(task, nameTask.text.toString())
-                                        }
-                                    }
-                                },
-                                DELAY
-                            )
-                            if (nameBuffer != task.nameTask) {
-                                nameTask.setBackgroundColor(Color.GRAY)
-                                nameTask.background.alpha = 50
-                            }else {
-                                nameTask.setBackgroundColor(Color.TRANSPARENT)
-                                nameTask.setSelection(nameTask.length())
+                            if(!task.checkTask) {
+                                if (task.nameTask != s.toString()) {
+                                    nameTask.setBackgroundColor(Color.GRAY)
+                                    nameTask.background.alpha = 50
+                                    timer.cancel()
+                                    timer = Timer()
+                                    timer.schedule(
+                                        object : TimerTask() {
+                                            override fun run() {
+                                                if (position != RecyclerView.NO_POSITION) {
+                                                    listener.onNameChanged(
+                                                        task,
+                                                        nameTask.text.toString()
+                                                    )
+                                                }
+                                                nameTask.setBackgroundColor(Color.TRANSPARENT)
+                                            }
+                                        },
+                                        DELAY
+                                    )
+
+
+                                }
                             }
                         }
                     }
@@ -135,12 +138,20 @@ class TaskAdapter(
             binding.apply {
                 nameTask.setText(taskType.nameTask)
                 nameTaskLayout.isHintEnabled = false
-                if (taskType.checkTask) {
+                checkTask.isChecked = taskType.checkTask
+                if (checkTask.isChecked) {
                     nameTask.paint.isStrikeThruText = true
                     nameTask.setTextColor(Color.GRAY)
-                    //TODO("alpha")
+                    nameTask.isEnabled = false
+                    parentLayoutListItem.alpha = 0.5F
+                }else{
+                    nameTask.paint.isStrikeThruText = false
+                    nameTask.setTextColor(Color.BLACK)
+                    nameTask.isEnabled = true
+                    parentLayoutListItem.alpha = 1F
+                    nameTask.setSelection(nameTask.length())
                 }
-                checkTask.isChecked = taskType.checkTask
+
                 ViewCompat.setTransitionName(parentLayoutListItem, taskType.idTask.toString())
                 when (taskType.priorityTask) {
                     0 -> {

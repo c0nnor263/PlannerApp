@@ -14,10 +14,10 @@ interface TaskTypeDao {
             SortOrder.BY_DATE -> getTasksSortByCreatedDate(searchQuery, hideCompleted)
         }
 
-    @Query("SELECT * FROM $TABLE_NAME WHERE ($COLUMN_CHECKED != :hideCompleted OR $COLUMN_CHECKED = 0) AND name_task LIKE '%' || :searchQuery || '%' ORDER BY isCheck, priority_of_task DESC, name_task")
+    @Query("SELECT * FROM $TABLE_NAME WHERE ($COLUMN_CHECKED != :hideCompleted OR $COLUMN_CHECKED = 0) AND name_task LIKE '%' || :searchQuery || '%' ORDER BY isCheck ASC, priority_of_task DESC, name_task")
     fun getTasksSortByName(searchQuery:String, hideCompleted:Boolean): Flow<List<TaskType>>
 
-    @Query("SELECT * FROM $TABLE_NAME WHERE ($COLUMN_CHECKED != :hideCompleted OR $COLUMN_CHECKED = 0) AND name_task LIKE '%' || :searchQuery || '%' ORDER BY isCheck, priority_of_task DESC, created")
+    @Query("SELECT * FROM $TABLE_NAME WHERE ($COLUMN_CHECKED != :hideCompleted OR $COLUMN_CHECKED = 0) AND name_task LIKE '%' || :searchQuery || '%' ORDER BY isCheck ASC, priority_of_task DESC, created")
     fun getTasksSortByCreatedDate(searchQuery:String, hideCompleted:Boolean): Flow<List<TaskType>>
 
     @Query("SELECT COUNT(*) FROM $TABLE_NAME")
@@ -25,6 +25,8 @@ interface TaskTypeDao {
 
     @Query("SELECT * from PTask WHERE idTask = :id")
     fun getTask(id: Int): Flow<TaskType>
+
+
 
     @Query("DELETE FROM $TABLE_NAME")
     suspend fun deleteAllData()

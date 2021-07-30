@@ -90,7 +90,6 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
         recyclerView.apply {
             adapter = mAdapter
             layoutManager = LinearLayoutManager(context)
-
             setHasFixedSize(true)
 
             //Swipe delete task
@@ -118,14 +117,12 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
             allTasksSize.observe(this@WaterFragment.viewLifecycleOwner) {
                 sizeOfTasks = it
             }
-
             //LiveData list of tasks
             allTasks.observe(this@WaterFragment.viewLifecycleOwner) { items ->
                 items.let {
                     mAdapter.submitList(it)
                 }
             }
-
         }
 
 
@@ -155,6 +152,7 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
             when (destination.id) {
                 R.id.bottom_menu_water_fragment -> {
                     bottomNav.visibility = View.VISIBLE
+
                     bottomNav.menu.findItem(R.id.bottom_menu_water_fragment)
                         .setOnMenuItemClickListener {
                             preventOnClick()
@@ -188,6 +186,7 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
                             }
                             bottomNav.performClick()
                         }
+
                 }
             }
 

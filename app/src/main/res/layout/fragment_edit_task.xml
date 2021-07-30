@@ -50,7 +50,7 @@
                     android:hint="@string/edit_name_of_task"
                     android:imeOptions="actionDone"
                     android:inputType="text|textCapSentences"
-                    android:maxLength="21"
+                    android:maxLength="23"
                     android:textSize="17sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
