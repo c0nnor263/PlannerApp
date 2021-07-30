@@ -1,0 +1,44 @@
+<resources>
+    <string name="app_name">Planner App</string>
+    <string name="Вода">Вода</string>
+    <string name="Воздух">Воздух</string>
+    <string name="Огонь">Огонь</string>
+    <string name="Дерево">Дерево</string>
+<string name="ok">OK</string>
+
+
+    <!-->WaterFragment<-->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="add_task">Add task</string>
+    <string name="add_tasks">Add tasks</string>
+    <string name="description">Description</string>
+    <string name="delete_task">Delete task</string>
+    <string name="enter_amount">Enter amount</string>
+    <string name="amount_of_tasks">%1$d/%2$d</string>
+
+    <!-->EditTaskFragment<-->
+    <string name="edit_task_transition">edit_task_transition</string>
+    <string name="little_description">Little description</string>
+    <string name="describe_this_task">Describe this task</string>
+    <string name="due_time">Due time</string>
+    <string name="set_a_time">Set a time</string>
+    <string name="error_input_desc">max - 70 symbols</string>
+    <string name="error_input_name">max - 21 symbols</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="set_a_priority">Set a priority</string>
+    <string name="task_name">Task name</string>
+    <string name="search">Search</string>
+    <string name="sort">Sort</string>
+    <string name="default_priority">Default</string>
+    <string name="edit_name_of_task">Edit name of task</string>
+    <string name="priority">Priority</string>
+
+    <string-array name="priorities">
+        <item>Leisurely</item>
+        <item>Default</item>
+        <item>Advisable</item>
+        <item>Important</item>
+    </string-array>
+
+</resources>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parent_layout_list_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
+    android:orientation="vertical"
+    android:paddingHorizontal="10dp"
+    android:paddingVertical="3dp">
+
+    <CheckBox
+        android:id="@+id/check_task"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:buttonTint="@color/primaryDarkColorWater"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:checked="true" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/nameTaskLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:boxBackgroundColor="#FFF"
+        app:boxStrokeColor="#FFF"
+        app:boxStrokeWidth="0dp"
+        app:boxStrokeWidthFocused="0dp"
+        app:endIconMode="none"
+        app:layout_constraintBottom_toBottomOf="@+id/check_task"
+        app:layout_constraintStart_toEndOf="@+id/check_task"
+        app:layout_constraintTop_toTopOf="@+id/check_task">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/name_task"
+            android:layout_width="265dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:hint="@string/add_task"
+            android:imeOptions="actionDone"
+            android:inputType="text|textCapSentences"
+            android:maxLength="23"
+            android:paddingTop="8dp"
+            android:textSize="16sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageButton
+        android:id="@+id/open_task"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:alpha="0.2"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_baseline_edit_24"
+        app:layout_constraintBottom_toBottomOf="@+id/nameTaskLayout"
+        app:layout_constraintStart_toEndOf="@+id/nameTaskLayout"
+        app:layout_constraintTop_toTopOf="@+id/nameTaskLayout" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

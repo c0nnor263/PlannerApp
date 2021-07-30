@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/bottom_menu_water_fragment"
+        android:icon="@drawable/ic_water_drops"
+        android:title="Main" />
+
+    <!-->
+        <item
+            android:id="@+id/bottom_menu_air_fragment"
+            android:icon="@drawable/ic_tornado"
+            android:title="Month" /><-->
+
+    <item
+        android:id="@+id/bottom_menu_fire_fragment"
+        android:icon="@drawable/ic_fire"
+        android:title="Friends" />
+
+    <!-->
+    <item
+        android:id="@+id/bottom_menu_tree_fragment"
+        android:icon="@drawable/ic_tree"
+        android:title="Profile" /><-->
+</menu>

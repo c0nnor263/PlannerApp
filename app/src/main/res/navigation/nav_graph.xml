@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/bottom_menu_water_fragment">
+    <fragment
+        android:id="@+id/bottom_menu_water_fragment"
+        android:name="com.example.plannerapp.ui.water.WaterFragment"
+        android:label="Daily tasks"
+        tools:layout="@layout/fragment_water" >
+        <action
+            android:id="@+id/action_waterFragment_to_edit_task"
+            app:destination="@id/editTaskFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/bottom_menu_air_fragment"
+        android:name="com.example.plannerapp.ui.air.AirFragment"
+        android:label="Month tasks"
+        tools:layout="@layout/fragment_air" />
+    <fragment
+        android:id="@+id/bottom_menu_fire_fragment"
+        android:name="com.example.plannerapp.ui.fire.FireFragment"
+        android:label="Friends"
+        tools:layout="@layout/fragment_fire" />
+    <fragment
+        android:id="@+id/bottom_menu_tree_fragment"
+        android:name="com.example.plannerapp.ui.tree.TreeFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_tree" />
+    <fragment
+        android:id="@+id/editTaskFragment"
+        android:name="com.example.plannerapp.ui.water.EditTaskFragment"
+        android:label="Edit task" >
+        <argument
+            android:name="idTask"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_editTaskFragment_to_waterFragment"
+            app:destination="@id/bottom_menu_water_fragment" />
+    </fragment>
+</navigation>

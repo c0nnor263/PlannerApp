@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="themeBlockStyle" format="reference" />
+
+    <style name="WaterTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="theme">@style/WaterTheme.PlannerApp</item>
+    </style>
+
+    <style name="AirTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="theme">@style/AirTheme.PlannerApp</item>
+    </style>
+
+    <style name="FireTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="theme">@style/FireTheme.PlannerApp</item>
+    </style>
+
+    <style name="TreeTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="theme">@style/TreeTheme.PlannerApp</item>
+    </style>
+
+    <style name="BottomNavigation" parent="Widget.MaterialComponents.BottomNavigationView.Colored">
+        <item name="android:background">@color/primaryColorWater</item>
+    </style>
+
+</resources>
