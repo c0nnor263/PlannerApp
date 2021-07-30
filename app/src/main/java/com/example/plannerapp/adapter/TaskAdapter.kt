@@ -87,7 +87,6 @@ class TaskAdapter(
                             before: Int,
                             count: Int
                         ) {
-
                         }
 
                         override fun beforeTextChanged(
