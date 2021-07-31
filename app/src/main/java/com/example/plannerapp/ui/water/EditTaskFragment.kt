@@ -121,6 +121,28 @@ class EditTaskFragment : Fragment() {
         bufferPriorityTask = task.priorityTask
 
         binding.apply {
+            tvCreatedTask.text = getString(R.string.task_created,taskType.createdTimeFormatted.toString())
+            fragmentEditNameTask.setText(taskType.nameTask)
+            fragmentEditDescTask.setText(taskType.descriptionTask)
+            if (task.timeTask != GLOBAL_DATE_FOR_CHECK) {
+                fragmentEditTimeInputText.setText(
+                    SimpleDateFormat(
+                        "h:mm a"
+                    ).format(
+                        Date(task.timeTask.toLong() * 1000)
+                    )
+                )
+            }
+            fragmentEditDescTask.doOnTextChanged { _, _, _, _ ->
+                if (fragmentEditDescTask.length() > 70) {
+                    fragmentEditDescTaskLayout.error =
+                        requireView().resources.getString(R.string.error_input_desc)
+                } else {
+                    fragmentEditDescTaskLayout.error = null
+                }
+            }
+
+            fragmentEditTimeInputText.setOnClickListener { setTime() }
             when (taskType.priorityTask) {
                 0 -> {
                     dropPriority.setText(items[0])
@@ -143,28 +165,20 @@ class EditTaskFragment : Fragment() {
                     dropPriority.setBackgroundResource(R.drawable.gradient_priority_default)
                 }
             }
-            fragmentEditNameTask.setText(taskType.nameTask)
-            fragmentEditDescTask.setText(taskType.descriptionTask)
-            if (task.timeTask != GLOBAL_DATE_FOR_CHECK) {
-                fragmentEditTimeInputText.setText(
-                    SimpleDateFormat(
-                        "h:mm a"
-                    ).format(
-                        Date(task.timeTask.toLong() * 1000)
-                    )
-                )
-            }
-            fragmentEditDescTask.doOnTextChanged { _, _, _, _ ->
-                if (fragmentEditDescTask.length() > 70) {
-                    fragmentEditDescTaskLayout.error =
-                        requireView().resources.getString(R.string.error_input_desc)
-                } else {
-                    fragmentEditDescTaskLayout.error = null
-                }
-            }
-
-            fragmentEditTimeInputText.setOnClickListener { setTime() }
             fragmentEditSaveBtn.setOnClickListener { updateTask(task.idTask) }
+
+            if(taskType.checkTask){
+                fragmentEditNameTaskLayout.isEnabled = false
+
+                fragmentEditDescTaskLayout.isEnabled = false
+
+                fragmentEditTimeLayout.isEnabled = false
+
+                textPriorityLayout.isEnabled = false
+
+                fragmentEditSaveBtn.isEnabled = false
+                fragmentEditSaveBtn.setBackgroundColor(Color.GRAY)
+            }
         }
 
     }

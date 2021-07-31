@@ -67,6 +67,7 @@ class TaskAdapter(
                         actionId == EditorInfo.IME_ACTION_NONE ||
                         actionId == EditorInfo.IME_ACTION_UNSPECIFIED
                     ) {
+                        nameTask.setBackgroundColor(Color.TRANSPARENT)
                         nameTask.clearFocus()
                         timer.cancel()
                         val position = adapterPosition
@@ -74,7 +75,7 @@ class TaskAdapter(
                             val task = getItem(position)
                             listener.onNameChanged(task, nameTask.text.toString())
                         }
-                        nameTask.setBackgroundColor(Color.TRANSPARENT)
+
                     }
                     false
                 }
@@ -150,23 +151,26 @@ class TaskAdapter(
                     nameTask.isEnabled = true
                     parentLayoutListItem.alpha = 1F
                     nameTask.setSelection(nameTask.length())
+                    nameTask.setBackgroundColor(Color.TRANSPARENT)
                 }
 
                 ViewCompat.setTransitionName(parentLayoutListItem, taskType.idTask.toString())
-                when (taskType.priorityTask) {
-                    0 -> {
-                        parentLayoutListItem.setBackgroundResource(com.example.plannerapp.R.drawable.gradient_priority_leisurely)
+                if(!taskType.checkTask) {
+                    when (taskType.priorityTask) {
+                        0 -> {
+                            parentLayoutListItem.setBackgroundResource(com.example.plannerapp.R.drawable.gradient_priority_leisurely)
+                        }
+                        1 -> {
+                            parentLayoutListItem.setBackgroundResource(com.example.plannerapp.R.drawable.gradient_priority_default)
+                        }
+                        2 -> {
+                            parentLayoutListItem.setBackgroundResource(com.example.plannerapp.R.drawable.gradient_priority_advisable)
+                        }
+                        3 -> {
+                            parentLayoutListItem.setBackgroundResource(com.example.plannerapp.R.drawable.gradient_priority_important)
+                        }
+                        else -> parentLayoutListItem.setBackgroundResource(com.example.plannerapp.R.drawable.gradient_priority_default)
                     }
-                    1 -> {
-                        parentLayoutListItem.setBackgroundResource(com.example.plannerapp.R.drawable.gradient_priority_default)
-                    }
-                    2 -> {
-                        parentLayoutListItem.setBackgroundResource(com.example.plannerapp.R.drawable.gradient_priority_advisable)
-                    }
-                    3 -> {
-                        parentLayoutListItem.setBackgroundResource(com.example.plannerapp.R.drawable.gradient_priority_important)
-                    }
-                    else -> parentLayoutListItem.setBackgroundResource(com.example.plannerapp.R.drawable.gradient_priority_default)
                 }
             }
         }

@@ -2,15 +2,15 @@
 buildscript {
 
     ext {
-        appCompatVersion = "1.3.0"
+        appCompatVersion = '1.3.1'
         constraintLayoutVersion = "2.0.4"
-        coroutinesVersion = "1.3.9"
-        dataStoreVersion = "1.0.0-rc01"
+        coroutinesVersion = '1.5.1-native-mt'
+        dataStoreVersion = '1.0.0-rc02'
         espressoVersion = "3.4.0"
-        fragmentVersion = "1.4.0-alpha04"
+        fragmentVersion = '1.4.0-alpha05'
         gradleVersion = '7.0.0'
-        hiltAndroidXVersion = "1.0.0-alpha03"
-        hiltVersion = "2.37"
+        hiltAndroidXVersion = '1.0.0-alpha03'
+        hiltVersion = '2.38.1'
         junitVersion = "4.13.2"
         kotlinVersion = "1.5.21"
         ktxVersion = "1.6.0"

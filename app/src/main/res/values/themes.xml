@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="WaterTheme.PlannerApp" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="WaterTheme.PlannerApp" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/primaryColorWater</item>
         <item name="colorPrimaryVariant">@color/primaryLightColorWater</item>
@@ -16,7 +16,7 @@
     </style>
 
 
-    <style name="FireTheme.PlannerApp" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="FireTheme.PlannerApp" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="colorPrimary">@color/primaryColorFire</item>
         <item name="colorPrimaryVariant">@color/primaryLightColorFire</item>
         <item name="colorOnPrimary">@color/primaryTextColorFire</item>
@@ -29,7 +29,7 @@
     </style>
 
 
-    <style name="AirTheme.PlannerApp" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="AirTheme.PlannerApp" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="colorPrimary">@color/primaryColorAir</item>
         <item name="colorPrimaryVariant">@color/primaryLightColorAir</item>
         <item name="colorOnPrimary">@color/primaryTextColorAir</item>
@@ -43,7 +43,7 @@
 
 
     </style>
-    <style name="TreeTheme.PlannerApp" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="TreeTheme.PlannerApp" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="colorPrimary">@color/primaryColorTree</item>
         <item name="colorPrimaryVariant">@color/primaryLightColorTree</item>
         <item name="colorOnPrimary">@color/primaryTextColorTree</item>

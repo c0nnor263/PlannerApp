@@ -2,22 +2,21 @@
 <resources>
     <attr name="themeBlockStyle" format="reference" />
 
-    <style name="WaterTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:windowNoTitle">true</item>
+    <style name="WaterThemeLight" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="theme">@style/WaterTheme.PlannerApp</item>
     </style>
 
-    <style name="AirTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AirThemeLight" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="android:windowNoTitle">true</item>
         <item name="theme">@style/AirTheme.PlannerApp</item>
     </style>
 
-    <style name="FireTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="FireThemeLight" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="android:windowNoTitle">true</item>
         <item name="theme">@style/FireTheme.PlannerApp</item>
     </style>
 
-    <style name="TreeTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="TreeThemeLight" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="android:windowNoTitle">true</item>
         <item name="theme">@style/TreeTheme.PlannerApp</item>
     </style>

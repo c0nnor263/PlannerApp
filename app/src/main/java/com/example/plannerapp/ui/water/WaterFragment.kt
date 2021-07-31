@@ -315,11 +315,27 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
                 true
             }
             R.id.action_delete_completed_tasks -> {
-                viewModel.deleteCompletedTasks()
+                val builder = MaterialAlertDialogBuilder(requireContext())
+                builder.setTitle("Are you sure you want to delete completed tasks?")
+                builder.setPositiveButton("Confirm") { _, _ ->
+                    viewModel.deleteCompletedTasks()
+                    Toast.makeText(requireContext(),"Completed tasks has been successfully deleted", Toast.LENGTH_SHORT).show()
+                }
+                builder.setNegativeButton(R.string.cancel) { dialog, _ -> dialog.cancel() }
+                builder.show()
+
                 true
             }
             R.id.action_delete_all_tasks -> {
-                viewModel.deleteAllData()
+                val builder = MaterialAlertDialogBuilder(requireContext())
+                builder.setTitle("Are you sure you want to delete all tasks?")
+                builder.setPositiveButton("Confirm") { _, _ ->
+                    viewModel.deleteAllData()
+                    Toast.makeText(requireContext(),"All tasks has been successfully deleted", Toast.LENGTH_SHORT).show()
+                }
+                builder.setNegativeButton(R.string.cancel) { dialog, _ -> dialog.cancel() }
+                builder.show()
+
                 true
             }
 

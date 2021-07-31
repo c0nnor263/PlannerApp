@@ -7,7 +7,12 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/PROJECTS/Android/Planner App/app/src/main/res/layout/activity_main.xml" value="0.18" />
+        <entry key="..\:/PROJECTS/Android/Planner App/app/src/main/res/layout/fragment_edit_task.xml" value="0.1" />
         <entry key="..\:/PROJECTS/Android/Planner App/app/src/main/res/layout/fragment_water.xml" value="0.1" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_air.xml" value="0.18541666666666667" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_edit_task.xml" value="0.33" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_tree.xml" value="0.18541666666666667" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/list_task.xml" value="0.1" />
       </map>
     </option>
   </component>

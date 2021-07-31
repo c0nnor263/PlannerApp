@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Planner App</string>
+    <string name="app_name">PlannerApp</string>
     <string name="Вода">Вода</string>
     <string name="Воздух">Воздух</string>
     <string name="Огонь">Огонь</string>
@@ -28,6 +28,7 @@
     <string name="cancel">Cancel</string>
     <string name="set_a_priority">Set a priority</string>
     <string name="task_name">Task name</string>
+    <string name="task_created">Created at: %1$s</string>
     <string name="search">Search</string>
     <string name="sort">Sort</string>
     <string name="default_priority">Default</string>
