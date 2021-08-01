@@ -23,13 +23,14 @@ interface TaskTypeDao {
     @Query("SELECT COUNT(*) FROM $TABLE_NAME")
     fun getTasksSize(): LiveData<Int>
 
-    @Query("SELECT * from PTask WHERE idTask = :id")
+    @Query("SELECT COUNT(*) from  $TABLE_NAME WHERE $COLUMN_CHECKED == 1")
+    fun getTasksCheckedCount(): LiveData<Int>
+
+    @Query("SELECT * from  $TABLE_NAME WHERE idTask = :id")
     fun getTask(id: Int): Flow<TaskType>
 
 
 
-    @Query("DELETE FROM $TABLE_NAME")
-    suspend fun deleteAllData()
 
     @Query("DELETE FROM $TABLE_NAME WHERE $COLUMN_CHECKED == 1")
     suspend fun deleteCompletedTasks()

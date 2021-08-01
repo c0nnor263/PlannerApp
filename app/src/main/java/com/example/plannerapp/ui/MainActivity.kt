@@ -44,15 +44,19 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
             when (destination.id) {
                 R.id.bottom_menu_water_fragment -> {
+                    window.navigationBarColor = resources.getColor(R.color.primaryColorWater,theme)
                     bottomNav.visibility = View.VISIBLE
                 }
                 R.id.bottom_menu_air_fragment -> {
+                    window.navigationBarColor = resources.getColor(R.color.primaryColorAir,theme)
                     bottomNav.visibility = View.VISIBLE
                 }
                 R.id.bottom_menu_fire_fragment -> {
+                    window.navigationBarColor = resources.getColor(R.color.primaryColorFire,theme)
                     bottomNav.visibility = View.VISIBLE
                 }
                 R.id.bottom_menu_tree_fragment -> {
+                    window.navigationBarColor = resources.getColor(R.color.primaryColorTree,theme)
                     bottomNav.visibility = View.VISIBLE
                 }
                 else -> bottomNav.visibility = View.INVISIBLE
@@ -72,9 +76,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         return super.dispatchTouchEvent(ev)
     }
 
-    /**
-     * Decide if you need to hide
-     */
+    //Decide if you need to hide
     private fun isHideInput(v: View?, ev: MotionEvent): Boolean {
         if (v != null && v is EditText) {
             val l = intArrayOf(0, 0)
@@ -88,9 +90,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         return false
     }
 
-    /**
-     * Hide soft keyboard
-     */
+    //Hide soft keyboard
     private fun hideSoftInput(token: IBinder?) {
         if (token != null) {
             val manager: InputMethodManager =

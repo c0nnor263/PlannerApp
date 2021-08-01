@@ -29,6 +29,7 @@
     <string name="set_a_priority">Set a priority</string>
     <string name="task_name">Task name</string>
     <string name="task_created">Created at: %1$s</string>
+    <string name="currently_unavailable">Currently unavailable</string>
     <string name="search">Search</string>
     <string name="sort">Sort</string>
     <string name="default_priority">Default</string>

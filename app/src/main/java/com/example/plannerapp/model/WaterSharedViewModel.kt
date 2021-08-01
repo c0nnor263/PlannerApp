@@ -1,16 +1,12 @@
 package com.example.plannerapp.model
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.plannerapp.data.PreferencesManager
 import com.example.plannerapp.data.SortOrder
 import com.example.plannerapp.data.TaskType
 import com.example.plannerapp.data.TaskTypeDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -23,17 +19,21 @@ const val MAX_TASK_COUNT: Int = 25
 @HiltViewModel
 class WaterSharedViewModel @Inject constructor(
     private val taskTypeDao: TaskTypeDao,
-    private val preferencesManager: PreferencesManager
+    private val preferencesManager: PreferencesManager,
+    private val savedState: SavedStateHandle
 ) : ViewModel() {
+
+
     val maxTasksCount: Int get() = MAX_TASK_COUNT
     val allTasksSize: LiveData<Int> = taskTypeDao.getTasksSize()
+    val allChecked: LiveData<Int> = taskTypeDao.getTasksCheckedCount()
 
-    val searchQuery = MutableStateFlow("")
+
+    val searchQuery = savedState.getLiveData("searchQuery","")
     val preferencesFlow = preferencesManager.preferencesFlow
 
-
     private val tasksFlow = combine(
-        searchQuery,
+        searchQuery.asFlow(),
         preferencesFlow
     )
     { searchQuery,
@@ -61,13 +61,12 @@ class WaterSharedViewModel @Inject constructor(
         data class ShowUndoDeleteTaskMessage(val task: TaskType) : TasksEvent()
     }
 
-    fun onTaskSelected(task: TaskType) {
 
-    }
     fun onTaskCheckedChanged(task: TaskType, checked: Boolean) = viewModelScope.launch {
         taskTypeDao.update(task.copy(checkTask = checked))
     }
-    fun onNameChanged(task: TaskType, name:String) = viewModelScope.launch {
+
+    fun onNameChanged(task: TaskType, name: String) = viewModelScope.launch {
         taskTypeDao.update(task.copy(nameTask = name))
     }
 
@@ -75,6 +74,7 @@ class WaterSharedViewModel @Inject constructor(
     fun onSortOrderSelected(sortOrder: SortOrder) = viewModelScope.launch {
         preferencesManager.updateSortOrder(sortOrder)
     }
+
     fun onHideCompletedClick(hideCompleted: Boolean) = viewModelScope.launch {
         preferencesManager.updateHideCompleted(hideCompleted)
     }
@@ -82,74 +82,37 @@ class WaterSharedViewModel @Inject constructor(
     fun retrieveTask(id: Int): LiveData<TaskType> {
         return taskTypeDao.getTask(id).asLiveData()
     }
-    fun addNewTask(
-        taskName: String?,
-        taskDescription: String?,
-        taskTime: Int,
-        taskPriority: Int,
-        taskChecked: Boolean
-    ) {
-        val newTask = getNewTaskEntry(
-            taskName,
-            taskDescription,
-            taskTime,
-            taskPriority,
-            taskChecked
-        )
-        insertTask(newTask)
-    }
-    fun addNewTasks(
-        taskName: String?,
-        taskDescription: String?,
-        taskTime: Int,
-        taskPriority: Int,
-        taskChecked: Boolean,
-        enteredAmount: Int
-    ) {
-        val newTask = getNewTaskEntry(
-            taskName,
-            taskDescription,
-            taskTime,
-            taskPriority,
-            taskChecked
-        )
-        for (i in 1..enteredAmount) {
-            insertTask(newTask)
-        }
-    }
-    fun updateTask(
-        taskId: Int,
-        taskName: String?,
-        taskDescription: String?,
-        taskTime: Int,
-        taskPriority: Int,
-        taskChecked: Boolean
-    ) {
-        val updatedTask = getUpdatedTaskEntry(
-            taskId,
-            taskName,
-            taskDescription,
-            taskTime,
-            taskPriority,
-            taskChecked
-        )
-        updateTask(updatedTask)
-    }
 
 
     fun isListNotFull(): Boolean {
         return (allTasks.value!!.size < MAX_TASK_COUNT)
     }
 
-    private fun insertTask(taskType: TaskType) {
+    fun insertTask(taskType: TaskType) {
         viewModelScope.launch {
             taskTypeDao.insert(taskType)
         }
     }
 
-    private fun updateTask(taskType: TaskType) {
+    fun insertTasks(taskType: TaskType, enteredAmount: Int) {
         viewModelScope.launch {
-            taskTypeDao.update(taskType)
+            for (i in 1..enteredAmount) {
+                taskTypeDao.insert(taskType)
+            }
+        }
+    }
+
+    fun updateTask(taskType: TaskType) {
+        viewModelScope.launch {
+            taskTypeDao.update(
+                taskType.copy(
+                    nameTask = taskType.nameTask,
+                    descriptionTask = taskType.descriptionTask,
+                    timeTask = taskType.timeTask,
+                    priorityTask = taskType.priorityTask,
+                    checkTask = taskType.checkTask
+                )
+            )
         }
     }
 
@@ -167,48 +130,6 @@ class WaterSharedViewModel @Inject constructor(
         viewModelScope.launch {
             taskTypeDao.deleteCompletedTasks()
         }
-
-
-    fun deleteAllData() =
-        viewModelScope.launch {
-            taskTypeDao.deleteAllData()
-        }
-
-    private fun getNewTaskEntry(
-        taskName: String?,
-        taskDescription: String?,
-        taskTime: Int,
-        taskPriority: Int,
-        taskChecked: Boolean
-    ): TaskType {
-        return TaskType(
-            nameTask = taskName,
-            descriptionTask = taskDescription,
-            timeTask = taskTime,
-            priorityTask = taskPriority,
-            checkTask = taskChecked
-        )
-    }
-
-    private fun getUpdatedTaskEntry(
-        taskId: Int,
-        taskName: String?,
-        taskDescription: String?,
-        taskTime: Int,
-        taskPriority: Int,
-        taskChecked: Boolean
-    ): TaskType {
-        return TaskType(
-            idTask = taskId,
-            nameTask = taskName,
-            descriptionTask = taskDescription,
-            timeTask = taskTime,
-            priorityTask = taskPriority,
-            checkTask = taskChecked
-        )
-    }
-
-
 
 
 }

@@ -4,10 +4,7 @@ import android.annotation.SuppressLint
 import android.app.TimePickerDialog
 import android.graphics.Color
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.addCallback
@@ -104,6 +101,8 @@ class EditTaskFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        requireActivity().window.navigationBarColor = Color.TRANSPARENT
         val id = navigationArgs.idTask
         viewModel.retrieveTask(id).observe(this.viewLifecycleOwner) { selectedItem ->
             task = selectedItem
@@ -121,7 +120,12 @@ class EditTaskFragment : Fragment() {
         bufferPriorityTask = task.priorityTask
 
         binding.apply {
-            tvCreatedTask.text = getString(R.string.task_created,taskType.createdTimeFormatted.toString())
+            //TODO(Notifications)
+            setTimeText.text = resources.getString(R.string.currently_unavailable)
+            fragmentEditTimeLayout.isEnabled = false
+
+
+            tvCreatedTask.text = getString(R.string.task_created, taskType.createdTimeFormatted)
             fragmentEditNameTask.setText(taskType.nameTask)
             fragmentEditDescTask.setText(taskType.descriptionTask)
             if (task.timeTask != GLOBAL_DATE_FOR_CHECK) {
@@ -165,7 +169,6 @@ class EditTaskFragment : Fragment() {
                     dropPriority.setBackgroundResource(R.drawable.gradient_priority_default)
                 }
             }
-            fragmentEditSaveBtn.setOnClickListener { updateTask(task.idTask) }
 
             if(taskType.checkTask){
                 fragmentEditNameTaskLayout.isEnabled = false
@@ -176,8 +179,7 @@ class EditTaskFragment : Fragment() {
 
                 textPriorityLayout.isEnabled = false
 
-                fragmentEditSaveBtn.isEnabled = false
-                fragmentEditSaveBtn.setBackgroundColor(Color.GRAY)
+               //TODO(Update unnavailable)
             }
         }
 
@@ -220,15 +222,8 @@ class EditTaskFragment : Fragment() {
     }
 
 
-    private fun updateTask(id: Int) {
-        viewModel.updateTask(
-            id,
-            binding.fragmentEditNameTask.text.toString(),
-            binding.fragmentEditDescTask.text.toString(),
-            bufferTimeValue,
-            bufferPriorityTask,
-            task.checkTask
-        )
+    private fun updateTask(task:TaskType) {
+        viewModel.updateTask(task)
         Toast.makeText(context, "Saved", Toast.LENGTH_SHORT)
             .show()
         findNavController().navigateUp()
@@ -254,17 +249,27 @@ class EditTaskFragment : Fragment() {
     }
 
 
-    //navigateUp custom behavior
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.fragment_edit_task_menu,menu)
+    }
+
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
-        if (menuItem.itemId == android.R.id.home) {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
-            return true
-        }
+       when(menuItem.itemId){
+           android.R.id.home -> {
+               //navigateUp custom behavior
+               requireActivity().onBackPressedDispatcher.onBackPressed()
+           }
+           R.id.save_btn ->{
+               updateTask(task)
+           }
+
+       }
         return super.onOptionsItemSelected(menuItem)
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         hideKeyboard(requireActivity())
         _binding = null
     }

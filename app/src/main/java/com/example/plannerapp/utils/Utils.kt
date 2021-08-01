@@ -6,8 +6,9 @@ import android.graphics.Color
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.AttrRes
 import androidx.core.content.res.use
+
 const val GLOBAL_DATE = 1555200000
-const val GLOBAL_DATE_FOR_CHECK= GLOBAL_DATE - 100000
+const val GLOBAL_DATE_FOR_CHECK = GLOBAL_DATE - 100000
 fun Context.themeColor(
     @AttrRes themeAttrId: Int
 ): Int {
@@ -30,8 +31,11 @@ fun hideKeyboard(activity: Activity) {
     }
 }
 
+val <T> T.exhaustive: T
+    get() = this
 
-inline fun androidx.appcompat.widget.SearchView.onQueryTextChanged(crossinline listener:(String) -> Unit){
+
+inline fun androidx.appcompat.widget.SearchView.onQueryTextChanged(crossinline listener: (String) -> Unit) {
     this.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
         override fun onQueryTextSubmit(query: String?): Boolean {
             return true

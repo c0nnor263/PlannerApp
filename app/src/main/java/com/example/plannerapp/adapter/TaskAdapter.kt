@@ -44,7 +44,6 @@ class TaskAdapter(
                     val position = adapterPosition
                     if (position != RecyclerView.NO_POSITION) {
                         val task = getItem(position)
-                        listener.onItemClick(task)
                         val transitionName =
                             root.context.getString(com.example.plannerapp.R.string.edit_task_transition)
                         val extras = FragmentNavigatorExtras(root to transitionName)
@@ -137,6 +136,8 @@ class TaskAdapter(
 
         fun bind(taskType: TaskType) {
             binding.apply {
+                ViewCompat.setTransitionName(parentLayoutListItem, taskType.idTask.toString())
+
                 nameTask.setText(taskType.nameTask)
                 nameTaskLayout.isHintEnabled = false
                 checkTask.isChecked = taskType.checkTask
@@ -153,8 +154,6 @@ class TaskAdapter(
                     nameTask.setSelection(nameTask.length())
                     nameTask.setBackgroundColor(Color.TRANSPARENT)
                 }
-
-                ViewCompat.setTransitionName(parentLayoutListItem, taskType.idTask.toString())
                 if(!taskType.checkTask) {
                     when (taskType.priorityTask) {
                         0 -> {
@@ -178,7 +177,6 @@ class TaskAdapter(
     }
 
     interface OnItemClickListener {
-        fun onItemClick(taskType: TaskType)
         fun onCheckBoxClick(taskType: TaskType, isChecked: Boolean)
         fun onNameChanged(taskType: TaskType, name: String)
     }

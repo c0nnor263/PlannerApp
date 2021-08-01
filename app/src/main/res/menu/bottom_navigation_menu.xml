@@ -11,15 +11,15 @@
             android:id="@+id/bottom_menu_air_fragment"
             android:icon="@drawable/ic_tornado"
             android:title="Month" /><-->
-
-    <item
-        android:id="@+id/bottom_menu_fire_fragment"
-        android:icon="@drawable/ic_fire"
-        android:title="Friends" />
+    <!-->
+        <item
+            android:id="@+id/bottom_menu_fire_fragment"
+            android:icon="@drawable/ic_fire"
+            android:title="Friends" /><-->
 
     <!-->
-    <item
-        android:id="@+id/bottom_menu_tree_fragment"
-        android:icon="@drawable/ic_tree"
-        android:title="Profile" /><-->
+<item
+    android:id="@+id/bottom_menu_tree_fragment"
+    android:icon="@drawable/ic_tree"
+    android:title="Profile" /><-->
 </menu>

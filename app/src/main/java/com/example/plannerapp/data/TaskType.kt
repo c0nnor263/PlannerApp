@@ -12,6 +12,7 @@ import com.example.plannerapp.data.TaskType.TaskEntry.COLUMN_NAME
 import com.example.plannerapp.data.TaskType.TaskEntry.COLUMN_PRIORITY
 import com.example.plannerapp.data.TaskType.TaskEntry.COLUMN_TIME
 import com.example.plannerapp.data.TaskType.TaskEntry.TABLE_NAME
+import com.example.plannerapp.utils.GLOBAL_DATE_FOR_CHECK
 import kotlinx.android.parcel.Parcelize
 import java.text.DateFormat
 
@@ -21,7 +22,7 @@ data class TaskType(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "idTask") var idTask: Int = 0,
     @ColumnInfo(name = COLUMN_NAME) val nameTask: String?,
     @ColumnInfo(name = COLUMN_DESCRIPTION) val descriptionTask: String?,
-    @ColumnInfo(name = COLUMN_TIME) val timeTask: Int,
+    @ColumnInfo(name = COLUMN_TIME) val timeTask: Int = GLOBAL_DATE_FOR_CHECK,
     @ColumnInfo(name = COLUMN_PRIORITY) val priorityTask: Int = 1,
     @ColumnInfo(name = COLUMN_CHECKED) val checkTask: Boolean = false,
     @ColumnInfo(name = COLUMN_CREATED) val createdTask:Long = System.currentTimeMillis()

@@ -23,7 +23,7 @@ import com.example.plannerapp.data.SortOrder
 import com.example.plannerapp.data.TaskType
 import com.example.plannerapp.databinding.FragmentWaterBinding
 import com.example.plannerapp.model.WaterSharedViewModel
-import com.example.plannerapp.utils.GLOBAL_DATE_FOR_CHECK
+import com.example.plannerapp.utils.exhaustive
 import com.example.plannerapp.utils.hideKeyboard
 import com.example.plannerapp.utils.onQueryTextChanged
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -42,7 +42,8 @@ import java.util.*
 class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClickListener {
     private val viewModel: WaterSharedViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
-    lateinit var task: TaskType
+    private lateinit var searchView: SearchView
+    private val newTask = getTaskType()
 
     //FABs
     private var mLastClickTime: Long = 0
@@ -75,18 +76,20 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val binding = FragmentWaterBinding.bind(view)
+
         postponeEnterTransition()
         view.doOnPreDraw { startPostponedEnterTransition() }
         view.background.alpha = 60
+
+        val binding = FragmentWaterBinding.bind(view)
+        val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        val mAdapter = TaskAdapter(this)
 
         binding.apply {
             lifecycleOwner = viewLifecycleOwner
             recyclerView = recyclerViewTasks
         }
 
-        val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        val mAdapter = TaskAdapter(this)
         recyclerView.apply {
             adapter = mAdapter
             layoutManager = LinearLayoutManager(context)
@@ -106,7 +109,7 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
                 }
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    task = mAdapter.currentList[viewHolder.adapterPosition]
+                    val task = mAdapter.currentList[viewHolder.adapterPosition]
                     viewModel.swipeDeleteTask(task)
                 }
             }).attachToRecyclerView(this)
@@ -141,7 +144,7 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
                         }
                         snackBar.show()
                     }
-                }
+                }.exhaustive
 
             }
         }
@@ -157,7 +160,10 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
                         .setOnMenuItemClickListener {
                             preventOnClick()
                             if (it.isChecked) {
-                                val popupMenu = PopupMenu(bottomNav.context, bottomNav)
+                                val popupMenu = PopupMenu(
+                                    bottomNav.context,
+                                    bottomNav.findViewById(R.id.bottom_menu_water_fragment)
+                                )
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                                     popupMenu.setForceShowIcon(true)
                                 }
@@ -193,9 +199,6 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
         }
     }
 
-    override fun onItemClick(taskType: TaskType) {
-        viewModel.onTaskSelected(taskType)
-    }
 
     override fun onCheckBoxClick(taskType: TaskType, isChecked: Boolean) {
         viewModel.onTaskCheckedChanged(taskType, isChecked)
@@ -217,17 +220,20 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
     private fun addingTask() {
         if (viewModel.isListNotFull()) {
             preventOnClick()
-            viewModel.addNewTask(
-                "",
-                "",
-                GLOBAL_DATE_FOR_CHECK,
-                1,
-                false
-            )
+            viewModel.insertTask(newTask)
         } else {
             showingDialogMaximumTasks()
         }
+
     }
+
+    private fun getTaskType(): TaskType {
+        return TaskType(
+            nameTask = "",
+            descriptionTask = ""
+        )
+    }
+
 
     private fun addingMultipleTasks() {
         preventOnClick()
@@ -247,12 +253,8 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
                     if (enteredCount!!.plus(sizeOfTasks) > viewModel.maxTasksCount) {
                         enteredCount = viewModel.maxTasksCount - sizeOfTasks
                     }
-                    viewModel.addNewTasks(
-                        "",
-                        "",
-                        GLOBAL_DATE_FOR_CHECK,
-                        1,
-                        false,
+                    viewModel.insertTasks(
+                        newTask,
                         enteredCount!!
                     )
                     Toast.makeText(
@@ -286,13 +288,24 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
 
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_fragments_water, menu)
+        inflater.inflate(R.menu.fragment_water_menu, menu)
         val searchItem = menu.findItem(R.id.action_search)
-        val searchView = searchItem.actionView as SearchView
+        searchView = searchItem.actionView as SearchView
+
+        if (viewModel.searchQuery.value!!.isNotEmpty()) {
+            searchItem.expandActionView()
+            searchView.setQuery(viewModel.searchQuery.value, false)
+        }
+
 
         searchView.onQueryTextChanged {
             viewModel.searchQuery.value = it
         }
+
+        viewModel.allChecked.observe(viewLifecycleOwner) {
+            menu.findItem(R.id.action_delete_completed_tasks).isEnabled = it > 0
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             menu.findItem(R.id.action_hide_completed_tasks).isChecked =
                 viewModel.preferencesFlow.first().hideCompleted
@@ -315,23 +328,17 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
                 true
             }
             R.id.action_delete_completed_tasks -> {
+
                 val builder = MaterialAlertDialogBuilder(requireContext())
-                builder.setTitle("Are you sure you want to delete completed tasks?")
+                builder.setTitle("Confirm deletion")
+                builder.setMessage("Do you want to delete completed tasks?")
                 builder.setPositiveButton("Confirm") { _, _ ->
                     viewModel.deleteCompletedTasks()
-                    Toast.makeText(requireContext(),"Completed tasks has been successfully deleted", Toast.LENGTH_SHORT).show()
-                }
-                builder.setNegativeButton(R.string.cancel) { dialog, _ -> dialog.cancel() }
-                builder.show()
-
-                true
-            }
-            R.id.action_delete_all_tasks -> {
-                val builder = MaterialAlertDialogBuilder(requireContext())
-                builder.setTitle("Are you sure you want to delete all tasks?")
-                builder.setPositiveButton("Confirm") { _, _ ->
-                    viewModel.deleteAllData()
-                    Toast.makeText(requireContext(),"All tasks has been successfully deleted", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Completed tasks has been successfully deleted",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 builder.setNegativeButton(R.string.cancel) { dialog, _ -> dialog.cancel() }
                 builder.show()
@@ -345,8 +352,10 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
 
     override fun onDestroyView() {
         super.onDestroyView()
+        searchView.setOnQueryTextListener(null)
         hideKeyboard(requireActivity())
     }
+
 
 
 }
