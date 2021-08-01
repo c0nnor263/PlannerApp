@@ -21,7 +21,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:checked="true" />
+        tools:checked="true"
+        tools:ignore="TouchTargetSizeCheck,TouchTargetSizeCheck" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/nameTaskLayout"
@@ -46,7 +47,8 @@
             android:inputType="text|textCapSentences"
             android:maxLength="23"
             android:paddingTop="8dp"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            tools:ignore="TouchTargetSizeCheck" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <ImageButton
@@ -58,6 +60,7 @@
         android:src="@drawable/ic_baseline_edit_24"
         app:layout_constraintBottom_toBottomOf="@+id/nameTaskLayout"
         app:layout_constraintStart_toEndOf="@+id/nameTaskLayout"
-        app:layout_constraintTop_toTopOf="@+id/nameTaskLayout" />
+        app:layout_constraintTop_toTopOf="@+id/nameTaskLayout"
+        tools:ignore="SpeakableTextPresentCheck,SpeakableTextPresentCheck" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
