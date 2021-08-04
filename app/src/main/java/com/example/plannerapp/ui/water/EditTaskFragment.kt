@@ -8,6 +8,7 @@ import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.addCallback
+import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -19,7 +20,6 @@ import com.example.plannerapp.databinding.FragmentEditTaskBinding
 import com.example.plannerapp.model.WaterSharedViewModel
 import com.example.plannerapp.utils.GLOBAL_DATE
 import com.example.plannerapp.utils.GLOBAL_DATE_FOR_CHECK
-import com.example.plannerapp.utils.hideKeyboard
 import com.example.plannerapp.utils.themeColor
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.transition.MaterialContainerTransform
@@ -42,6 +42,7 @@ class EditTaskFragment : Fragment() {
     private var bufferNameTask: String = ""
     private var bufferDescriptionTask: String = ""
     private var bufferPriorityTask: Int = 1
+    private lateinit var bufferMenu: Menu
 
     override fun onResume() {
         super.onResume()
@@ -106,6 +107,10 @@ class EditTaskFragment : Fragment() {
         val id = navigationArgs.idTask
         viewModel.retrieveTask(id).observe(this.viewLifecycleOwner) { selectedItem ->
             task = selectedItem
+            bufferNameTask = task.nameTask.toString()
+            bufferDescriptionTask = task.descriptionTask.toString()
+            bufferTimeValue = task.timeTask
+            bufferPriorityTask = task.priorityTask
             bind(task)
         }
     }
@@ -114,18 +119,15 @@ class EditTaskFragment : Fragment() {
     @SuppressLint("SimpleDateFormat")
     private fun bind(taskType: TaskType) {
         val items: Array<String> = resources.getStringArray(R.array.priorities)
-        bufferTimeValue = task.timeTask
-        bufferNameTask = task.nameTask.toString()
-        bufferDescriptionTask = task.descriptionTask.toString()
-        bufferPriorityTask = task.priorityTask
-
         binding.apply {
             //TODO(Notifications)
-            setTimeText.text = resources.getString(R.string.currently_unavailable)
+            fragmentEditTimeInputText.setText(resources.getString(R.string.currently_unavailable))
             fragmentEditTimeLayout.isEnabled = false
 
 
             tvCreatedTask.text = getString(R.string.task_created, taskType.createdTimeFormatted)
+            tvCompletedTask.isVisible = false
+
             fragmentEditNameTask.setText(taskType.nameTask)
             fragmentEditDescTask.setText(taskType.descriptionTask)
             if (task.timeTask != GLOBAL_DATE_FOR_CHECK) {
@@ -170,7 +172,7 @@ class EditTaskFragment : Fragment() {
                 }
             }
 
-            if(taskType.checkTask){
+            if (taskType.checkTask) {
                 fragmentEditNameTaskLayout.isEnabled = false
 
                 fragmentEditDescTaskLayout.isEnabled = false
@@ -179,20 +181,27 @@ class EditTaskFragment : Fragment() {
 
                 textPriorityLayout.isEnabled = false
 
-               //TODO(Update unnavailable)
+                tvCompletedTask.isVisible = true
+                tvCompletedTask.text =
+                    getString(R.string.task_completed, taskType.completedTimeFormatted)
+
             }
+            bufferMenu.findItem(R.id.save_btn).isEnabled = !taskType.checkTask
+            bufferMenu.findItem(R.id.save_btn).isVisible = !taskType.checkTask
+
         }
 
     }
 
     @SuppressLint("SimpleDateFormat")
     private fun cancelEdit() {
-        val items: Array<String> = resources.getStringArray(R.array.priorities)
+
         if (binding.fragmentEditNameTask.text.toString() != bufferNameTask ||
             binding.fragmentEditDescTask.text.toString() != bufferDescriptionTask ||
             task.timeTask.toString() != bufferTimeValue.toString() ||
             task.priorityTask != bufferPriorityTask
         ) {
+            val items: Array<String> = resources.getStringArray(R.array.priorities)
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Warning")
                 .setMessage("Are you sure want to exit without changes?")
@@ -222,10 +231,23 @@ class EditTaskFragment : Fragment() {
     }
 
 
-    private fun updateTask(task:TaskType) {
-        viewModel.updateTask(task)
-        Toast.makeText(context, "Saved", Toast.LENGTH_SHORT)
-            .show()
+    private fun updateTask(taskType: TaskType) {
+        if (binding.fragmentEditNameTask.text.toString() != bufferNameTask ||
+            binding.fragmentEditDescTask.text.toString() != bufferDescriptionTask ||
+            task.timeTask.toString() != bufferTimeValue.toString() ||
+            task.priorityTask != bufferPriorityTask) {
+            binding.apply {
+                viewModel.updateTask(
+                    taskType,
+                    fragmentEditNameTask.text.toString(),
+                    fragmentEditDescTask.text.toString(),
+                    bufferTimeValue,
+                    bufferPriorityTask
+                )
+            }
+            Toast.makeText(context, "Saved", Toast.LENGTH_SHORT)
+                .show()
+        }
         findNavController().navigateUp()
     }
 
@@ -243,34 +265,40 @@ class EditTaskFragment : Fragment() {
                     Date((bufferTimeValue).toLong() * 1000)
                 )
             )
-
         }, currentHour, currentMinute, false)
         timePickerDialog.show()
     }
 
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.fragment_edit_task_menu,menu)
+        inflater.inflate(R.menu.fragment_edit_task_menu, menu)
+        bufferMenu = menu
     }
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
-       when(menuItem.itemId){
-           android.R.id.home -> {
-               //navigateUp custom behavior
-               requireActivity().onBackPressedDispatcher.onBackPressed()
-           }
-           R.id.save_btn ->{
-               updateTask(task)
-           }
+        when (menuItem.itemId) {
+            android.R.id.home -> {
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+                return true
+            }
+            R.id.save_btn -> {
+                updateTask(task)
+                return true
+            }
 
-       }
+        }
         return super.onOptionsItemSelected(menuItem)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        hideKeyboard(requireActivity())
         _binding = null
     }
+
+
 }

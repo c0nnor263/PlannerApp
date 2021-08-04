@@ -9,8 +9,6 @@
     <color name="secondaryDarkColorWater">#008ba3</color>
     <color name="primaryTextColorWater">#000000</color>
     <color name="secondaryTextColorWater">#ffffff</color>
-    <color name="primaryColor">#c62828</color>
-
 
     <!--> FIRE <-->
     <color name="primaryColorFire">#ffa000</color>

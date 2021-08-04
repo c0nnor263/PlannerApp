@@ -2,27 +2,15 @@
 <resources>
     <attr name="themeBlockStyle" format="reference" />
 
-    <style name="WaterThemeLight" parent="Theme.MaterialComponents.Light.DarkActionBar">
-        <item name="theme">@style/WaterTheme.PlannerApp</item>
-    </style>
-
-    <style name="AirThemeLight" parent="Theme.MaterialComponents.Light.DarkActionBar">
-        <item name="android:windowNoTitle">true</item>
-        <item name="theme">@style/AirTheme.PlannerApp</item>
-    </style>
-
-    <style name="FireThemeLight" parent="Theme.MaterialComponents.Light.DarkActionBar">
-        <item name="android:windowNoTitle">true</item>
-        <item name="theme">@style/FireTheme.PlannerApp</item>
-    </style>
-
-    <style name="TreeThemeLight" parent="Theme.MaterialComponents.Light.DarkActionBar">
-        <item name="android:windowNoTitle">true</item>
-        <item name="theme">@style/TreeTheme.PlannerApp</item>
-    </style>
-
     <style name="BottomNavigation" parent="Widget.MaterialComponents.BottomNavigationView.Colored">
-        <item name="android:background">@color/primaryColorWater</item>
+        <item name="android:background">?attr/colorPrimary</item>
+    </style>
+
+
+    <style name="ActionBarThemeOverlay" parent="">
+        <item name="android:textColorPrimary">#fff</item>
+        <item name="colorControlNormal">#fff</item>
+        <item name="colorControlHighlight">#3fff</item>
     </style>
 
 

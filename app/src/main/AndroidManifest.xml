@@ -17,8 +17,9 @@
 
         <activity android:name=".ui.MainActivity"
             android:screenOrientation="portrait"
+            android:exported="true"
             android:windowSoftInputMode="adjustPan"
-            tools:ignore="IntentFilterExportedReceiver,LockedOrientationActivity">
+            tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

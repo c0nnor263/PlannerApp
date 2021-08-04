@@ -4,6 +4,7 @@ package com.example.plannerapp.ui
 import android.content.Context
 import android.os.Bundle
 import android.os.IBinder
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -11,23 +12,38 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.plannerapp.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var navController: NavController
+    private lateinit var appBarConfiguration: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.navigation_host) as NavHostFragment
         navController = navHostFragment.navController
-        setupActionBarWithNavController(navController)
+        appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.bottom_menu_water_fragment,
+                R.id.bottom_menu_air_fragment,
+                R.id.bottom_menu_fire_fragment,
+                R.id.bottom_menu_tree_fragment
+            )
+        )
+
+        setSupportActionBar(tool_bar)
+        setupActionBarWithNavController(navController, appBarConfiguration)
+
+
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         with(bottomNav) {
             setupWithNavController(navController)
@@ -44,19 +60,22 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
             when (destination.id) {
                 R.id.bottom_menu_water_fragment -> {
-                    window.navigationBarColor = resources.getColor(R.color.primaryColorWater,theme)
+
+                    val typedValue = TypedValue()
+                    theme.resolveAttribute(R.attr.colorPrimary, typedValue, true)
+                    window.navigationBarColor = typedValue.data
                     bottomNav.visibility = View.VISIBLE
                 }
                 R.id.bottom_menu_air_fragment -> {
-                    window.navigationBarColor = resources.getColor(R.color.primaryColorAir,theme)
+                    theme.applyStyle(R.style.AirTheme_PlannerApp, true)
                     bottomNav.visibility = View.VISIBLE
                 }
                 R.id.bottom_menu_fire_fragment -> {
-                    window.navigationBarColor = resources.getColor(R.color.primaryColorFire,theme)
+                    theme.applyStyle(R.style.FireTheme_PlannerApp, true)
                     bottomNav.visibility = View.VISIBLE
                 }
                 R.id.bottom_menu_tree_fragment -> {
-                    window.navigationBarColor = resources.getColor(R.color.primaryColorTree,theme)
+                    theme.applyStyle(R.style.TreeTheme_PlannerApp, true)
                     bottomNav.visibility = View.VISIBLE
                 }
                 else -> bottomNav.visibility = View.INVISIBLE

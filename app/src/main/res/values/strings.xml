@@ -13,8 +13,8 @@
     <string name="add_tasks">Add tasks</string>
     <string name="description">Description</string>
     <string name="delete_task">Delete task</string>
-    <string name="enter_amount">Enter amount</string>
-    <string name="amount_of_tasks">%1$d/%2$d</string>
+    <string name="enter_amount">In numbers</string>
+    <string name="amount_of_tasks">%1$d/%2$d :swipe to delete:</string>
 
     <!-->EditTaskFragment<-->
     <string name="edit_task_transition">edit_task_transition</string>
@@ -29,6 +29,7 @@
     <string name="set_a_priority">Set a priority</string>
     <string name="task_name">Task name</string>
     <string name="task_created">Created at: %1$s</string>
+    <string name="task_completed">Have completed at: %1$s</string>
     <string name="currently_unavailable">Currently unavailable</string>
     <string name="search">Search</string>
     <string name="sort">Sort</string>

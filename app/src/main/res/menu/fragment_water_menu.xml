@@ -10,6 +10,7 @@
     <item
         android:icon="@android:drawable/ic_menu_sort_by_size"
         android:title="@string/sort"
+        android:id="@+id/action_sort_by_group"
         app:showAsAction="always">
         <menu>
             <item
@@ -18,6 +19,9 @@
             <item
                 android:id="@+id/action_sort_by_date_created"
                 android:title="Sort by date created" />
+            <item
+                android:id="@+id/action_sort_by_date_completed"
+                android:title="Sort by date completed" />
         </menu>
 
     </item>

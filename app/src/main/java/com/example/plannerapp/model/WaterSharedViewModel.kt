@@ -24,12 +24,13 @@ class WaterSharedViewModel @Inject constructor(
 ) : ViewModel() {
 
 
+    val currentName = savedState.getLiveData("currentName", "")
     val maxTasksCount: Int get() = MAX_TASK_COUNT
     val allTasksSize: LiveData<Int> = taskTypeDao.getTasksSize()
     val allChecked: LiveData<Int> = taskTypeDao.getTasksCheckedCount()
 
 
-    val searchQuery = savedState.getLiveData("searchQuery","")
+    val searchQuery = savedState.getLiveData("searchQuery", "")
     val preferencesFlow = preferencesManager.preferencesFlow
 
     private val tasksFlow = combine(
@@ -63,7 +64,17 @@ class WaterSharedViewModel @Inject constructor(
 
 
     fun onTaskCheckedChanged(task: TaskType, checked: Boolean) = viewModelScope.launch {
-        taskTypeDao.update(task.copy(checkTask = checked))
+        if (checked) {
+            taskTypeDao.update(
+                task.copy(
+                    checkTask = checked,
+                    completedTask = System.currentTimeMillis()
+                )
+            )
+        } else {
+            taskTypeDao.update(task.copy(checkTask = checked, completedTask = 0))
+        }
+
     }
 
     fun onNameChanged(task: TaskType, name: String) = viewModelScope.launch {
@@ -102,15 +113,20 @@ class WaterSharedViewModel @Inject constructor(
         }
     }
 
-    fun updateTask(taskType: TaskType) {
+    fun updateTask(
+        taskType: TaskType,
+        nameTask: String?,
+        descriptionTask: String?,
+        timeTask: Int,
+        priorityTask: Int
+    ) {
         viewModelScope.launch {
             taskTypeDao.update(
                 taskType.copy(
-                    nameTask = taskType.nameTask,
-                    descriptionTask = taskType.descriptionTask,
-                    timeTask = taskType.timeTask,
-                    priorityTask = taskType.priorityTask,
-                    checkTask = taskType.checkTask
+                    nameTask = nameTask,
+                    descriptionTask = descriptionTask,
+                    timeTask = timeTask,
+                    priorityTask = priorityTask
                 )
             )
         }

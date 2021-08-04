@@ -5,10 +5,11 @@
     android:padding="20dp">
 
     <com.google.android.material.textfield.TextInputLayout
+       style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/input_amount"
             android:layout_width="match_parent"
             android:layout_height="60dp"

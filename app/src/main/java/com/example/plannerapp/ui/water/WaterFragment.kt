@@ -32,6 +32,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialElevationScale
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -43,7 +44,8 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
     private val viewModel: WaterSharedViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var searchView: SearchView
-    private val newTask = getTaskType()
+    private val newTask = createTaskType()
+
 
     //FABs
     private var mLastClickTime: Long = 0
@@ -91,6 +93,7 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
         }
 
         recyclerView.apply {
+            mAdapter.setHasStableIds(true)
             adapter = mAdapter
             layoutManager = LinearLayoutManager(context)
             setHasFixedSize(true)
@@ -200,22 +203,12 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
     }
 
 
-    override fun onCheckBoxClick(taskType: TaskType, isChecked: Boolean) {
-        viewModel.onTaskCheckedChanged(taskType, isChecked)
-    }
-
-    override fun onNameChanged(taskType: TaskType, name: String) {
-        viewModel.onNameChanged(taskType, name)
-    }
-
-
     private fun preventOnClick() {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 250) {
             return
         }
         mLastClickTime = SystemClock.elapsedRealtime()
     }
-
 
     private fun addingTask() {
         if (viewModel.isListNotFull()) {
@@ -227,18 +220,29 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
 
     }
 
-    private fun getTaskType(): TaskType {
+    private fun createTaskType(): TaskType {
         return TaskType(
             nameTask = "",
             descriptionTask = ""
         )
     }
 
+    override fun onCheckBoxClick(taskType: TaskType, isChecked: Boolean) {
+        viewModel.onTaskCheckedChanged(taskType, isChecked)
+    }
+
+    override fun onNameChanged(taskType: TaskType, name: String) {
+        lifecycleScope.launch {
+            delay(3000)
+            viewModel.onNameChanged(taskType, name)
+        }
+    }
+
 
     private fun addingMultipleTasks() {
         preventOnClick()
         val viewInflated: View = LayoutInflater.from(context)
-            .inflate(R.layout.enter_amount_of_tasks, view as ViewGroup?, false)
+            .inflate(R.layout.fragment_water_enter_amount_of_tasks, view as ViewGroup?, false)
         val enterAmount = viewInflated.findViewById<View>(R.id.input_amount) as EditText
         val builder = MaterialAlertDialogBuilder(requireContext())
         builder.setTitle("Enter an amount of tasks")
@@ -291,6 +295,7 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
         inflater.inflate(R.menu.fragment_water_menu, menu)
         val searchItem = menu.findItem(R.id.action_search)
         searchView = searchItem.actionView as SearchView
+        searchView.isIconified = true
 
         if (viewModel.searchQuery.value!!.isNotEmpty()) {
             searchItem.expandActionView()
@@ -310,6 +315,7 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
             menu.findItem(R.id.action_hide_completed_tasks).isChecked =
                 viewModel.preferencesFlow.first().hideCompleted
         }
+
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -320,6 +326,10 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
             }
             R.id.action_sort_by_date_created -> {
                 viewModel.onSortOrderSelected(SortOrder.BY_DATE)
+                true
+            }
+            R.id.action_sort_by_date_completed -> {
+                viewModel.onSortOrderSelected(SortOrder.BY_COMPLETED)
                 true
             }
             R.id.action_hide_completed_tasks -> {
@@ -352,11 +362,13 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
 
     override fun onDestroyView() {
         super.onDestroyView()
-        searchView.setOnQueryTextListener(null)
         hideKeyboard(requireActivity())
     }
 
-
+    override fun onPause() {
+        super.onPause()
+        searchView.setOnQueryTextListener(null)
+    }
 
 }
 

@@ -18,26 +18,27 @@
             android:padding="16dp">
 
             <TextView
-                android:id="@+id/tv_task_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/task_name"
-                android:textColor="@android:color/darker_gray"
-                android:textSize="@dimen/service_text_size"
-                app:layout_constraintStart_toStartOf="@+id/fragment_edit_name_task_layout"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
                 android:id="@+id/tv_created_task"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:text="@string/task_created"
                 android:textColor="@android:color/darker_gray"
                 android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="@+id/tv_task_name"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/tv_task_name" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_completed_task"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/task_completed"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_created_task" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/fragment_edit_name_task_layout"
@@ -45,14 +46,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="8dp"
                 app:counterEnabled="true"
                 app:counterMaxLength="23"
                 app:endIconMode="clear_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_task_name">
+                app:layout_constraintTop_toBottomOf="@+id/tv_completed_task">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/fragment_edit_name_task"
@@ -77,24 +78,13 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_edit_name_task_layout" />
 
-            <TextView
-                android:id="@+id/little_desc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/little_description"
-                android:textColor="@android:color/darker_gray"
-                android:textSize="@dimen/service_text_size"
-                app:layout_constraintStart_toStartOf="@+id/fragment_edit_desc_task_layout"
-                app:layout_constraintTop_toBottomOf="@+id/divider1" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/fragment_edit_desc_task_layout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="8dp"
                 app:counterEnabled="true"
                 app:counterMaxLength="70"
@@ -102,7 +92,7 @@
                 app:errorEnabled="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/little_desc">
+                app:layout_constraintTop_toBottomOf="@+id/divider1">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/fragment_edit_desc_task"
@@ -126,26 +116,15 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_edit_desc_task_layout" />
 
-            <TextView
-                android:id="@+id/set_time_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/set_a_time"
-                android:textColor="@android:color/darker_gray"
-                android:textSize="@dimen/service_text_size"
-                app:layout_constraintStart_toStartOf="@+id/fragment_edit_time_layout"
-                app:layout_constraintTop_toBottomOf="@+id/divider" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/fragment_edit_time_layout"
                 android:layout_width="140dp"
                 android:layout_height="60dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 app:endIconMode="clear_text"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/set_time_text">
+                app:layout_constraintTop_toBottomOf="@+id/divider">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/fragment_edit_time_input_text"
@@ -159,27 +138,16 @@
             </com.google.android.material.textfield.TextInputLayout>
 
 
-            <TextView
-                android:id="@+id/set_priority_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/set_a_priority"
-                android:textColor="@android:color/darker_gray"
-                android:textSize="@dimen/service_text_size"
-                app:layout_constraintStart_toStartOf="@+id/textPriorityLayout"
-                app:layout_constraintTop_toBottomOf="@+id/divider" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textPriorityLayout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
                 android:layout_width="140dp"
                 android:layout_height="60dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="8dp"
                 android:hint="@string/priority"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/set_priority_text">
+                app:layout_constraintTop_toBottomOf="@+id/divider">
 
                 <AutoCompleteTextView
                     android:id="@+id/drop_priority"

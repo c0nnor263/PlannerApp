@@ -6,6 +6,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.plannerapp.data.TaskType.TaskEntry.COLUMN_CHECKED
+import com.example.plannerapp.data.TaskType.TaskEntry.COLUMN_COMPLETED
 import com.example.plannerapp.data.TaskType.TaskEntry.COLUMN_CREATED
 import com.example.plannerapp.data.TaskType.TaskEntry.COLUMN_DESCRIPTION
 import com.example.plannerapp.data.TaskType.TaskEntry.COLUMN_NAME
@@ -25,16 +26,22 @@ data class TaskType(
     @ColumnInfo(name = COLUMN_TIME) val timeTask: Int = GLOBAL_DATE_FOR_CHECK,
     @ColumnInfo(name = COLUMN_PRIORITY) val priorityTask: Int = 1,
     @ColumnInfo(name = COLUMN_CHECKED) val checkTask: Boolean = false,
-    @ColumnInfo(name = COLUMN_CREATED) val createdTask:Long = System.currentTimeMillis()
-) :Parcelable{
-    val createdTimeFormatted:String get() = DateFormat.getDateTimeInstance().format(createdTask)
-    object TaskEntry:BaseColumns {
+    @ColumnInfo(name = COLUMN_CREATED) val createdTask: Long = System.currentTimeMillis(),
+    @ColumnInfo(name = COLUMN_COMPLETED) val completedTask: Long = 0
+) : Parcelable {
+    val createdTimeFormatted: String get() = DateFormat.getDateTimeInstance().format(createdTask)
+    val completedTimeFormatted: String
+        get() = DateFormat.getDateTimeInstance().format(completedTask)
+
+    object TaskEntry : BaseColumns {
         const val COLUMN_NAME = "name_task"
         const val COLUMN_DESCRIPTION = "description_task"
         const val COLUMN_TIME = "due_time"
         const val COLUMN_PRIORITY = "priority_of_task"
         const val COLUMN_CHECKED = "isCheck"
         const val COLUMN_CREATED = "created"
+        const val COLUMN_COMPLETED = "completed"
+
 
         const val DATABASE_NAME = "TaskList.db"
         const val TABLE_NAME = "PTask"

@@ -12,6 +12,7 @@ interface TaskTypeDao {
         when(sortOrder){
             SortOrder.BY_NAME -> getTasksSortByName(searchQuery,hideCompleted)
             SortOrder.BY_DATE -> getTasksSortByCreatedDate(searchQuery, hideCompleted)
+            SortOrder.BY_COMPLETED -> getTasksSortByCompletedDate(searchQuery,hideCompleted)
         }
 
     @Query("SELECT * FROM $TABLE_NAME WHERE ($COLUMN_CHECKED != :hideCompleted OR $COLUMN_CHECKED = 0) AND name_task LIKE '%' || :searchQuery || '%' ORDER BY isCheck ASC, priority_of_task DESC, name_task")
@@ -19,6 +20,11 @@ interface TaskTypeDao {
 
     @Query("SELECT * FROM $TABLE_NAME WHERE ($COLUMN_CHECKED != :hideCompleted OR $COLUMN_CHECKED = 0) AND name_task LIKE '%' || :searchQuery || '%' ORDER BY isCheck ASC, priority_of_task DESC, created")
     fun getTasksSortByCreatedDate(searchQuery:String, hideCompleted:Boolean): Flow<List<TaskType>>
+
+    @Query("SELECT * FROM $TABLE_NAME WHERE ($COLUMN_CHECKED != :hideCompleted OR $COLUMN_CHECKED = 0) AND name_task LIKE '%' || :searchQuery || '%' ORDER BY isCheck DESC, completed DESC")
+    fun getTasksSortByCompletedDate(searchQuery:String, hideCompleted:Boolean): Flow<List<TaskType>>
+
+
 
     @Query("SELECT COUNT(*) FROM $TABLE_NAME")
     fun getTasksSize(): LiveData<Int>
@@ -34,7 +40,6 @@ interface TaskTypeDao {
 
     @Query("DELETE FROM $TABLE_NAME WHERE $COLUMN_CHECKED == 1")
     suspend fun deleteCompletedTasks()
-
 
     @Insert
     suspend fun insert(taskType: TaskType)

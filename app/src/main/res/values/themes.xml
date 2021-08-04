@@ -1,18 +1,18 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="WaterTheme.PlannerApp" parent="Theme.MaterialComponents.Light.DarkActionBar">
+    <style name="WaterTheme.PlannerApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/primaryColorWater</item>
         <item name="colorPrimaryVariant">@color/primaryLightColorWater</item>
         <item name="colorOnPrimary">@color/primaryTextColorWater</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/secondaryColorWater</item>
-        <item name="colorSecondaryVariant">@color/secondaryLightColorWater</item>
+        <item name="colorSecondaryVariant">@color/secondaryDarkColorWater</item>
         <item name="colorOnSecondary">@color/secondaryTextColorWater</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
         <!-- Customize your theme here. -->
-        <item name="android:navigationBarColor">@color/primaryTextColorAir</item>
+        <item name="android:navigationBarColor">?attr/colorPrimary</item>
     </style>
 
 
@@ -24,6 +24,7 @@
         <item name="colorSecondary">@color/secondaryColorFire</item>
         <item name="colorSecondaryVariant">@color/secondaryLightColorFire</item>
         <item name="colorOnSecondary">@color/secondaryTextColorFire</item>
+
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
         <item name="android:navigationBarColor">@color/primaryColorFire</item>
     </style>
@@ -39,10 +40,12 @@
         <item name="colorOnSecondary">@color/secondaryTextColorAir</item>
 
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
-        <item name="android:navigationBarColor">@color/primaryColorAir</item>
+        <!-- Customize your theme here. -->
+        <item name="android:navigationBarColor">?attr/colorPrimary</item>
 
 
     </style>
+
     <style name="TreeTheme.PlannerApp" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="colorPrimary">@color/primaryColorTree</item>
         <item name="colorPrimaryVariant">@color/primaryLightColorTree</item>
@@ -52,11 +55,10 @@
         <item name="colorSecondaryVariant">@color/secondaryLightColorTree</item>
         <item name="colorOnSecondary">@color/secondaryTextColorTree</item>
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
-        <item name="android:navigationBarColor">@color/primaryColorTree</item>
+        <!-- Customize your theme here. -->
+        <item name="android:navigationBarColor">?attr/colorPrimary</item>
 
     </style>
-
-
 
 
 </resources>
