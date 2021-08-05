@@ -1,8 +1,10 @@
 package com.example.plannerapp.ui.water
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import android.os.Vibrator
 import android.view.*
 import android.widget.EditText
 import android.widget.PopupMenu
@@ -32,7 +34,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialElevationScale
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -93,7 +94,6 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
         }
 
         recyclerView.apply {
-            mAdapter.setHasStableIds(true)
             adapter = mAdapter
             layoutManager = LinearLayoutManager(context)
             setHasFixedSize(true)
@@ -103,6 +103,21 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
                 0,
                 ItemTouchHelper.RIGHT
             ) {
+                val vb =
+                    requireActivity().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?
+
+                override fun onSelectedChanged(
+                    viewHolder: RecyclerView.ViewHolder?,
+                    actionState: Int
+                ) {
+                    super.onSelectedChanged(viewHolder, actionState)
+
+                    if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                        vb!!.vibrate(50)
+                    }
+                }
+
+
                 override fun onMove(
                     recyclerView: RecyclerView,
                     viewHolder: RecyclerView.ViewHolder,
@@ -112,6 +127,7 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
                 }
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    vb!!.vibrate(25)
                     val task = mAdapter.currentList[viewHolder.adapterPosition]
                     viewModel.swipeDeleteTask(task)
                 }
@@ -233,7 +249,6 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
 
     override fun onNameChanged(taskType: TaskType, name: String) {
         lifecycleScope.launch {
-            delay(3000)
             viewModel.onNameChanged(taskType, name)
         }
     }
@@ -309,6 +324,7 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
 
         viewModel.allChecked.observe(viewLifecycleOwner) {
             menu.findItem(R.id.action_delete_completed_tasks).isEnabled = it > 0
+            menu.findItem(R.id.action_sort_by_date_completed).isEnabled = it > 0
         }
 
         viewLifecycleOwner.lifecycleScope.launch {

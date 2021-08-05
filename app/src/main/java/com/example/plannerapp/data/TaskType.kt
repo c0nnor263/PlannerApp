@@ -34,13 +34,13 @@ data class TaskType(
         get() = DateFormat.getDateTimeInstance().format(completedTask)
 
     object TaskEntry : BaseColumns {
-        const val COLUMN_NAME = "name_task"
-        const val COLUMN_DESCRIPTION = "description_task"
-        const val COLUMN_TIME = "due_time"
-        const val COLUMN_PRIORITY = "priority_of_task"
-        const val COLUMN_CHECKED = "isCheck"
-        const val COLUMN_CREATED = "created"
-        const val COLUMN_COMPLETED = "completed"
+        const val COLUMN_NAME = "name_task_type"
+        const val COLUMN_DESCRIPTION = "description_task_type"
+        const val COLUMN_TIME = "due_time_task_type"
+        const val COLUMN_PRIORITY = "priority_of_task_type"
+        const val COLUMN_CHECKED = "isCheck_task_type"
+        const val COLUMN_CREATED = "created_task_type"
+        const val COLUMN_COMPLETED = "completed_task_type"
 
 
         const val DATABASE_NAME = "TaskList.db"

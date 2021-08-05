@@ -15,13 +15,13 @@ interface TaskTypeDao {
             SortOrder.BY_COMPLETED -> getTasksSortByCompletedDate(searchQuery,hideCompleted)
         }
 
-    @Query("SELECT * FROM $TABLE_NAME WHERE ($COLUMN_CHECKED != :hideCompleted OR $COLUMN_CHECKED = 0) AND name_task LIKE '%' || :searchQuery || '%' ORDER BY isCheck ASC, priority_of_task DESC, name_task")
+    @Query("SELECT * FROM $TABLE_NAME WHERE ($COLUMN_CHECKED != :hideCompleted OR $COLUMN_CHECKED = 0) AND name_task_type LIKE '%' || :searchQuery || '%' ORDER BY isCheck_task_type ASC, priority_of_task_type DESC, name_task_type")
     fun getTasksSortByName(searchQuery:String, hideCompleted:Boolean): Flow<List<TaskType>>
 
-    @Query("SELECT * FROM $TABLE_NAME WHERE ($COLUMN_CHECKED != :hideCompleted OR $COLUMN_CHECKED = 0) AND name_task LIKE '%' || :searchQuery || '%' ORDER BY isCheck ASC, priority_of_task DESC, created")
+    @Query("SELECT * FROM $TABLE_NAME WHERE ($COLUMN_CHECKED != :hideCompleted OR $COLUMN_CHECKED = 0) AND name_task_type LIKE '%' || :searchQuery || '%' ORDER BY isCheck_task_type ASC, priority_of_task_type DESC, created_task_type")
     fun getTasksSortByCreatedDate(searchQuery:String, hideCompleted:Boolean): Flow<List<TaskType>>
 
-    @Query("SELECT * FROM $TABLE_NAME WHERE ($COLUMN_CHECKED != :hideCompleted OR $COLUMN_CHECKED = 0) AND name_task LIKE '%' || :searchQuery || '%' ORDER BY isCheck DESC, completed DESC")
+    @Query("SELECT * FROM $TABLE_NAME WHERE ($COLUMN_CHECKED != :hideCompleted OR $COLUMN_CHECKED = 0) AND name_task_type LIKE '%' || :searchQuery || '%' ORDER BY isCheck_task_type DESC, completed_task_type DESC")
     fun getTasksSortByCompletedDate(searchQuery:String, hideCompleted:Boolean): Flow<List<TaskType>>
 
 
