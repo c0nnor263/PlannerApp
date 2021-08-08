@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/bottom_menu_water_fragment">
+    app:startDestination="@id/loginFragment">
     <fragment
         android:id="@+id/bottom_menu_water_fragment"
         android:name="com.example.plannerapp.ui.water.WaterFragment"
@@ -12,6 +12,10 @@
         <action
             android:id="@+id/action_waterFragment_to_edit_task"
             app:destination="@id/editTaskFragment" />
+        <argument
+            android:name="userId"
+            app:argType="string" />
+        <argument android:name="emailId" />
     </fragment>
 
     <fragment
@@ -38,6 +42,25 @@
             app:argType="integer" />
         <action
             android:id="@+id/action_editTaskFragment_to_waterFragment"
+            app:destination="@id/bottom_menu_water_fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.plannerapp.ui.auth.LoginFragment"
+        android:label="LoginFragment">
+        <action
+            android:id="@+id/action_loginFragment_to_bottom_menu_water_fragment"
+            app:destination="@id/bottom_menu_water_fragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_registerFragment"
+            app:destination="@id/registerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.example.plannerapp.ui.auth.RegisterFragment"
+        android:label="RegisterFragment" >
+        <action
+            android:id="@+id/action_registerFragment_to_bottom_menu_water_fragment"
             app:destination="@id/bottom_menu_water_fragment" />
     </fragment>
 </navigation>

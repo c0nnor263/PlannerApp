@@ -1,10 +1,13 @@
 <resources>
+    <string name="default_web_client_id">675536966932-19nrmdmkkp3qdebe55lh1f8cnd46ttqm.apps.googleusercontent.com</string>
+
+
     <string name="app_name">PlannerApp</string>
     <string name="Вода">Вода</string>
     <string name="Воздух">Воздух</string>
     <string name="Огонь">Огонь</string>
     <string name="Дерево">Дерево</string>
-<string name="ok">OK</string>
+    <string name="ok">OK</string>
 
 
     <!-->WaterFragment<-->

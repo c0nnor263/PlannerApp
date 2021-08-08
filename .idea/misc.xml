@@ -1,30 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="CodeInsightWorkspaceSettings">
-    <option name="optimizeImportsOnTheFly" value="true" />
-  </component>
-  <component name="DesignSurface">
-    <option name="filePathToZoomLevelMap">
-      <map>
-        <entry key="..\:/PROJECTS/Android/Planner App/app/src/main/res/layout/activity_main.xml" value="0.18" />
-        <entry key="..\:/PROJECTS/Android/Planner App/app/src/main/res/layout/fragment_edit_task.xml" value="0.1" />
-        <entry key="..\:/PROJECTS/Android/Planner App/app/src/main/res/layout/fragment_water.xml" value="0.1" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/gradient_priority_important.xml" value="0.1" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/activity_main.xml" value="0.2" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_air.xml" value="0.18541666666666667" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_edit_task.xml" value="0.3202247191011236" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_tree.xml" value="0.18541666666666667" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_water.xml" value="0.1" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_water_enter_amount_of_tasks.xml" value="0.18541666666666667" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/list_task.xml" value="0.1" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/menu/bottom_navigation_menu.xml" value="0.18541666666666667" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/menu/bottom_navigation_water_item_menu.xml" value="0.18541666666666667" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/menu/fragment_edit_task_menu.xml" value="0.1" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2015625" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.1" />
-      </map>
-    </option>
-  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>

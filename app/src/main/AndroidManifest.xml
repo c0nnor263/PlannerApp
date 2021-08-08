@@ -4,8 +4,8 @@
     package="com.example.plannerapp">
 
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission
-        android:name="com.android.alarm.permission.SET_ALARM"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
 
     <application
         android:name=".di.TaskApplication"
@@ -16,10 +16,10 @@
         android:supportsRtl="true"
         android:theme="@style/WaterTheme.PlannerApp"
         tools:ignore="AllowBackup">
-
-        <activity android:name=".ui.MainActivity"
-            android:screenOrientation="portrait"
+        <activity
+            android:name=".ui.MainActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
