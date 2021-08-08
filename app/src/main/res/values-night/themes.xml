@@ -1,0 +1,19 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="WaterTheme.PlannerApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/primaryDarkColorWater</item>
+        <item name="colorPrimaryVariant">@color/secondaryDarkColorWater</item>
+        <item name="colorOnPrimary">@color/primaryTextColorWater</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/secondaryColorWater</item>
+        <item name="colorSecondaryVariant">@color/secondaryDarkColorWater</item>
+        <item name="colorOnSecondary">@color/secondaryTextColorWater</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
+        <!-- Customize your theme here. -->
+        <item name="android:navigationBarColor">?attr/colorPrimary</item>
+
+    </style>
+
+</resources>

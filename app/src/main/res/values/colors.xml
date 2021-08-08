@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--> WATER<-->
+    <color name="primaryColorWater">#64b5f6</color>
+    <color name="primaryLightColorWater">#9be7ff</color>
+    <color name="primaryDarkColorWater">#2286c3</color>
+    <color name="secondaryColorWater">#00bcd4</color>
+    <color name="secondaryLightColorWater">#62efff</color>
+    <color name="secondaryDarkColorWater">#008ba3</color>
+    <color name="primaryTextColorWater">#000000</color>
+    <color name="secondaryTextColorWater">#ffffff</color>
+
+    <!--> FIRE <-->
+    <color name="primaryColorFire">#ffa000</color>
+    <color name="primaryLightColorFire">#ffd149</color>
+    <color name="primaryDarkColorFire">#c67100</color>
+    <color name="secondaryColorFire">#e64a19</color>
+    <color name="secondaryLightColorFire">#ff7d47</color>
+    <color name="secondaryDarkColorFire">#ac0800</color>
+    <color name="primaryTextColorFire">#000000</color>
+    <color name="secondaryTextColorFire">#000000</color>
+
+    <!--> AIR <-->
+    <color name="primaryColorAir">#e0f2f1</color>
+    <color name="primaryLightColorAir">#ffffff</color>
+    <color name="primaryDarkColorAir">#aebfbe</color>
+    <color name="secondaryColorAir">#66bb6a</color>
+    <color name="secondaryLightColorAir">#98ee99</color>
+    <color name="secondaryDarkColorAir">#338a3e</color>
+    <color name="primaryTextColorAir">#000000</color>
+    <color name="secondaryTextColorAir">#000000</color>
+
+    <!--> TREE <-->
+    <color name="primaryColorTree">#4caf50</color>
+    <color name="primaryLightColorTree">#80e27e</color>
+    <color name="primaryDarkColorTree">#087f23</color>
+    <color name="secondaryColorTree">#388e3c</color>
+    <color name="secondaryLightColorTree">#6abf69</color>
+    <color name="secondaryDarkColorTree">#00600f</color>
+    <color name="primaryTextColorTree">#000000</color>
+    <color name="secondaryTextColorTree">#000000</color>
+
+</resources>
