@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.ActionBar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.SavedStateHandle
@@ -20,9 +21,11 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         const val LOGIN_SUCCESSFUL: String = "LOGIN_SUCCESSFUL"
     }
 
+    private lateinit var auth: FirebaseAuth
+
     private lateinit var savedStateHandle: SavedStateHandle
     private val userViewModel: WaterSharedViewModel by viewModels()
-    private lateinit var auth: FirebaseAuth
+
 
     public override fun onStart() {
         super.onStart()
@@ -35,6 +38,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val binding = FragmentLoginBinding.bind(view)
         savedStateHandle = findNavController().currentBackStackEntry!!.savedStateHandle
         savedStateHandle.set(LOGIN_SUCCESSFUL, false)

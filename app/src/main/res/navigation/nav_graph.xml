@@ -47,7 +47,7 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.plannerapp.ui.auth.LoginFragment"
-        android:label="LoginFragment">
+        android:label="Login">
         <action
             android:id="@+id/action_loginFragment_to_bottom_menu_water_fragment"
             app:destination="@id/bottom_menu_water_fragment" />
@@ -58,7 +58,7 @@
     <fragment
         android:id="@+id/registerFragment"
         android:name="com.example.plannerapp.ui.auth.RegisterFragment"
-        android:label="RegisterFragment" >
+        android:label="Register">
         <action
             android:id="@+id/action_registerFragment_to_bottom_menu_water_fragment"
             app:destination="@id/bottom_menu_water_fragment" />

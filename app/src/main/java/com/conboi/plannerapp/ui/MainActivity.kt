@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         navController = navHostFragment.navController
         appBarConfiguration = AppBarConfiguration(
             setOf(
+                R.id.loginFragment,
                 R.id.bottom_menu_water_fragment,
                 R.id.bottom_menu_air_fragment,
                 R.id.bottom_menu_fire_fragment,
