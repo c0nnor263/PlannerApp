@@ -1,0 +1,76 @@
+{
+  "project_info": {
+    "project_number": "822973545769",
+    "project_id": "plannerapp-4ccc4",
+    "storage_bucket": "plannerapp-4ccc4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:822973545769:android:d89773346ea63d55020b38",
+        "android_client_info": {
+          "package_name": "com.conboi.plannerapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "822973545769-dft43bdfkrr7uflf1trumivhshr9964t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.conboi.plannerapp",
+            "certificate_hash": "ae4738382d5eb9eced74ab5f42c7ea44adbc05db"
+          }
+        },
+        {
+          "client_id": "822973545769-5i2qglaribp8b3uubescoqnnl1ctmmr7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjRnlxmBHSAiP-adLMP2NpcGJBs8YPXY8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "822973545769-5i2qglaribp8b3uubescoqnnl1ctmmr7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:822973545769:android:8e58b9d8ae403243020b38",
+        "android_client_info": {
+          "package_name": "com.example.plannerapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "822973545769-5i2qglaribp8b3uubescoqnnl1ctmmr7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjRnlxmBHSAiP-adLMP2NpcGJBs8YPXY8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "822973545769-5i2qglaribp8b3uubescoqnnl1ctmmr7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
