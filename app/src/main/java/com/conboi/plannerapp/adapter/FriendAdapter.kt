@@ -1,15 +1,14 @@
-package com.example.plannerapp.adapter
+package com.conboi.plannerapp.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.plannerapp.data.FriendType
-import com.example.plannerapp.databinding.ListFriendBinding
+import com.conboi.plannerapp.data.FriendType
+import com.conboi.plannerapp.databinding.ListFriendBinding
 
-class FriendAdapter(
-) : ListAdapter<FriendType, FriendAdapter.ViewHolder>(DiffCallback) {
+class FriendAdapter : ListAdapter<FriendType, FriendAdapter.ViewHolder>(DiffCallback) {
 
     inner class ViewHolder(private var binding: ListFriendBinding) :
         RecyclerView.ViewHolder(binding.root) {

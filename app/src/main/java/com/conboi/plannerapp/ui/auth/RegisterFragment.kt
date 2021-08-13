@@ -1,4 +1,4 @@
-package com.example.plannerapp.ui.auth
+package com.conboi.plannerapp.ui.auth
 
 import android.os.Bundle
 import android.text.TextUtils
@@ -6,8 +6,8 @@ import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.example.plannerapp.R
-import com.example.plannerapp.databinding.FragmentRegisterBinding
+import com.conboi.plannerapp.R
+import com.conboi.plannerapp.databinding.FragmentRegisterBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 

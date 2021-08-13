@@ -1,4 +1,4 @@
-package com.example.plannerapp.utils
+package com.conboi.plannerapp.utils
 
 import android.app.Activity
 import android.content.Context

@@ -1,4 +1,4 @@
-package com.example.plannerapp.data
+package com.conboi.plannerapp.data
 
 import android.content.Context
 import android.util.Log

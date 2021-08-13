@@ -1,10 +1,9 @@
-package com.example.plannerapp.ui.fire
+package com.conboi.plannerapp.ui.fire
 
 import androidx.lifecycle.*
-import com.example.plannerapp.data.FriendType
-import com.example.plannerapp.data.PreferencesManager
-import com.example.plannerapp.data.TaskTypeDao
-import com.example.plannerapp.network.FriendApi
+import com.conboi.plannerapp.data.FriendType
+import com.conboi.plannerapp.data.PreferencesManager
+import com.conboi.plannerapp.data.TaskTypeDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,14 +29,7 @@ class FireViewModel @Inject constructor(
 
     private fun getFriendList(){
         viewModelScope.launch {
-            _status.value = FriendApiStatus.LOADING
-            try {
-                _friends.value = FriendApi.retrofitService.getFriendList()
-                _status.value = FriendApiStatus.DONE
-            }catch (expection:Exception){
-                _status.value = FriendApiStatus.ERROR
-                _friends.value = listOf()
-            }
+
         }
     }
 }

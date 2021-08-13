@@ -1,4 +1,4 @@
-package com.example.plannerapp.ui.air
+package com.conboi.plannerapp.ui.air
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.example.plannerapp.databinding.FragmentAirBinding
-import com.example.plannerapp.utils.hideKeyboard
+import com.conboi.plannerapp.databinding.FragmentAirBinding
+import com.conboi.plannerapp.utils.hideKeyboard
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

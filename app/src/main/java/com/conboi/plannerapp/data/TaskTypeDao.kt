@@ -1,9 +1,9 @@
-package com.example.plannerapp.data
+package com.conboi.plannerapp.data
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.example.plannerapp.data.TaskType.TaskEntry.COLUMN_CHECKED
-import com.example.plannerapp.data.TaskType.TaskEntry.TABLE_NAME
+import com.conboi.plannerapp.data.TaskType.TaskEntry.COLUMN_CHECKED
+import com.conboi.plannerapp.data.TaskType.TaskEntry.TABLE_NAME
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -41,7 +41,8 @@ interface TaskTypeDao {
     @Query("DELETE FROM $TABLE_NAME WHERE $COLUMN_CHECKED == 1")
     suspend fun deleteCompletedTasks()
 
-    @Insert
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(taskType: TaskType)
 
     @Update
@@ -49,5 +50,8 @@ interface TaskTypeDao {
 
     @Delete
     suspend fun delete(taskType: TaskType)
+
+
+
 
 }

@@ -1,4 +1,4 @@
-package com.example.plannerapp.data
+package com.conboi.plannerapp.data
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

@@ -1,9 +1,3 @@
-package com.example.plannerapp.data
+package com.conboi.plannerapp.data
 
-import com.squareup.moshi.Json
-
-data class FriendType(
-    val idFriend: String,
-    @Json(name = "name_friend") val nameFriend: String,
-    @Json(name = "task_list_friend")val friendsTaskList: TaskType
-)
+data class FriendType(val idFriend: String, val nameFriend: String, val listFriend: List<TaskType>)

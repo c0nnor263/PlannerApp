@@ -1,4 +1,4 @@
-package com.example.plannerapp.ui.water
+package com.conboi.plannerapp.ui.water
 
 import android.annotation.SuppressLint
 import android.app.TimePickerDialog
@@ -14,19 +14,21 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.example.plannerapp.R
-import com.example.plannerapp.data.TaskType
-import com.example.plannerapp.databinding.FragmentEditTaskBinding
-import com.example.plannerapp.utils.GLOBAL_DATE
-import com.example.plannerapp.utils.GLOBAL_DATE_FOR_CHECK
-import com.example.plannerapp.utils.themeColor
+import com.conboi.plannerapp.R
+import com.conboi.plannerapp.data.TaskType
+import com.conboi.plannerapp.databinding.FragmentEditTaskBinding
+import com.conboi.plannerapp.utils.GLOBAL_DATE
+import com.conboi.plannerapp.utils.GLOBAL_DATE_FOR_CHECK
+import com.conboi.plannerapp.utils.themeColor
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.transition.MaterialContainerTransform
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.text.SimpleDateFormat
 import java.util.*
 
 
+@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class EditTaskFragment : Fragment() {
     private var _binding: FragmentEditTaskBinding? = null
@@ -42,8 +44,8 @@ class EditTaskFragment : Fragment() {
     private var bufferPriorityTask: Int = 1
     private lateinit var bufferMenu: Menu
 
-    override fun onResume() {
-        super.onResume()
+
+    private fun priorityList(){
         val items: Array<String> = resources.getStringArray(R.array.priorities)
         val adapter = ArrayAdapter(requireContext(), R.layout.list_priority_item_edit_task, items)
         binding.apply {
@@ -73,6 +75,11 @@ class EditTaskFragment : Fragment() {
             }
         }
     }
+    override fun onResume() {
+        super.onResume()
+        priorityList()
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,12 +117,14 @@ class EditTaskFragment : Fragment() {
             bufferTimeValue = task.timeTask
             bufferPriorityTask = task.priorityTask
             bind(task)
+            priorityList()
         }
     }
 
 
     @SuppressLint("SimpleDateFormat")
     private fun bind(taskType: TaskType) {
+        priorityList()
         val items: Array<String> = resources.getStringArray(R.array.priorities)
         binding.apply {
             //TODO(Notifications)

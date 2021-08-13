@@ -1,17 +1,14 @@
-package com.example.plannerapp.ui.auth
+package com.conboi.plannerapp.ui.auth
 
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.ActionBar
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.fragment.findNavController
-import com.example.plannerapp.R
-import com.example.plannerapp.databinding.FragmentLoginBinding
-import com.example.plannerapp.ui.water.WaterSharedViewModel
+import com.conboi.plannerapp.R
+import com.conboi.plannerapp.databinding.FragmentLoginBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -24,10 +21,8 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     private lateinit var auth: FirebaseAuth
 
     private lateinit var savedStateHandle: SavedStateHandle
-    private val userViewModel: WaterSharedViewModel by viewModels()
 
-
-    public override fun onStart() {
+    override fun onStart() {
         super.onStart()
         val currentUser = auth.currentUser
         if(currentUser != null){
@@ -71,7 +66,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                                 if (task.isSuccessful) {
                                     Toast.makeText(
                                         context,
-                                        "You are logged in successfuly",
+                                        "You are logged in successfully",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                     savedStateHandle.set(LOGIN_SUCCESSFUL, true)

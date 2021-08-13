@@ -1,9 +1,9 @@
-package com.example.plannerapp.ui.air
+package com.conboi.plannerapp.ui.air
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.example.plannerapp.data.PreferencesManager
-import com.example.plannerapp.data.TaskTypeDao
+import com.conboi.plannerapp.data.PreferencesManager
+import com.conboi.plannerapp.data.TaskTypeDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

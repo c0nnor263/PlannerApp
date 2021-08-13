@@ -1,10 +1,10 @@
-package com.example.plannerapp.di
+package com.conboi.plannerapp.di
 
 import android.app.Application
 import androidx.room.Room
-import com.example.plannerapp.data.TaskDatabase
-import com.example.plannerapp.data.TaskType
-import com.example.plannerapp.data.TaskTypeDao
+import com.conboi.plannerapp.data.TaskDatabase
+import com.conboi.plannerapp.data.TaskType
+import com.conboi.plannerapp.data.TaskTypeDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
