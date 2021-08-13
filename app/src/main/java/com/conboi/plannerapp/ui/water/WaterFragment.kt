@@ -1,10 +1,9 @@
-package com.example.plannerapp.ui.water
+package com.conboi.plannerapp.ui.water
 
 import android.content.Context
-import android.os.Build
-import android.os.Bundle
-import android.os.SystemClock
-import android.os.Vibrator
+import android.content.SharedPreferences
+import android.os.*
+import android.util.Log
 import android.view.*
 import android.widget.EditText
 import android.widget.PopupMenu
@@ -16,40 +15,55 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.plannerapp.R
-import com.example.plannerapp.adapter.TaskAdapter
-import com.example.plannerapp.data.SortOrder
-import com.example.plannerapp.data.TaskType
-import com.example.plannerapp.databinding.FragmentWaterBinding
-import com.example.plannerapp.ui.auth.LoginFragment
-import com.example.plannerapp.utils.exhaustive
-import com.example.plannerapp.utils.hideKeyboard
-import com.example.plannerapp.utils.onQueryTextChanged
+import com.conboi.plannerapp.R
+import com.conboi.plannerapp.adapter.TaskAdapter
+import com.conboi.plannerapp.data.SortOrder
+import com.conboi.plannerapp.data.TaskType
+import com.conboi.plannerapp.databinding.FragmentWaterBinding
+import com.conboi.plannerapp.ui.auth.LoginFragment
+import com.conboi.plannerapp.utils.exhaustive
+import com.conboi.plannerapp.utils.hideKeyboard
+import com.conboi.plannerapp.utils.onQueryTextChanged
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialElevationScale
-import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.*
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.*
 
 
+const val IMPORT_CONFIRM = "IMPORT_CONFIRM"
+const val KEY_USER_ID = "user_id"
+const val KEY_USER_EMAIL = "user_email"
+
+@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClickListener {
     private lateinit var recyclerView: RecyclerView
     private lateinit var searchView: SearchView
+    private lateinit var mAdapter: TaskAdapter
+
     private val viewModel: WaterSharedViewModel by viewModels()
-    private val navigationArgs: WaterFragmentArgs by navArgs()
     private val newTask = createTaskType()
 
+    private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
+    private lateinit var userInfoReference: DocumentReference
+    private lateinit var userListReference: DocumentReference
 
     //FABs
     private var mLastClickTime: Long = 0
@@ -78,7 +92,6 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
                 }
             }
 
-
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             val builder = MaterialAlertDialogBuilder(requireContext())
             builder.setTitle("Are you sure you want to quit?")
@@ -90,25 +103,88 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
         }
     }
 
+
+    private fun importTasks(){
+        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
+        if (!(sharedPref.getBoolean(IMPORT_CONFIRM, false))) {
+            userListReference.get()
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        if (task.result.exists()) {
+                            MaterialAlertDialogBuilder(requireContext())
+                                .setTitle("Warning!")
+                                .setMessage(
+                                    "It seems that you have backup of previous tasks.\n" +
+                                            "\nWould you like to restore them?" +
+                                            "\n(\"No\" - means deleting backup)"
+                                )
+                                .setPositiveButton("Yes") { dialog, _ ->
+                                    downloadTaskList(sharedPref)
+                                    dialog.dismiss()
+                                }
+                                .setNegativeButton("No") { dialog, _ ->
+                                    with(sharedPref.edit()) {
+                                        putBoolean(IMPORT_CONFIRM, true)
+                                        apply()
+                                    }
+                                    dialog.dismiss()
+                                }
+                                .setCancelable(false)
+                                .show()
+                        }else {
+                            with(sharedPref.edit()) {
+                                putBoolean(IMPORT_CONFIRM, true)
+                                apply()
+                            }
+                        }
+                    }else{
+                        Toast.makeText(
+                            context,
+                            task.exception!!.message.toString(),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        MaterialAlertDialogBuilder(requireContext())
+                            .setTitle("Error check your backup tasks!")
+                            .setMessage(
+                                "Check your internet connection and try again.\n\n"
+                            )
+                            .setPositiveButton("Try") { dialog, _ ->
+                                importTasks()
+                                dialog.dismiss()
+                            }
+                            .setNegativeButton("Cancel") { dialog, _ ->
+
+                                dialog.dismiss()
+                            }
+                            .setCancelable(false)
+                            .show()
+                    }
+                }
+        }
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        /*viewModel.currentUser.observe(viewLifecycleOwner) { user ->
-            if (user != null) {
-                Toast.makeText(context,"Welcome",Toast.LENGTH_SHORT).show()
-            } else {
-                findNavController().navigate(R.id.loginFragment)
-            }
-        }*/
-
-
+        //Animation
         postponeEnterTransition()
         view.doOnPreDraw { startPostponedEnterTransition() }
         view.background.alpha = 60
 
+        auth = Firebase.auth
+        db = FirebaseFirestore.getInstance()
+        userInfoReference = db.document("Users/${auth.currentUser!!.uid}")
+        userListReference = db.document("Users/${auth.currentUser!!.uid}/Lists/TaskList")
+
+        importTasks()
+
+        val userInfo: MutableMap<String, Any> = HashMap()
+        userInfo[KEY_USER_ID] = auth.currentUser!!.uid
+        userInfo[KEY_USER_EMAIL] = auth.currentUser!!.email.toString()
+        userInfoReference.set(userInfo)
+
+
         val binding = FragmentWaterBinding.bind(view)
         val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        val mAdapter = TaskAdapter(this)
+        mAdapter = TaskAdapter(this)
 
         binding.apply {
             lifecycleOwner = viewLifecycleOwner
@@ -126,7 +202,11 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
                 ItemTouchHelper.RIGHT
             ) {
                 val vb =
-                    requireActivity().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        requireActivity().getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as Vibrator?
+                    } else {
+                        requireActivity().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?
+                    }
 
                 override fun onSelectedChanged(
                     viewHolder: RecyclerView.ViewHolder?,
@@ -135,10 +215,14 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
                     super.onSelectedChanged(viewHolder, actionState)
 
                     if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
-                        vb!!.vibrate(50)
+                        vb!!.vibrate(
+                            VibrationEffect.createOneShot(
+                                50,
+                                VibrationEffect.DEFAULT_AMPLITUDE
+                            )
+                        )
                     }
                 }
-
 
                 override fun onMove(
                     recyclerView: RecyclerView,
@@ -149,8 +233,13 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
                 }
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    vb!!.vibrate(25)
-                    val task = mAdapter.currentList[viewHolder.adapterPosition]
+                    vb!!.vibrate(
+                        VibrationEffect.createOneShot(
+                            25,
+                            VibrationEffect.DEFAULT_AMPLITUDE
+                        )
+                    )
+                    val task = mAdapter.currentList[viewHolder.bindingAdapterPosition]
                     viewModel.swipeDeleteTask(task)
                 }
             }).attachToRecyclerView(this)
@@ -161,14 +250,17 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
             allTasksSize.observe(this@WaterFragment.viewLifecycleOwner) {
                 sizeOfTasks = it
             }
+
             //LiveData list of tasks
             allTasks.observe(this@WaterFragment.viewLifecycleOwner) { items ->
                 items.let {
+                    if (mAdapter.currentList.isNotEmpty()) {
+                        updateServerList(it)
+                    }
                     mAdapter.submitList(it)
                 }
             }
         }
-
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.taskEvent.collect { event ->
@@ -238,6 +330,79 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
             }
 
         }
+    }
+
+    private fun downloadTaskList(sharedPref: SharedPreferences) {
+        userListReference
+            .get()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val list: MutableList<String> = ArrayList()
+                    val map: MutableMap<String, Any>? = task.result.data
+                    val document = task.result
+                    for ((key) in map!!) {
+                        list.add(key)
+                    }
+                    for (i in 0 until list.size) {
+                        val idTask =
+                            if (mAdapter.currentList.isNotEmpty()) {
+                                mAdapter.currentList[mAdapter.currentList.lastIndex].idTask + i
+                            } else {
+                                i + 1
+                            }
+                        val taskType = TaskType(
+                            idTask = idTask,
+                            nameTask = document.getString("${list[i]}.nameTask")!!,
+                            descriptionTask = document.getString("${list[i]}.descriptionTask")!!,
+                            timeTask = document.getLong("${list[i]}.timeTask")!!
+                                .toInt(),
+                            priorityTask = document.getLong("${list[i]}.priorityTask")!!
+                                .toInt(),
+                            checkTask = document.getBoolean("${list[i]}.checkTask")!!,
+                            createdTask = document.getLong("${list[i]}.createdTask")!!,
+                            completedTask = document.getLong("${list[i]}.completedTask")!!
+                        )
+                        viewModel.downloadTask(taskType)
+                    }
+                    with(sharedPref.edit()) {
+                        putBoolean(IMPORT_CONFIRM, true)
+                        apply()
+                    }
+                } else {
+                    Toast.makeText(
+                        context,
+                        task.exception!!.message.toString(),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle("Error importing your tasks!")
+                        .setMessage(
+                            "Check your internet connection and try again.\n\n"
+                        )
+                        .setPositiveButton("Try") { dialog, _ ->
+                            downloadTaskList(sharedPref)
+                            dialog.dismiss()
+                        }
+                        .setNegativeButton("Cancel") { dialog, _ ->
+
+                            dialog.dismiss()
+                        }
+                        .setCancelable(false)
+                        .show()
+                }
+            }
+    }
+
+    private fun updateServerList(taskList: List<TaskType>) {
+        userListReference.get().addOnCompleteListener { _ ->
+            userListReference.set(
+                taskList.associateBy({ it.idTask.toString() }, { it }),
+            )
+        }
+
+            .addOnFailureListener {
+                Log.d("TAG", "updateServerList: error $it")
+            }
     }
 
 
@@ -408,7 +573,4 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
         super.onPause()
         searchView.setOnQueryTextListener(null)
     }
-
 }
-
-

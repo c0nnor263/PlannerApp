@@ -1,4 +1,4 @@
-package com.example.plannerapp.adapter
+package com.conboi.plannerapp.adapter
 
 import android.graphics.Color
 import android.os.CountDownTimer
@@ -12,9 +12,9 @@ import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.plannerapp.data.TaskType
-import com.example.plannerapp.databinding.ListTaskBinding
-import com.example.plannerapp.ui.water.WaterFragmentDirections
+import com.conboi.plannerapp.data.TaskType
+import com.conboi.plannerapp.databinding.ListTaskBinding
+import com.conboi.plannerapp.ui.water.WaterFragmentDirections
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
@@ -31,22 +31,22 @@ class TaskAdapter(
         init {
             binding.apply {
                 openTask.setOnClickListener {
-                    val position = adapterPosition
+                    val position = bindingAdapterPosition
                     if (position != RecyclerView.NO_POSITION) {
                         val task = getItem(position)
+                        listener.onNameChanged(task, nameTask.text.toString())
                         val transitionName =
-                            root.context.getString(com.example.plannerapp.R.string.edit_task_transition)
+                            root.context.getString(com.conboi.plannerapp.R.string.edit_task_transition)
                         val extras = FragmentNavigatorExtras(root to transitionName)
                         val directions = WaterFragmentDirections.actionWaterFragmentToEditTask(
                             idTask = task.idTask
                         )
-                        listener.onNameChanged(task, nameTask.text.toString())
                         root.findNavController().navigate(directions, extras)
                     }
                 }
                 checkTask.setOnClickListener {
                     timer!!.cancel()
-                    val position = adapterPosition
+                    val position = bindingAdapterPosition
                     if (position != RecyclerView.NO_POSITION) {
                         val task = getItem(position)
                         listener.onCheckBoxClick(task.copy(
@@ -91,18 +91,18 @@ class TaskAdapter(
                 nameTask.setBackgroundColor(Color.TRANSPARENT)
                 when (taskType.priorityTask) {
                     0 -> {
-                        parentLayoutListTask.setBackgroundResource(com.example.plannerapp.R.drawable.gradient_priority_leisurely)
+                        parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.gradient_priority_leisurely)
                     }
                     1 -> {
-                        parentLayoutListTask.setBackgroundResource(com.example.plannerapp.R.drawable.gradient_priority_default)
+                        parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.gradient_priority_default)
                     }
                     2 -> {
-                        parentLayoutListTask.setBackgroundResource(com.example.plannerapp.R.drawable.gradient_priority_advisable)
+                        parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.gradient_priority_advisable)
                     }
                     3 -> {
-                        parentLayoutListTask.setBackgroundResource(com.example.plannerapp.R.drawable.gradient_priority_important)
+                        parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.gradient_priority_important)
                     }
-                    else -> parentLayoutListTask.setBackgroundResource(com.example.plannerapp.R.drawable.gradient_priority_default)
+                    else -> parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.gradient_priority_default)
                 }
             }
 

@@ -1,4 +1,4 @@
-package com.example.plannerapp
+package com.conboi.plannerapp
 
 import org.junit.Test
 

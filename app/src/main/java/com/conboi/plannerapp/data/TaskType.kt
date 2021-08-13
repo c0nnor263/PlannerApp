@@ -1,19 +1,19 @@
-package com.example.plannerapp.data
+package com.conboi.plannerapp.data
 
 import android.os.Parcelable
 import android.provider.BaseColumns
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.plannerapp.data.TaskType.TaskEntry.COLUMN_CHECKED
-import com.example.plannerapp.data.TaskType.TaskEntry.COLUMN_COMPLETED
-import com.example.plannerapp.data.TaskType.TaskEntry.COLUMN_CREATED
-import com.example.plannerapp.data.TaskType.TaskEntry.COLUMN_DESCRIPTION
-import com.example.plannerapp.data.TaskType.TaskEntry.COLUMN_NAME
-import com.example.plannerapp.data.TaskType.TaskEntry.COLUMN_PRIORITY
-import com.example.plannerapp.data.TaskType.TaskEntry.COLUMN_TIME
-import com.example.plannerapp.data.TaskType.TaskEntry.TABLE_NAME
-import com.example.plannerapp.utils.GLOBAL_DATE_FOR_CHECK
+import com.conboi.plannerapp.data.TaskType.TaskEntry.COLUMN_CHECKED
+import com.conboi.plannerapp.data.TaskType.TaskEntry.COLUMN_COMPLETED
+import com.conboi.plannerapp.data.TaskType.TaskEntry.COLUMN_CREATED
+import com.conboi.plannerapp.data.TaskType.TaskEntry.COLUMN_DESCRIPTION
+import com.conboi.plannerapp.data.TaskType.TaskEntry.COLUMN_NAME
+import com.conboi.plannerapp.data.TaskType.TaskEntry.COLUMN_PRIORITY
+import com.conboi.plannerapp.data.TaskType.TaskEntry.COLUMN_TIME
+import com.conboi.plannerapp.data.TaskType.TaskEntry.TABLE_NAME
+import com.conboi.plannerapp.utils.GLOBAL_DATE_FOR_CHECK
 import kotlinx.android.parcel.Parcelize
 import java.text.DateFormat
 

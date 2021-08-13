@@ -1,4 +1,4 @@
-package com.example.plannerapp.ui.fire
+package com.conboi.plannerapp.ui.fire
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,9 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.example.plannerapp.R
-import com.example.plannerapp.databinding.FragmentFireBinding
-import com.example.plannerapp.utils.hideKeyboard
+import com.conboi.plannerapp.R
+import com.conboi.plannerapp.databinding.FragmentFireBinding
+import com.conboi.plannerapp.utils.hideKeyboard
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

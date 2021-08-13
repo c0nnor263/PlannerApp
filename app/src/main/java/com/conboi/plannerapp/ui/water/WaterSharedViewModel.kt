@@ -1,44 +1,40 @@
-package com.example.plannerapp.ui.water
+package com.conboi.plannerapp.ui.water
 
+import android.util.Log
 import androidx.lifecycle.*
-import com.example.plannerapp.data.PreferencesManager
-import com.example.plannerapp.data.SortOrder
-import com.example.plannerapp.data.TaskType
-import com.example.plannerapp.data.TaskTypeDao
+import com.conboi.plannerapp.data.PreferencesManager
+import com.conboi.plannerapp.data.SortOrder
+import com.conboi.plannerapp.data.TaskType
+import com.conboi.plannerapp.data.TaskTypeDao
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.util.*
 import javax.inject.Inject
+import kotlin.collections.HashMap
+import kotlin.collections.component1
+import kotlin.collections.set
 
 
 const val MAX_TASK_COUNT: Int = 25
 
+@ExperimentalCoroutinesApi
 @HiltViewModel
 class WaterSharedViewModel @Inject constructor(
     private val taskTypeDao: TaskTypeDao,
     private val preferencesManager: PreferencesManager,
-    private val savedState: SavedStateHandle
+    savedState: SavedStateHandle
 ) : ViewModel() {
-    fun getCurrentUser(){
-        val user = Firebase.auth.currentUser
-        user?.let {
-            val name = user.displayName
-            val email = user.email
 
-            // Check if user's email is verified
-            val emailVerified = user.isEmailVerified
-
-            // The user's ID, unique to the Firebase project. Do NOT use this value to
-            // authenticate with your backend server, if you have one. Use
-            // FirebaseUser.getToken() instead.
-            val uid = user.uid
-        }
-    }
     val maxTasksCount: Int get() = MAX_TASK_COUNT
     val allTasksSize: LiveData<Int> = taskTypeDao.getTasksSize()
     val allChecked: LiveData<Int> = taskTypeDao.getTasksCheckedCount()
@@ -65,6 +61,11 @@ class WaterSharedViewModel @Inject constructor(
     }
     val allTasks: LiveData<List<TaskType>> = tasksFlow.asLiveData()
 
+    fun downloadTask(task:TaskType) {
+        viewModelScope.launch {
+            taskTypeDao.insert(task)
+        }
+    }
 
     private val tasksEventChannel = Channel<TasksEvent>()
     val taskEvent = tasksEventChannel.receiveAsFlow()
@@ -158,5 +159,6 @@ class WaterSharedViewModel @Inject constructor(
         viewModelScope.launch {
             taskTypeDao.deleteCompletedTasks()
         }
+
 
 }

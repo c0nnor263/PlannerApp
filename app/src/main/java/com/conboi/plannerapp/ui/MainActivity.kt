@@ -1,4 +1,4 @@
-package com.example.plannerapp.ui
+package com.conboi.plannerapp.ui
 
 
 import android.content.Context
@@ -15,7 +15,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.example.plannerapp.R
+import com.conboi.plannerapp.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*

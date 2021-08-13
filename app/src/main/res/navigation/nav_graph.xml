@@ -6,7 +6,7 @@
     app:startDestination="@id/loginFragment">
     <fragment
         android:id="@+id/bottom_menu_water_fragment"
-        android:name="com.example.plannerapp.ui.water.WaterFragment"
+        android:name="com.conboi.plannerapp.ui.water.WaterFragment"
         android:label="Daily tasks"
         tools:layout="@layout/fragment_water" >
         <action
@@ -20,22 +20,22 @@
 
     <fragment
         android:id="@+id/bottom_menu_air_fragment"
-        android:name="com.example.plannerapp.ui.air.AirFragment"
+        android:name="com.conboi.plannerapp.ui.air.AirFragment"
         android:label="Month tasks"
         tools:layout="@layout/fragment_air" />
     <fragment
         android:id="@+id/bottom_menu_fire_fragment"
-        android:name="com.example.plannerapp.ui.fire.FireFragment"
+        android:name="com.conboi.plannerapp.ui.fire.FireFragment"
         android:label="Friends"
         tools:layout="@layout/fragment_fire" />
     <fragment
         android:id="@+id/bottom_menu_tree_fragment"
-        android:name="com.example.plannerapp.ui.tree.TreeFragment"
+        android:name="com.conboi.plannerapp.ui.tree.TreeFragment"
         android:label="Profile"
         tools:layout="@layout/fragment_tree" />
     <fragment
         android:id="@+id/editTaskFragment"
-        android:name="com.example.plannerapp.ui.water.EditTaskFragment"
+        android:name="com.conboi.plannerapp.ui.water.EditTaskFragment"
         android:label="Edit task" >
         <argument
             android:name="idTask"
@@ -46,7 +46,7 @@
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.example.plannerapp.ui.auth.LoginFragment"
+        android:name="com.conboi.plannerapp.ui.auth.LoginFragment"
         android:label="Login">
         <action
             android:id="@+id/action_loginFragment_to_bottom_menu_water_fragment"
@@ -57,7 +57,7 @@
     </fragment>
     <fragment
         android:id="@+id/registerFragment"
-        android:name="com.example.plannerapp.ui.auth.RegisterFragment"
+        android:name="com.conboi.plannerapp.ui.auth.RegisterFragment"
         android:label="Register">
         <action
             android:id="@+id/action_registerFragment_to_bottom_menu_water_fragment"
