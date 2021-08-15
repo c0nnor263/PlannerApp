@@ -23,7 +23,6 @@ import com.conboi.plannerapp.adapter.TaskAdapter
 import com.conboi.plannerapp.data.SortOrder
 import com.conboi.plannerapp.data.TaskType
 import com.conboi.plannerapp.databinding.FragmentWaterBinding
-import com.conboi.plannerapp.ui.auth.LoginFragment
 import com.conboi.plannerapp.utils.exhaustive
 import com.conboi.plannerapp.utils.hideKeyboard
 import com.conboi.plannerapp.utils.onQueryTextChanged
@@ -49,10 +48,13 @@ import java.util.*
 const val IMPORT_CONFIRM = "IMPORT_CONFIRM"
 const val KEY_USER_ID = "user_id"
 const val KEY_USER_EMAIL = "user_email"
+const val KEY_USER_NAME = "user_name"
+const val KEY_USER_EMAIL_CONFIRM = "user_email_confirm"
+const val KEY_USER_PHOTO_URL = "user_photo_url"
 
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
-class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClickListener {
+class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnTaskClickListener {
     private lateinit var recyclerView: RecyclerView
     private lateinit var searchView: SearchView
     private lateinit var mAdapter: TaskAdapter
@@ -63,7 +65,7 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
     private lateinit var userInfoReference: DocumentReference
-    private lateinit var userListReference: DocumentReference
+    private lateinit var userTaskListReference: DocumentReference
 
     //FABs
     private var mLastClickTime: Long = 0
@@ -83,15 +85,6 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
             duration = 300
         }
 
-        val currentBackStackEntry = findNavController().currentBackStackEntry!!
-        val savedStateHandle = currentBackStackEntry.savedStateHandle
-        savedStateHandle.getLiveData<Boolean>(LoginFragment.LOGIN_SUCCESSFUL)
-            .observe(currentBackStackEntry) { success ->
-                if (!success) {
-                    findNavController().navigate(R.id.loginFragment)
-                }
-            }
-
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             val builder = MaterialAlertDialogBuilder(requireContext())
             builder.setTitle("Are you sure you want to quit?")
@@ -104,64 +97,6 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
     }
 
 
-    private fun importTasks(){
-        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
-        if (!(sharedPref.getBoolean(IMPORT_CONFIRM, false))) {
-            userListReference.get()
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        if (task.result.exists()) {
-                            MaterialAlertDialogBuilder(requireContext())
-                                .setTitle("Warning!")
-                                .setMessage(
-                                    "It seems that you have backup of previous tasks.\n" +
-                                            "\nWould you like to restore them?" +
-                                            "\n(\"No\" - means deleting backup)"
-                                )
-                                .setPositiveButton("Yes") { dialog, _ ->
-                                    downloadTaskList(sharedPref)
-                                    dialog.dismiss()
-                                }
-                                .setNegativeButton("No") { dialog, _ ->
-                                    with(sharedPref.edit()) {
-                                        putBoolean(IMPORT_CONFIRM, true)
-                                        apply()
-                                    }
-                                    dialog.dismiss()
-                                }
-                                .setCancelable(false)
-                                .show()
-                        }else {
-                            with(sharedPref.edit()) {
-                                putBoolean(IMPORT_CONFIRM, true)
-                                apply()
-                            }
-                        }
-                    }else{
-                        Toast.makeText(
-                            context,
-                            task.exception!!.message.toString(),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        MaterialAlertDialogBuilder(requireContext())
-                            .setTitle("Error check your backup tasks!")
-                            .setMessage(
-                                "Check your internet connection and try again.\n\n"
-                            )
-                            .setPositiveButton("Try") { dialog, _ ->
-                                importTasks()
-                                dialog.dismiss()
-                            }
-                            .setNegativeButton("Cancel") { dialog, _ ->
-
-                                dialog.dismiss()
-                            }
-                            .setCancelable(false)
-                            .show()
-                    }
-                }
-        }
-    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         //Animation
@@ -169,25 +104,13 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
         view.doOnPreDraw { startPostponedEnterTransition() }
         view.background.alpha = 60
 
-        auth = Firebase.auth
-        db = FirebaseFirestore.getInstance()
-        userInfoReference = db.document("Users/${auth.currentUser!!.uid}")
-        userListReference = db.document("Users/${auth.currentUser!!.uid}/Lists/TaskList")
-
-        importTasks()
-
-        val userInfo: MutableMap<String, Any> = HashMap()
-        userInfo[KEY_USER_ID] = auth.currentUser!!.uid
-        userInfo[KEY_USER_EMAIL] = auth.currentUser!!.email.toString()
-        userInfoReference.set(userInfo)
-
+        initUser()
 
         val binding = FragmentWaterBinding.bind(view)
         val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation)
         mAdapter = TaskAdapter(this)
 
         binding.apply {
-            lifecycleOwner = viewLifecycleOwner
             recyclerView = recyclerViewTasks
         }
 
@@ -255,7 +178,7 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
             allTasks.observe(this@WaterFragment.viewLifecycleOwner) { items ->
                 items.let {
                     if (mAdapter.currentList.isNotEmpty()) {
-                        updateServerList(it)
+                        updateServerTaskList(it)
                     }
                     mAdapter.submitList(it)
                 }
@@ -332,8 +255,29 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
         }
     }
 
+    private fun initUser() {
+        auth = Firebase.auth
+        db = FirebaseFirestore.getInstance()
+        userInfoReference = db.document("Users/${auth.currentUser!!.uid}")
+        userTaskListReference = db.document("Users/${auth.currentUser!!.uid}/TaskList/Tasks")
+
+        val user = Firebase.auth.currentUser
+        user?.let {
+            val userInfo: MutableMap<String, Any> = HashMap()
+            userInfo[KEY_USER_ID] = user.uid
+            userInfo[KEY_USER_NAME] = user.displayName.toString()
+            userInfo[KEY_USER_PHOTO_URL] = user.photoUrl.toString()
+            userInfo[KEY_USER_EMAIL] = user.email.toString()
+            userInfo[KEY_USER_EMAIL_CONFIRM] =user.isEmailVerified
+
+            userInfoReference.set(userInfo)
+        }
+        importTasks()
+    }
+
+
     private fun downloadTaskList(sharedPref: SharedPreferences) {
-        userListReference
+        userTaskListReference
             .get()
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -393,10 +337,10 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
             }
     }
 
-    private fun updateServerList(taskList: List<TaskType>) {
-        userListReference.get().addOnCompleteListener { _ ->
-            userListReference.set(
-                taskList.associateBy({ it.idTask.toString() }, { it }),
+    private fun updateServerTaskList(taskList: List<TaskType>) {
+        userTaskListReference.get().addOnCompleteListener { _ ->
+            userTaskListReference.set(
+                taskList.associateBy({ it.idTask.toString() }, { it })
             )
         }
 
@@ -405,6 +349,64 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnItemClick
             }
     }
 
+    private fun importTasks() {
+        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
+        if (!(sharedPref.getBoolean(IMPORT_CONFIRM, false))) {
+            userTaskListReference.get()
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        if (task.result.exists()) {
+                            MaterialAlertDialogBuilder(requireContext())
+                                .setTitle("Warning!")
+                                .setMessage(
+                                    "It seems that you have backup of previous tasks.\n" +
+                                            "\nWould you like to restore them?" +
+                                            "\n(\"No\" - means deleting backup)"
+                                )
+                                .setPositiveButton("Yes") { dialog, _ ->
+                                    downloadTaskList(sharedPref)
+                                    dialog.dismiss()
+                                }
+                                .setNegativeButton("No") { dialog, _ ->
+                                    with(sharedPref.edit()) {
+                                        putBoolean(IMPORT_CONFIRM, true)
+                                        apply()
+                                    }
+                                    dialog.dismiss()
+                                }
+                                .setCancelable(false)
+                                .show()
+                        } else {
+                            with(sharedPref.edit()) {
+                                putBoolean(IMPORT_CONFIRM, true)
+                                apply()
+                            }
+                        }
+                    } else {
+                        Toast.makeText(
+                            context,
+                            task.exception!!.message.toString(),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        MaterialAlertDialogBuilder(requireContext())
+                            .setTitle("Error check your backup tasks!")
+                            .setMessage(
+                                "Check your internet connection and try again.\n\n"
+                            )
+                            .setPositiveButton("Try") { dialog, _ ->
+                                importTasks()
+                                dialog.dismiss()
+                            }
+                            .setNegativeButton("Cancel") { dialog, _ ->
+
+                                dialog.dismiss()
+                            }
+                            .setCancelable(false)
+                            .show()
+                    }
+                }
+        }
+    }
 
     private fun preventOnClick() {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 250) {

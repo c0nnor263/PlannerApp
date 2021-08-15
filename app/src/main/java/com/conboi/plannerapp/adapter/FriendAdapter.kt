@@ -1,28 +1,52 @@
 package com.conboi.plannerapp.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
+import android.widget.AdapterView
 import androidx.recyclerview.widget.RecyclerView
+import com.conboi.plannerapp.R
 import com.conboi.plannerapp.data.FriendType
 import com.conboi.plannerapp.databinding.ListFriendBinding
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter
+import com.firebase.ui.firestore.FirestoreRecyclerOptions
 
-class FriendAdapter : ListAdapter<FriendType, FriendAdapter.ViewHolder>(DiffCallback) {
+class FriendAdapter(options: FirestoreRecyclerOptions<FriendType>,
+private val listener:OnFriendListInterface) :
+    FirestoreRecyclerAdapter<FriendType, FriendAdapter.ViewHolder>(options) {
+fun deleteFriend(position: Int){
+    snapshots.getSnapshot(position).reference.delete()
+}
+
+    interface OnFriendListInterface{
+        fun onFriendClick(position: Int)
+    }
 
     inner class ViewHolder(private var binding: ListFriendBinding) :
         RecyclerView.ViewHolder(binding.root) {
         init {
             binding.apply {
-
-
+                layoutListFriendCardView.setOnClickListener {
+                    listener.onFriendClick(bindingAdapterPosition)
+                }
             }
         }
 
-        fun bind(friendType: FriendType) = with(binding) {
-            listFriendName.text = friendType.nameFriend
+        fun bind(model: FriendType) = with(binding) {
+            if (model.idFriend == "Add") {
+                layoutListFriendCardView.setCardBackgroundColor(0)
+                listFriendAdd.visibility = View.VISIBLE
+                listFriendName.visibility = View.INVISIBLE
+            } else {
+
+                layoutListFriendCardView.setCardBackgroundColor(R.drawable.water_fragment_background)
+                listFriendAdd.visibility = View.INVISIBLE
+                listFriendName.visibility = View.VISIBLE
+                listFriendName.text = model.idFriend
+            }
         }
     }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendAdapter.ViewHolder {
         return ViewHolder(
@@ -34,22 +58,10 @@ class FriendAdapter : ListAdapter<FriendType, FriendAdapter.ViewHolder>(DiffCall
         )
     }
 
-    override fun onBindViewHolder(holder: FriendAdapter.ViewHolder, position: Int) {
-        holder.bind(getItem(position))
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, model: FriendType) {
+        holder.bind(model)
     }
 
-
-    companion object {
-        private val DiffCallback = object : DiffUtil.ItemCallback<FriendType>() {
-            override fun areItemsTheSame(oldItem: FriendType, newItem: FriendType): Boolean {
-                return oldItem.idFriend == newItem.idFriend
-            }
-
-            override fun areContentsTheSame(oldItem: FriendType, newItem: FriendType): Boolean {
-                return oldItem == newItem
-            }
-        }
-    }
 
 }
 

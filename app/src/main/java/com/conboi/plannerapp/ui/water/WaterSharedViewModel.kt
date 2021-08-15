@@ -1,16 +1,10 @@
 package com.conboi.plannerapp.ui.water
 
-import android.util.Log
 import androidx.lifecycle.*
 import com.conboi.plannerapp.data.PreferencesManager
 import com.conboi.plannerapp.data.SortOrder
 import com.conboi.plannerapp.data.TaskType
 import com.conboi.plannerapp.data.TaskTypeDao
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -18,11 +12,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import java.util.*
 import javax.inject.Inject
-import kotlin.collections.HashMap
-import kotlin.collections.component1
-import kotlin.collections.set
 
 
 const val MAX_TASK_COUNT: Int = 25
@@ -159,6 +149,12 @@ class WaterSharedViewModel @Inject constructor(
         viewModelScope.launch {
             taskTypeDao.deleteCompletedTasks()
         }
+
+    fun logoutDeleteTasks() {
+        viewModelScope.launch {
+            taskTypeDao.logoutDeleteTasks()
+        }
+    }
 
 
 }

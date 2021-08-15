@@ -47,26 +47,26 @@ class EditTaskFragment : Fragment() {
 
     private fun priorityList(){
         val items: Array<String> = resources.getStringArray(R.array.priorities)
-        val adapter = ArrayAdapter(requireContext(), R.layout.list_priority_item_edit_task, items)
+        val adapter = ArrayAdapter(requireContext(), R.layout.fragment_edit_task_list_priority_item, items)
         binding.apply {
             dropPriority.setAdapter(adapter)
             dropPriority.setOnItemClickListener { _, _, position, _ ->
                 when (position) {
                     0 -> {
                         bufferPriorityTask = 0
-                        dropPriority.setBackgroundResource(R.drawable.gradient_priority_leisurely)
+                        dropPriority.setBackgroundResource(R.drawable.fragment_water_gradient_priority_leisurely)
                     }
                     1 -> {
                         bufferPriorityTask = 1
-                        dropPriority.setBackgroundResource(R.drawable.gradient_priority_default)
+                        dropPriority.setBackgroundResource(R.drawable.fragment_water_gradient_priority_default)
                     }
                     2 -> {
                         bufferPriorityTask = 2
-                        dropPriority.setBackgroundResource(R.drawable.gradient_priority_advisable)
+                        dropPriority.setBackgroundResource(R.drawable.fragment_water_gradient_priority_advisable)
                     }
                     3 -> {
                         bufferPriorityTask = 3
-                        dropPriority.setBackgroundResource(R.drawable.gradient_priority_important)
+                        dropPriority.setBackgroundResource(R.drawable.fragment_water_gradient_priority_important)
                     }
                     else -> {
                         bufferPriorityTask = 1
@@ -159,23 +159,23 @@ class EditTaskFragment : Fragment() {
             when (taskType.priorityTask) {
                 0 -> {
                     dropPriority.setText(items[0])
-                    dropPriority.setBackgroundResource(R.drawable.gradient_priority_leisurely)
+                    dropPriority.setBackgroundResource(R.drawable.fragment_water_gradient_priority_leisurely)
                 }
                 1 -> {
                     dropPriority.setText(items[1])
-                    dropPriority.setBackgroundResource(R.drawable.gradient_priority_default)
+                    dropPriority.setBackgroundResource(R.drawable.fragment_water_gradient_priority_default)
                 }
                 2 -> {
                     dropPriority.setText(items[2])
-                    dropPriority.setBackgroundResource(R.drawable.gradient_priority_advisable)
+                    dropPriority.setBackgroundResource(R.drawable.fragment_water_gradient_priority_advisable)
                 }
                 3 -> {
                     dropPriority.setText(items[3])
-                    dropPriority.setBackgroundResource(R.drawable.gradient_priority_important)
+                    dropPriority.setBackgroundResource(R.drawable.fragment_water_gradient_priority_important)
                 }
                 else -> {
                     dropPriority.setText(items[1])
-                    dropPriority.setBackgroundResource(R.drawable.gradient_priority_default)
+                    dropPriority.setBackgroundResource(R.drawable.fragment_water_gradient_priority_default)
                 }
             }
 
