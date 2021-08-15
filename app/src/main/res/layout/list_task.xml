@@ -52,11 +52,18 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <ImageButton
+        android:contentDescription="Edit task"
         android:id="@+id/open_task"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
         android:alpha="0.2"
-        android:background="@android:color/transparent"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
         android:src="@drawable/ic_baseline_edit_24"
         app:layout_constraintBottom_toBottomOf="@+id/nameTaskLayout"
         app:layout_constraintStart_toEndOf="@+id/nameTaskLayout"

@@ -35,12 +35,11 @@ interface TaskTypeDao {
     @Query("SELECT * from  $TABLE_NAME WHERE idTask = :id")
     fun getTask(id: Int): Flow<TaskType>
 
-
-
-
     @Query("DELETE FROM $TABLE_NAME WHERE $COLUMN_CHECKED == 1")
-    suspend fun deleteCompletedTasks()
+    fun deleteCompletedTasks()
 
+    @Query("DELETE FROM $TABLE_NAME")
+    suspend fun logoutDeleteTasks()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(taskType: TaskType)
@@ -50,7 +49,6 @@ interface TaskTypeDao {
 
     @Delete
     suspend fun delete(taskType: TaskType)
-
 
 
 

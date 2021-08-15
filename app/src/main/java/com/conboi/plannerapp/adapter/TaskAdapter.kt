@@ -20,7 +20,7 @@ import com.google.android.material.textfield.TextInputLayout
 
 
 class TaskAdapter(
-    private val listener: OnItemClickListener
+    private val listener: OnTaskClickListener
 ) : ListAdapter<TaskType, TaskAdapter.ViewHolder>(DiffCallback){
 
     inner class ViewHolder(private var binding: ListTaskBinding) :
@@ -91,18 +91,18 @@ class TaskAdapter(
                 nameTask.setBackgroundColor(Color.TRANSPARENT)
                 when (taskType.priorityTask) {
                     0 -> {
-                        parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.gradient_priority_leisurely)
+                        parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.fragment_water_gradient_priority_leisurely)
                     }
                     1 -> {
-                        parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.gradient_priority_default)
+                        parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.fragment_water_gradient_priority_default)
                     }
                     2 -> {
-                        parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.gradient_priority_advisable)
+                        parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.fragment_water_gradient_priority_advisable)
                     }
                     3 -> {
-                        parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.gradient_priority_important)
+                        parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.fragment_water_gradient_priority_important)
                     }
-                    else -> parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.gradient_priority_default)
+                    else -> parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.fragment_water_gradient_priority_default)
                 }
             }
 
@@ -162,7 +162,7 @@ class TaskAdapter(
         }
     }
 
-    interface OnItemClickListener {
+    interface OnTaskClickListener {
         fun onCheckBoxClick(taskType: TaskType, isChecked: Boolean)
         fun onNameChanged(taskType: TaskType, name: String)
     }
