@@ -16,9 +16,11 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.*
 import com.conboi.plannerapp.R
 import com.conboi.plannerapp.adapter.FriendAdapter
+import com.conboi.plannerapp.adapter.FriendTasksAdapter
 import com.conboi.plannerapp.data.FriendType
+import com.conboi.plannerapp.data.TaskType
 import com.conboi.plannerapp.databinding.FragmentFireBinding
-import com.conboi.plannerapp.databinding.ListFriendBinding
+import com.conboi.plannerapp.ui.water.*
 import com.conboi.plannerapp.utils.hideKeyboard
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -27,22 +29,28 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.*
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-const val KEY_FRIEND_ID = "idFriend"
 
+@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class FireFragment : Fragment(R.layout.fragment_fire), FriendAdapter.OnFriendListInterface {
     private var _binding: FragmentFireBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var mAdapter: FriendAdapter
+    private lateinit var recyclerViewFriends: RecyclerView
+    private lateinit var mAdapterFriends: FriendAdapter
+
+    private lateinit var recyclerViewFriendTask: RecyclerView
+    private lateinit var mAdapterFriendTask: FriendTasksAdapter
+    private val tasksList: MutableList<TaskType> = ArrayList()
+
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
     private val viewModel: FireViewModel by viewModels()
-    private var bufferFriendList: List<DocumentSnapshot>? = null
+    private var currentUserFriendList: List<DocumentSnapshot>? = null
 
 
     override fun onCreateView(
@@ -58,28 +66,32 @@ class FireFragment : Fragment(R.layout.fragment_fire), FriendAdapter.OnFriendLis
         auth = Firebase.auth
         db = FirebaseFirestore.getInstance()
 
-
+        //Initial set of FriendList
         db.collection("Users/${auth.currentUser!!.uid}/FriendList").get()
             .addOnSuccessListener { collection ->
                 if (collection.isEmpty) {
                     val userFriendList: MutableMap<String, Any> = HashMap()
-                    userFriendList["idFriend"] = "Add"
+                    userFriendList[WaterFragment.KEY_USER_ID] = "Add"
                     db.document("Users/${auth.currentUser!!.uid}/FriendList/!!!Add")
                         .set(userFriendList)
                 }
             }
-
         val query: Query = db.collection("Users/${auth.currentUser!!.uid}/FriendList")
         val options = FirestoreRecyclerOptions.Builder<FriendType>()
             .setQuery(query, FriendType::class.java)
             .build()
 
-        mAdapter = FriendAdapter(options, this)
+
         binding.apply {
-            recyclerView = recyclerViewFriends
+            recyclerViewFriends = rvFriends
+            recyclerViewFriendTask = rvFriendTask
         }
-        recyclerView.apply {
-            adapter = mAdapter
+
+        mAdapterFriends = FriendAdapter(options, this)
+        mAdapterFriendTask = FriendTasksAdapter(tasksList)
+
+        recyclerViewFriends.apply {
+            adapter = mAdapterFriends
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             setHasFixedSize(true)
             smoothScrollToPosition(2)
@@ -125,23 +137,34 @@ class FireFragment : Fragment(R.layout.fragment_fire), FriendAdapter.OnFriendLis
                             VibrationEffect.DEFAULT_AMPLITUDE
                         )
                     )
-                    mAdapter.deleteFriend(viewHolder.bindingAdapterPosition)
+                    mAdapterFriends.deleteFriend(viewHolder.bindingAdapterPosition)
+                    val map:MutableMap<String,Any> = HashMap()
+                    map[WaterFragment.KEY_USER_REQUEST] = 0
+                    db.document("Users/${mAdapterFriends.getItem(viewHolder.bindingAdapterPosition).user_id}/FriendList/${auth.currentUser!!.uid}")
+                        .update(map)
                     Toast.makeText(
                         context,
-                        "${mAdapter.getItem(viewHolder.bindingAdapterPosition).idFriend} has been deleted",
+                        "${mAdapterFriends.getItem(viewHolder.bindingAdapterPosition).user_id} has been deleted",
                         Toast.LENGTH_SHORT
                     ).show()
+
+                    mAdapterFriendTask.submitList(ArrayList())
                 }
             }).attachToRecyclerView(this)
         }
+        recyclerViewFriendTask.apply {
+            adapter = mAdapterFriendTask
+            layoutManager = LinearLayoutManager(context)
+            setHasFixedSize(true)
+        }
 
         val helper: SnapHelper = LinearSnapHelper()
-        helper.attachToRecyclerView(recyclerView)
+        helper.attachToRecyclerView(recyclerViewFriends)
     }
 
     override fun onFriendClick(position: Int) {
-        val friend = mAdapter.getItem(position)
-        if (friend.idFriend == "Add") {
+        val friend = mAdapterFriends.getItem(position)
+        if (friend.user_id == "Add") {
             val alertDialog = MaterialAlertDialogBuilder(requireContext())
             val input = EditText(context)
             input.layoutParams = LinearLayout.LayoutParams(
@@ -149,7 +172,7 @@ class FireFragment : Fragment(R.layout.fragment_fire), FriendAdapter.OnFriendLis
                 LinearLayout.LayoutParams.MATCH_PARENT
             )
             input.requestFocus()
-            alertDialog.setTitle("Enter friend's nickname")
+            alertDialog.setTitle("Enter friend's email")
             alertDialog.setView(input)
 
             alertDialog.setPositiveButton("Add") { dialog, _ ->
@@ -158,12 +181,13 @@ class FireFragment : Fragment(R.layout.fragment_fire), FriendAdapter.OnFriendLis
                         db.collection("Users/${auth.currentUser!!.uid}/FriendList").get()
                             .addOnCompleteListener { taskCollection ->
                                 if (taskCollection.isSuccessful) {
-                                    bufferFriendList = taskCollection.result.documents
+                                    currentUserFriendList = taskCollection.result.documents
                                 }
                             }
                         db.collection("Users")
                             .get()
                             .addOnCompleteListener { taskCollection ->
+                                //Get all users in Firestore
                                 if (taskCollection.isSuccessful) {
                                     val listDocuments: MutableList<QueryDocumentSnapshot> =
                                         ArrayList()
@@ -171,11 +195,12 @@ class FireFragment : Fragment(R.layout.fragment_fire), FriendAdapter.OnFriendLis
                                         listDocuments.add(document)
                                     }
 
+                                    //Searching a friend
                                     for (i in 0 until listDocuments.size) {
-                                        if (listDocuments[i].getString("user_id") == input.text.toString()) {
-                                            for (element in bufferFriendList!!) {
+                                        if (listDocuments[i].getString(WaterFragment.KEY_USER_EMAIL) == input.text.toString()) {
+                                            for (element in currentUserFriendList!!) {
                                                 if (input.text.toString() == element.getString(
-                                                        "idFriend"
+                                                        WaterFragment.KEY_USER_EMAIL
                                                     )
                                                 ) {
                                                     Toast.makeText(
@@ -192,12 +217,43 @@ class FireFragment : Fragment(R.layout.fragment_fire), FriendAdapter.OnFriendLis
                                                 Toast.LENGTH_SHORT
                                             ).show()
 
+                                            //Get and set a friend info
                                             val friendMap: MutableMap<String, Any> = HashMap()
-                                            friendMap[KEY_FRIEND_ID] = input.text.toString()
-                                            db.document("Users/${auth.currentUser!!.uid}/FriendList/${friendMap[KEY_FRIEND_ID]}")
+                                            friendMap[WaterFragment.KEY_USER_ID] =
+                                                listDocuments[i].getString(WaterFragment.KEY_USER_ID)
+                                                    .toString()
+                                            friendMap[WaterFragment.KEY_USER_REQUEST] = 0
+                                            friendMap[WaterFragment.KEY_USER_PHOTO_URL] =
+                                                listDocuments[i].getString(WaterFragment.KEY_USER_PHOTO_URL)
+                                                    .toString()
+                                            friendMap[WaterFragment.KEY_USER_NAME] =
+                                                listDocuments[i].getString(WaterFragment.KEY_USER_NAME)
+                                                    .toString()
+                                            friendMap[WaterFragment.KEY_USER_EMAIL] =
+                                                input.text.toString()
+
+                                            db.document("Users/${auth.currentUser!!.uid}/FriendList/${friendMap[WaterFragment.KEY_USER_ID]}")
                                                 .set(friendMap)
 
-                                            recyclerView.smoothScrollToPosition(bufferFriendList!!.lastIndex)
+                                            //Send friend request
+                                            val user = Firebase.auth.currentUser
+                                            val userInfo: MutableMap<String, Any> = HashMap()
+                                            user?.let {
+                                                userInfo[WaterFragment.KEY_USER_ID] = user.uid
+                                                userInfo[WaterFragment.KEY_USER_REQUEST] = 2
+                                                userInfo[WaterFragment.KEY_USER_PHOTO_URL] =
+                                                    user.photoUrl.toString()
+                                                userInfo[WaterFragment.KEY_USER_NAME] =
+                                                    user.displayName.toString()
+                                                userInfo[WaterFragment.KEY_USER_EMAIL] =
+                                                    user.email.toString()
+                                            }
+                                            db.document("Users/${friendMap[WaterFragment.KEY_USER_ID]}/FriendList/${auth.currentUser!!.uid}")
+                                                .set(userInfo)
+
+                                            recyclerViewFriends.smoothScrollToPosition(
+                                                currentUserFriendList!!.lastIndex
+                                            )
                                             return@addOnCompleteListener
                                         }
 
@@ -226,10 +282,63 @@ class FireFragment : Fragment(R.layout.fragment_fire), FriendAdapter.OnFriendLis
                 }
             }
             alertDialog.show()
+        } else {
+            if (friend.user_request_code == 1) {
+                db.document("Users/${friend.user_id}/TaskList/Tasks").get()
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            val list: MutableList<String> = ArrayList()
+                            val map: MutableMap<String, Any>? = task.result.data
+                            val document = task.result
+                            if (map != null) {
+                                for ((key) in map) {
+                                    list.add(key)
+                                }
+
+                                for (i in 0 until list.size) {
+                                    val idTask = list.size + i
+                                    val taskType = TaskType(
+                                        idTask = idTask,
+                                        nameTask = document.getString("${list[i]}.nameTask")!!,
+                                        descriptionTask = document.getString("${list[i]}.descriptionTask")!!,
+                                        timeTask = document.getLong("${list[i]}.timeTask")!!
+                                            .toInt(),
+                                        priorityTask = document.getLong("${list[i]}.priorityTask")!!
+                                            .toInt(),
+                                        checkTask = document.getBoolean("${list[i]}.checkTask")!!,
+                                    )
+                                    tasksList.add(taskType)
+                                }
+                                mAdapterFriendTask.submitList(tasksList)
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Friend task list is empty",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+            } else if (friend.user_request_code == 2) {
+                val alertDialog = MaterialAlertDialogBuilder(requireContext())
+                alertDialog.setTitle("Do you want to add this user to friends?")
+                alertDialog.setPositiveButton("Confirm") { dialog, _ ->
+                    val map: MutableMap<String, Any> = HashMap()
+                    map[WaterFragment.KEY_USER_REQUEST] = 1
+                    db.document("Users/${friend.user_id}/FriendList/${auth.currentUser!!.uid}")
+                        .update(map)
+                    db.document("Users/${auth.currentUser!!.uid}/FriendList/${friend.user_id}")
+                        .update(map)
+                    dialog.dismiss()
+                }
+                alertDialog.setNegativeButton("Deny") { dialog, _ ->
+                    Toast.makeText(context, "User request has been denied", Toast.LENGTH_SHORT)
+                        .show()
+                    dialog.dismiss()
+                }.show()
+            }
         }
-
     }
-
 
 
     override fun onDestroyView() {
@@ -240,13 +349,13 @@ class FireFragment : Fragment(R.layout.fragment_fire), FriendAdapter.OnFriendLis
 
     override fun onStart() {
         super.onStart()
-        mAdapter.startListening()
+        mAdapterFriends.startListening()
     }
 
     override fun onStop() {
         super.onStop()
-        mAdapter.stopListening()
-        mAdapter.notifyDataSetChanged()
+        mAdapterFriends.stopListening()
+        mAdapterFriends.notifyDataSetChanged()
     }
 
 
