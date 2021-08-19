@@ -11,14 +11,17 @@
         android:layout_height="match_parent">
 
         <RelativeLayout
+            android:id="@+id/relative_layout_friends"
             android:layout_width="match_parent"
-            android:layout_height="125dp"
+            android:layout_height="110dp"
+            android:layout_marginTop="16dp"
+            android:paddingHorizontal="10dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view_friends"
+                android:id="@+id/rv_friends"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:fadingEdgeLength="5dp"
@@ -28,6 +31,28 @@
                 android:requiresFadingEdge="horizontal"
                 tools:listitem="@layout/list_friend" />
         </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/relative_layout_friend_tasks"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:layout_marginTop="16dp"
+            android:padding="25dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/relative_layout_friends">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_friend_task"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fadingEdgeLength="5dp"
+                android:forceHasOverlappingRendering="false"
+                android:orientation="horizontal"
+                android:paddingHorizontal="5dp"
+                android:requiresFadingEdge="horizontal"
+                tools:listitem="@layout/list_friend_task" />
+        </RelativeLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

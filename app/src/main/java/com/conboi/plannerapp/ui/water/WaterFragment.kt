@@ -46,15 +46,20 @@ import java.util.*
 
 
 const val IMPORT_CONFIRM = "IMPORT_CONFIRM"
-const val KEY_USER_ID = "user_id"
-const val KEY_USER_EMAIL = "user_email"
-const val KEY_USER_NAME = "user_name"
-const val KEY_USER_EMAIL_CONFIRM = "user_email_confirm"
-const val KEY_USER_PHOTO_URL = "user_photo_url"
 
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnTaskClickListener {
+    companion object{
+        const val KEY_USER_ID = "user_id"
+        const val KEY_USER_EMAIL = "user_email"
+        const val KEY_USER_NAME = "user_name"
+        const val KEY_USER_EMAIL_CONFIRM = "user_email_confirm"
+        const val KEY_USER_PHOTO_URL = "user_photo_url"
+        const val KEY_USER_REQUEST = "user_request_code"
+        const val KEY_USER_TASK_LIST = "user_task_list"
+    }
+
     private lateinit var recyclerView: RecyclerView
     private lateinit var searchView: SearchView
     private lateinit var mAdapter: TaskAdapter
@@ -265,7 +270,7 @@ class WaterFragment : Fragment(R.layout.fragment_water), TaskAdapter.OnTaskClick
         user?.let {
             val userInfo: MutableMap<String, Any> = HashMap()
             userInfo[KEY_USER_ID] = user.uid
-            userInfo[KEY_USER_NAME] = user.displayName.toString()
+            userInfo[KEY_USER_NAME] = user.displayName ?: user.email.toString()
             userInfo[KEY_USER_PHOTO_URL] = user.photoUrl.toString()
             userInfo[KEY_USER_EMAIL] = user.email.toString()
             userInfo[KEY_USER_EMAIL_CONFIRM] =user.isEmailVerified
