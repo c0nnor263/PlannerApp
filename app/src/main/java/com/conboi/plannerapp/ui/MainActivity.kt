@@ -1,94 +1,571 @@
 package com.conboi.plannerapp.ui
 
 
-import android.content.Context
+import android.animation.ArgbEvaluator
+import android.animation.ValueAnimator
+import android.content.res.Configuration
 import android.os.Bundle
 import android.os.IBinder
-import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
 import com.conboi.plannerapp.R
-import com.firebase.ui.auth.AuthUI
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.firebase.auth.FirebaseAuth
+import com.google.android.material.bottomappbar.BottomAppBar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
 
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(R.layout.activity_main) {
+class MainActivity : AppCompatActivity(R.layout.activity_main),
+    NavController.OnDestinationChangedListener {
     private lateinit var navController: NavController
-    private lateinit var appBarConfiguration: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.navigation_host) as NavHostFragment
         navController = navHostFragment.navController
-        appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.bottom_menu_water_fragment,
-                R.id.bottom_menu_air_fragment,
-                R.id.bottom_menu_fire_fragment,
-                R.id.bottom_menu_tree_fragment
+        navController.addOnDestinationChangedListener(this)
+        //window.statusBarColor = Color.argb(40, 60, 50, 60)
+        setupBottomAppBar()
+    }
+
+    private fun setupBottomAppBar() {
+        setSupportActionBar(bottom_app_bar)
+        setBottomAppBarForMain()
+        bottom_app_bar.setNavigationOnClickListener {
+            val bottomNavDrawerFragment = BottomNavigationDrawerFragment()
+            bottomNavDrawerFragment.show(supportFragmentManager, bottomNavDrawerFragment.tag)
+        }
+
+    }
+
+    override fun onDestinationChanged(
+        controller: NavController,
+        destination: NavDestination,
+        arguments: Bundle?
+    ) {
+        when (destination.id) {
+            R.id.mainFragment -> {
+                setBottomAppBarForMain()
+            }
+            R.id.friendsFragment -> {
+                setBottomAppBarForFriends()
+            }
+            R.id.settingsFragment -> {
+                setBottomAppBarForSettings()
+            }
+            R.id.profileSettingsFragment -> {
+                setBottomAppBarForProfileSettings()
+            }
+            R.id.taskDetailsFragment -> {
+                setBottomAppBarForTaskDetails()
+            }
+            R.id.searchFragment -> {
+                setBottomAppBarForSearch()
+            }
+            R.id.friendDetailsFragment -> {
+                setBottomAppBarForFriendDetails()
+            }
+        }
+    }
+
+    private fun setBottomAppBarForMain() {
+        bottom_app_bar_count_of_tasks.visibility = View.VISIBLE
+        bottom_floating_button.hide()
+        bottom_floating_button.setImageDrawable(
+            ContextCompat.getDrawable(
+                bottom_floating_button.context,
+                R.drawable.ic_baseline_add_24
             )
         )
-        setSupportActionBar(tool_bar)
-        setupActionBarWithNavController(navController, appBarConfiguration)
+        bottom_floating_button.show()
+        bottom_app_bar.fabAlignmentMode =
+            BottomAppBar.FAB_ALIGNMENT_MODE_CENTER
+        bottom_app_bar.performShow()
+        setColor(0)
+    }
 
+    private fun setBottomAppBarForFriends() {
+        bottom_floating_button.hide()
+        bottom_floating_button.setImageDrawable(
+            ContextCompat.getDrawable(
+                bottom_floating_button.context,
+                R.drawable.ic_baseline_add_24
+            )
+        )
+        bottom_floating_button.show()
 
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        with(bottomNav) {
-            setupWithNavController(navController)
-            setOnNavigationItemReselectedListener {}
-        }
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            val waterBottom = bottomNav.menu.findItem(R.id.bottom_menu_water_fragment)
-            if (waterBottom.isChecked) {
-                waterBottom.setIcon(android.R.drawable.ic_menu_add)
-                waterBottom.title = "Add task"
-            } else {
-                waterBottom.setIcon(R.drawable.ic_water_drops)
-                waterBottom.title = "Main"
+        bottom_app_bar.setFabAlignmentModeAndReplaceMenu(
+            BottomAppBar.FAB_ALIGNMENT_MODE_END,
+            R.menu.bottom_app_bar_friends_menu
+        )
+        bottom_app_bar.performShow()
+        setColor(1)
+    }
+
+    private fun setBottomAppBarForSettings() {
+        bottom_floating_button.hide()
+        bottom_floating_button.setImageDrawable(
+            ContextCompat.getDrawable(
+                bottom_floating_button.context,
+                R.drawable.ic_check_mark
+            )
+        )
+        bottom_floating_button.show()
+
+        bottom_app_bar.setFabAlignmentModeAndReplaceMenu(
+            BottomAppBar.FAB_ALIGNMENT_MODE_END,
+            R.menu.bottom_app_bar_settings_menu
+        )
+        bottom_app_bar.performShow()
+        setColor(2)
+    }
+
+    private fun setBottomAppBarForProfileSettings() {
+        bottom_floating_button.hide()
+        bottom_floating_button.setImageDrawable(
+            ContextCompat.getDrawable(
+                bottom_floating_button.context,
+                R.drawable.ic_baseline_edit_24
+            )
+        )
+        bottom_floating_button.show()
+
+        bottom_app_bar.setFabAlignmentModeAndReplaceMenu(
+            BottomAppBar.FAB_ALIGNMENT_MODE_CENTER,
+            R.menu.bottom_app_bar_empty_menu
+        )
+        bottom_app_bar.performHide()
+
+        setColor(0)
+    }
+
+    private fun setBottomAppBarForTaskDetails() {
+        bottom_floating_button.hide()
+        bottom_floating_button.setImageDrawable(
+            ContextCompat.getDrawable(
+                bottom_floating_button.context,
+                R.drawable.ic_check_mark
+            )
+        )
+        bottom_floating_button.show()
+
+        bottom_app_bar.setFabAlignmentModeAndReplaceMenu(
+            BottomAppBar.FAB_ALIGNMENT_MODE_END,
+            R.menu.bottom_app_bar_empty_menu
+        )
+        bottom_app_bar.performHide()
+        setColor(0)
+    }
+
+    private fun setBottomAppBarForSearch() {
+        bottom_floating_button.hide()
+        bottom_app_bar.performHide()
+    }
+
+    private fun setBottomAppBarForFriendDetails() {
+        bottom_floating_button.hide()
+        bottom_app_bar.performHide()
+        setColor(1)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        when (navController.currentDestination?.id) {
+            R.id.mainFragment -> {
+                setBottomAppBarForMain()
             }
-            when (destination.id) {
-                R.id.bottom_menu_water_fragment -> {
-                    val typedValue = TypedValue()
-                    setTheme(R.style.WaterTheme_PlannerApp)
-                    theme.resolveAttribute(R.attr.colorPrimary, typedValue, true)
-                    window.navigationBarColor = typedValue.data
-                    bottomNav.visibility = View.VISIBLE
+            R.id.friendsFragment -> {
+                setBottomAppBarForFriends()
+            }
+            R.id.settingsFragment -> {
+                setBottomAppBarForSettings()
+            }
+            R.id.profileSettingsFragment -> {
+                setBottomAppBarForProfileSettings()
+            }
+            R.id.taskDetailsFragment -> {
+                setBottomAppBarForTaskDetails()
+            }
+            R.id.searchFragment -> {
+                setBottomAppBarForSearch()
+            }
+            R.id.friendDetailsFragment -> {
+                setBottomAppBarForSettings()
+            }
+        }
+    }
+
+    private fun setColor(codeColor: Int) {
+        when (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+            Configuration.UI_MODE_NIGHT_NO -> {
+                when (codeColor) {
+                    0 -> {
+                        val bottomAppBarColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.primaryColorWater
+                            )
+                        )
+                        bottomAppBarColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomAppBarColorAnimation.addUpdateListener { animator ->
+                            bottom_app_bar.background?.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomAppBarColorAnimation.start()
+
+                        val bottomFloatingButtonColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.secondaryColorWater
+                            )
+                        )
+                        bottomFloatingButtonColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomFloatingButtonColorAnimation.addUpdateListener { animator ->
+                            bottom_floating_button.background?.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomFloatingButtonColorAnimation.start()
+                    }
+                    1 -> {
+                        val bottomAppBarColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.primaryColorFire
+                            )
+                        )
+                        bottomAppBarColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomAppBarColorAnimation.addUpdateListener { animator ->
+                            bottom_app_bar.background.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomAppBarColorAnimation.start()
+
+                        val bottomFloatingButtonColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.secondaryColorFire
+                            )
+                        )
+                        bottomFloatingButtonColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomFloatingButtonColorAnimation.addUpdateListener { animator ->
+                            bottom_floating_button.background?.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomFloatingButtonColorAnimation.start()
+
+
+                    }
+                    2 -> {
+                        val bottomAppBarColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.primaryColorTree
+                            )
+                        )
+                        bottomAppBarColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomAppBarColorAnimation.addUpdateListener { animator ->
+                            bottom_app_bar.background.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomAppBarColorAnimation.start()
+
+                        val bottomFloatingButtonColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.secondaryColorTree
+                            )
+                        )
+                        bottomFloatingButtonColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomFloatingButtonColorAnimation.addUpdateListener { animator ->
+                            bottom_floating_button.background?.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomFloatingButtonColorAnimation.start()
+                    }
+                    3 -> {
+                        val bottomAppBarColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.primaryColorAir
+                            )
+                        )
+                        bottomAppBarColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomAppBarColorAnimation.addUpdateListener { animator ->
+                            bottom_app_bar.background.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomAppBarColorAnimation.start()
+
+                        val bottomFloatingButtonColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.secondaryColorAir
+                            )
+                        )
+                        bottomFloatingButtonColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomFloatingButtonColorAnimation.addUpdateListener { animator ->
+                            bottom_floating_button.background?.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomFloatingButtonColorAnimation.start()
+                    }
+                    else -> {
+                        val bottomAppBarColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.primaryColorWater
+                            )
+                        )
+                        bottomAppBarColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomAppBarColorAnimation.addUpdateListener { animator ->
+                            bottom_app_bar.background.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomAppBarColorAnimation.start()
+
+                        val bottomFloatingButtonColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.secondaryColorWater
+                            )
+                        )
+                        bottomFloatingButtonColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomFloatingButtonColorAnimation.addUpdateListener { animator ->
+                            bottom_floating_button.background?.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomFloatingButtonColorAnimation.start()
+                    }
                 }
-                R.id.bottom_menu_air_fragment -> {
-                    val typedValue = TypedValue()
-                    setTheme(R.style.AirTheme_PlannerApp)
-                    theme.resolveAttribute(R.attr.colorPrimary, typedValue, true)
-                    window.navigationBarColor = typedValue.data
-                    bottomNav.visibility = View.VISIBLE
+            }
+            Configuration.UI_MODE_NIGHT_YES -> {
+                when (codeColor) {
+                    0 -> {
+                        val bottomAppBarColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.primaryDarkColorWater
+                            )
+                        )
+                        bottomAppBarColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomAppBarColorAnimation.addUpdateListener { animator ->
+                            bottom_app_bar.background?.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomAppBarColorAnimation.start()
+
+                        val bottomFloatingButtonColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.secondaryDarkColorWater
+                            )
+                        )
+                        bottomFloatingButtonColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomFloatingButtonColorAnimation.addUpdateListener { animator ->
+                            bottom_floating_button.background?.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomFloatingButtonColorAnimation.start()
+                    }
+                    1 -> {
+                        val bottomAppBarColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.primaryDarkColorFire
+                            )
+                        )
+                        bottomAppBarColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomAppBarColorAnimation.addUpdateListener { animator ->
+                            bottom_app_bar.background.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomAppBarColorAnimation.start()
+
+                        val bottomFloatingButtonColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.secondaryDarkColorFire
+                            )
+                        )
+                        bottomFloatingButtonColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomFloatingButtonColorAnimation.addUpdateListener { animator ->
+                            bottom_floating_button.background?.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomFloatingButtonColorAnimation.start()
+
+
+                    }
+                    2 -> {
+                        val bottomAppBarColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.primaryDarkColorTree
+                            )
+                        )
+                        bottomAppBarColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomAppBarColorAnimation.addUpdateListener { animator ->
+                            bottom_app_bar.background.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomAppBarColorAnimation.start()
+
+                        val bottomFloatingButtonColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.secondaryDarkColorTree
+                            )
+                        )
+                        bottomFloatingButtonColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomFloatingButtonColorAnimation.addUpdateListener { animator ->
+                            bottom_floating_button.background?.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomFloatingButtonColorAnimation.start()
+                    }
+                    3 -> {
+                        val bottomAppBarColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.primaryDarkColorAir
+                            )
+                        )
+                        bottomAppBarColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomAppBarColorAnimation.addUpdateListener { animator ->
+                            bottom_app_bar.background.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomAppBarColorAnimation.start()
+
+                        val bottomFloatingButtonColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.secondaryDarkColorAir
+                            )
+                        )
+                        bottomFloatingButtonColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomFloatingButtonColorAnimation.addUpdateListener { animator ->
+                            bottom_floating_button.background?.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomFloatingButtonColorAnimation.start()
+                    }
+                    else -> {
+                        val bottomAppBarColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.primaryDarkColorWater
+                            )
+                        )
+                        bottomAppBarColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomAppBarColorAnimation.addUpdateListener { animator ->
+                            bottom_app_bar.background.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomAppBarColorAnimation.start()
+
+                        val bottomFloatingButtonColorAnimation = ValueAnimator.ofObject(
+                            ArgbEvaluator(),
+                            bottom_app_bar.backgroundTint?.defaultColor,
+                            ContextCompat.getColor(
+                                this,
+                                R.color.secondaryDarkColorWater
+                            )
+                        )
+                        bottomFloatingButtonColorAnimation.duration =
+                            resources.getInteger(R.integer.color_animation_duration_large).toLong()
+                        bottomFloatingButtonColorAnimation.addUpdateListener { animator ->
+                            bottom_floating_button.background?.setTint(
+                                animator.animatedValue as Int
+                            )
+                        }
+                        bottomFloatingButtonColorAnimation.start()
+                    }
                 }
-                R.id.bottom_menu_fire_fragment -> {
-                    val typedValue = TypedValue()
-                    setTheme(R.style.FireTheme_PlannerApp)
-                    theme.resolveAttribute(R.attr.colorPrimary, typedValue, true)
-                    window.navigationBarColor = typedValue.data
-                    bottomNav.visibility = View.VISIBLE
-                }
-                R.id.bottom_menu_tree_fragment -> {
-                    val typedValue = TypedValue()
-                    setTheme(R.style.TreeTheme_PlannerApp)
-                    theme.resolveAttribute(R.attr.colorPrimary, typedValue, true)
-                    window.navigationBarColor = typedValue.data
-                    bottomNav.visibility = View.VISIBLE
-                }
-                else -> bottomNav.visibility = View.INVISIBLE
             }
         }
     }
@@ -123,7 +600,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private fun hideSoftInput(token: IBinder?) {
         if (token != null) {
             val manager: InputMethodManager =
-                getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
             manager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS)
         }
     }
@@ -131,5 +608,4 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
-
 }

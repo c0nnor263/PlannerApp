@@ -1,44 +1,55 @@
 <resources>
-
-
     <string name="app_name">PlannerApp</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="Вода">Вода</string>
-    <string name="Воздух">Воздух</string>
     <string name="Огонь">Огонь</string>
     <string name="Дерево">Дерево</string>
+
+
+    <!-->Global<-->
+    <string name="main">Main</string>
+    <string name="friends">Friends</string>
+    <string name="settings">Settings</string>
     <string name="ok">OK</string>
-
-
-    <!-->WaterFragment<-->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="add_task">Add task</string>
-    <string name="add_tasks">Add tasks</string>
     <string name="description">Description</string>
-    <string name="delete_task">Delete task</string>
-    <string name="enter_amount">In numbers</string>
-    <string name="amount_of_tasks">%1$d/%2$d :swipe to delete:</string>
-
-    <!-->EditTaskFragment<-->
-    <string name="edit_task_transition">edit_task_transition</string>
-    <string name="little_description">Little description</string>
-    <string name="describe_this_task">Describe this task</string>
-    <string name="due_time">Due time</string>
-    <string name="set_a_time">Set a time</string>
-    <string name="error_input_desc">max - 70 symbols</string>
-    <string name="error_input_name">max - 21 symbols</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
-    <string name="set_a_priority">Set a priority</string>
-    <string name="task_name">Task name</string>
-    <string name="task_created">Created at: %1$s</string>
-    <string name="task_completed">Have completed at: %1$s</string>
     <string name="currently_unavailable">Currently unavailable</string>
     <string name="search">Search</string>
     <string name="sort">Sort</string>
-    <string name="default_priority">Default</string>
-    <string name="edit_name_of_task">Edit name of task</string>
     <string name="priority">Priority</string>
     <string name="add">Add</string>
+    <string name="default_state">Default</string>
+    <string name="close">Close</string>
+    <string name="profile_photo">Profile photo</string>
+    <string name="request_status">Request status</string>
+    <string name="sign_out">Sign out</string>
+    <string name="bottom_app_bar_transition">bottom_app_bar_transition</string>
+
+
+    <!-->MainFragment<-->
+    <string name="add_task">Add task</string>
+    <string name="add_tasks">Add tasks</string>
+    <string name="enter_amount">Max - 25</string>
+    <string name="sort_by_name">Sort by name</string>
+    <string name="sort_by_date_created">Sort by date created</string>
+    <string name="sort_by_date_completed">Sort by date completed</string>
+    <string name="hide_completed">Hide completed</string>
+    <string name="delete_all_completed">Delete all completed</string>
+    <string name="count_of_tasks">%1$d/%2$d</string>
+    <string name="count_of_completed">(%1$d)</string>
+
+
+    <!-->TaskDetailsFragment<-->
+    <string name="task_transition_name">task_%1$d</string>
+    <string name="task_detail_transition_name">task_detail</string>
+    <string name="task_created">Created at: %1$s</string>
+    <string name="task_completed">Completed at: %1$s</string>
+
+    <string name="open_task">Open task</string>
+    <string name="edit_title">Edit title</string>
+    <string name="describe_this_task">Describe task</string>
+    <string name="due_time">Due time</string>
 
     <string-array name="priorities">
         <item>Leisurely</item>
@@ -46,5 +57,25 @@
         <item>Advisable</item>
         <item>Important</item>
     </string-array>
+
+    <!-->FriendsFragment<-->
+    <string name="friends_list">Friends list</string>
+    <string name="friends_tasks">%1$s"'"s tasks</string>
+    <string name="completed_tasks">Completed tasks</string>
+    <string name="there_will_be_shown_all_completed_tasks">There will be shown all completed tasks</string>
+    <string name="there_are_no_tasks_for_showing">There are no tasks for showing</string>
+
+    <!--FriendDetailsFragment-->
+    <string name="friend_transition_name">friend_%1$s</string>
+    <string name="friend_detail_transition_name">friend_detail</string>
+
+    <!--SettingsFragment-->
+
+
+    <!-->ProfileSettings<-->
+    <string name="enter_friends_id">Enter friends id</string>
+    <string name="user_id">Copy User ID:</string>
+    <string name="total_completed_tasks">Total completed tasks: <b>%1$d</b></string>
+
 
 </resources>

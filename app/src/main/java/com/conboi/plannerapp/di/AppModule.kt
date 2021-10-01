@@ -3,8 +3,8 @@ package com.conboi.plannerapp.di
 import android.app.Application
 import androidx.room.Room
 import com.conboi.plannerapp.data.TaskDatabase
-import com.conboi.plannerapp.data.TaskType
-import com.conboi.plannerapp.data.TaskTypeDao
+import com.conboi.plannerapp.data.model.TaskType
+import com.conboi.plannerapp.data.TaskDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,7 +30,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideTaskDao(db:TaskDatabase):TaskTypeDao = db.taskDao()
+    fun provideTaskDao(db:TaskDatabase):TaskDao = db.taskDao()
 
     @ApplicationScope
     @Provides

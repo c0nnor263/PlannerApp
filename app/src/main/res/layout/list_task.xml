@@ -1,73 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/parent_layout_list_task"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:animateLayoutChanges="true"
-    android:orientation="vertical"
-    android:paddingHorizontal="10dp"
-    android:paddingVertical="3dp">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <CheckBox
-        android:id="@+id/check_task"
-        android:layout_width="wrap_content"
+    <data>
+
+        <variable
+            name="task"
+            type="com.conboi.plannerapp.data.model.TaskType" />
+    </data>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/parent_layout_list_task"
+        setTaskPriority="@{task.priority}"
+        setTextTaskChecked="@{task.checked}"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:buttonTint="@color/checkbox_filter_tint"
-        android:minWidth="0dp"
-        android:minHeight="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:checked="true"
-        tools:ignore="TouchTargetSizeCheck,TouchTargetSizeCheck" />
+        android:animateLayoutChanges="true"
+        android:orientation="horizontal"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="3dp"
+        android:transitionName="@{@string/task_transition_name(task.idTask)}">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/nameTaskLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:boxBackgroundColor="#FFF"
-        app:boxStrokeColor="#FFF"
-        app:boxStrokeWidth="0dp"
-        app:boxStrokeWidthFocused="0dp"
-        app:endIconMode="none"
-        app:layout_constraintBottom_toBottomOf="@+id/check_task"
-        app:layout_constraintStart_toEndOf="@+id/check_task"
-        app:layout_constraintTop_toTopOf="@+id/check_task">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/name_task"
-            android:layout_width="265dp"
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/check_task"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:hint="@string/add_task"
-            android:imeOptions="actionDone"
-            android:inputType="text|textCapSentences"
-            android:maxLength="23"
-            android:paddingTop="8dp"
-            android:textSize="16sp"
-            tools:ignore="TouchTargetSizeCheck" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:layout_gravity="center_vertical"
+            android:buttonTint="@color/checkbox_filter_tint"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            tools:checked="true"
+            tools:ignore="TouchTargetSizeCheck,TouchTargetSizeCheck" />
 
-    <ImageButton
-        android:contentDescription="Edit task"
-        android:id="@+id/open_task"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_marginStart="2dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginBottom="2dp"
-        android:alpha="0.2"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:clickable="true"
-        android:minWidth="0dp"
-        android:minHeight="0dp"
-        android:src="@drawable/ic_baseline_edit_24"
-        app:layout_constraintBottom_toBottomOf="@+id/nameTaskLayout"
-        app:layout_constraintStart_toEndOf="@+id/nameTaskLayout"
-        app:layout_constraintTop_toTopOf="@+id/nameTaskLayout"
-        tools:ignore="SpeakableTextPresentCheck,SpeakableTextPresentCheck" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/title_task_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            app:boxBackgroundColor="#FFF"
+            app:boxStrokeColor="#FFF"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp"
+            app:endIconMode="none">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/title_task"
+                setTietTextTaskChecked="@{task.checked}"
+                android:layout_width="265dp"
+                android:layout_height="48dp"
+                android:background="@android:color/transparent"
+                android:hint="@string/add_task"
+                android:imeOptions="actionDone"
+                android:inputType="text|textCapSentences"
+                android:maxLength="@integer/task_name_length"
+                android:paddingTop="8dp"
+                android:text="@{task.title}"
+                android:textSize="16sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageButton
+            android:id="@+id/open_task"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical"
+            android:alpha="0.5"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="@string/open_task"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:src="@drawable/ic_baseline_edit_24" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</layout>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="friend"
+            type="com.conboi.plannerapp.data.model.FriendType" />
+    </data>
+
+    <RelativeLayout
+        android:id="@+id/parent_layout_friend_tasks"
+        paddingTopSystemWindowInsets="@{true}"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:transitionName="@string/friend_detail_transition_name">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/fragment_friend_details_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_alignParentTop="true"
+            android:background="?attr/colorSurface"
+            app:title="@{@string/friends_tasks(friend.user_name)}"
+            android:elevation="4dp"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:navigationIcon="@drawable/ic_baseline_close_24"
+            app:popupTheme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/parent_rv_friends_tasks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/fragment_friend_details_toolbar"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_friend_task"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingHorizontal="10dp"
+                android:paddingBottom="35dp"
+                tools:listitem="@layout/list_global_task" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </RelativeLayout>
+</layout>

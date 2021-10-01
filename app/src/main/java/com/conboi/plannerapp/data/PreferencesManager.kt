@@ -2,10 +2,7 @@ package com.conboi.plannerapp.data
 
 import android.content.Context
 import android.util.Log
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.emptyPreferences
-import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.catch
@@ -14,12 +11,11 @@ import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private const val TAG = "PreferencesManager"
-enum class SortOrder { BY_NAME, BY_DATE, BY_COMPLETED }
+enum class SortOrder { BY_TITLE, BY_DATE, BY_COMPLETE }
 
-private val Context.dataStore by preferencesDataStore("user_preferences")
+val Context.dataStore by preferencesDataStore("user_preferences")
 
-data class FilterPreferences(val sortOrder: SortOrder, val hideCompleted: Boolean)
+data class FilterPreferences(val sortOrder: SortOrder, val hideCompleted: Boolean, val totalCompleted:Int)
 
 @Singleton
 class PreferencesManager @Inject constructor(@ApplicationContext context: Context) {
@@ -27,7 +23,7 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
     val preferencesFlow = dataStore.data
         .catch { exception ->
             if (exception is IOException) {
-                Log.d(TAG, "Error reading preferences", exception)
+                Log.d("Preferences Manager", "Error reading preferences", exception)
              emit(emptyPreferences())
             }else{
                 throw exception
@@ -38,7 +34,10 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
                 preferences[PreferencesKeys.SORT_ORDER] ?: SortOrder.BY_DATE.name
             )
             val hideCompleted = preferences[PreferencesKeys.HIDE_COMPLETED] ?: false
-            FilterPreferences(sortOrder, hideCompleted)
+
+            val totalCompleted = preferences[PreferencesKeys.TOTAL_COMPLETED] ?:0
+
+            FilterPreferences(sortOrder, hideCompleted, totalCompleted)
         }
 
     suspend fun updateSortOrder(sortOrder: SortOrder){
@@ -51,9 +50,26 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
             preferences[PreferencesKeys.HIDE_COMPLETED] = hideCompleted
         }
     }
+    suspend fun updateTotalCompleted(totalCompleted: Int){
+        dataStore.edit { preferences->
+            preferences[PreferencesKeys.TOTAL_COMPLETED] = totalCompleted
+        }
+    }
+    suspend fun incrementTotalCompleted(totalCompleted: Int){
+        dataStore.edit { preferences->
+            preferences[PreferencesKeys.TOTAL_COMPLETED] = totalCompleted.plus(1)
+        }
+    }
+    suspend fun decrementTotalCompleted(totalCompleted: Int){
+        dataStore.edit { preferences->
+            preferences[PreferencesKeys.TOTAL_COMPLETED] = totalCompleted.minus(1)
+        }
+    }
 
-    private object PreferencesKeys {
-        val SORT_ORDER = stringPreferencesKey("sort_order")
+
+     object PreferencesKeys {
+        val SORT_ORDER = stringPreferencesKey("SORT_ORDER")
         val HIDE_COMPLETED = booleanPreferencesKey("HIDE_COMPLETED")
+        val TOTAL_COMPLETED = intPreferencesKey("TOTAL_COMPLETED")
     }
 }
