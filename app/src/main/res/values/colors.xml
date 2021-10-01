@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <!--> WATER<-->
     <color name="primaryColorWater">#64b5f6</color>
     <color name="primaryLightColorWater">#9be7ff</color>
     <color name="primaryDarkColorWater">#2286c3</color>
-    <color name="secondaryColorWater">#00bcd4</color>
-    <color name="secondaryLightColorWater">#62efff</color>
-    <color name="secondaryDarkColorWater">#008ba3</color>
+    <color name="secondaryColorWater">#42a5f5</color>
+    <color name="secondaryLightColorWater">#80d6ff</color>
+    <color name="secondaryDarkColorWater">#0077c2</color>
     <color name="primaryTextColorWater">#000000</color>
-    <color name="secondaryTextColorWater">#ffffff</color>
+    <color name="secondaryTextColorWater">#000000</color>
 
     <!--> FIRE <-->
     <color name="primaryColorFire">#ffa000</color>

@@ -3,45 +3,64 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/bottom_menu_water_fragment">
+
+    app:startDestination="@id/mainFragment">
     <fragment
-        android:id="@+id/bottom_menu_water_fragment"
-        android:name="com.conboi.plannerapp.ui.water.WaterFragment"
+        android:id="@+id/mainFragment"
+        android:menuCategory="secondary"
+        android:name="com.conboi.plannerapp.ui.main.MainFragment"
         android:label="Daily tasks"
-        tools:layout="@layout/fragment_water" >
-        <action
-            android:id="@+id/action_waterFragment_to_edit_task"
-            app:destination="@id/editTaskFragment" />
-        <argument
-            android:name="userId"
-            app:argType="string" />
-        <argument android:name="emailId" />
-    </fragment>
+        tools:layout="@layout/fragment_main" />
 
     <fragment
-        android:id="@+id/bottom_menu_air_fragment"
-        android:name="com.conboi.plannerapp.ui.air.AirFragment"
-        android:label="Month tasks"
-        tools:layout="@layout/fragment_air" />
-    <fragment
-        android:id="@+id/bottom_menu_fire_fragment"
-        android:name="com.conboi.plannerapp.ui.fire.FireFragment"
+        android:id="@+id/friendsFragment"
+        android:menuCategory="secondary"
+        android:name="com.conboi.plannerapp.ui.friends.FriendsFragment"
         android:label="Friends"
-        tools:layout="@layout/fragment_fire" />
+        tools:layout="@layout/fragment_friends" />
     <fragment
-        android:id="@+id/bottom_menu_tree_fragment"
-        android:name="com.conboi.plannerapp.ui.tree.TreeFragment"
+        android:id="@+id/settingsFragment"
+        android:menuCategory="secondary"
+        android:name="com.conboi.plannerapp.ui.settings.SettingsFragment"
         android:label="Profile"
-        tools:layout="@layout/fragment_tree" />
+        tools:layout="@layout/fragment_settings" />
     <fragment
-        android:id="@+id/editTaskFragment"
-        android:name="com.conboi.plannerapp.ui.water.EditTaskFragment"
-        android:label="Edit task" >
+        android:id="@+id/taskDetailsFragment"
+        android:name="com.conboi.plannerapp.ui.main.TaskDetailsFragment"
+        android:label="Edit task">
         <argument
             android:name="idTask"
             app:argType="integer" />
-        <action
-            android:id="@+id/action_editTaskFragment_to_waterFragment"
-            app:destination="@id/bottom_menu_water_fragment" />
     </fragment>
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.conboi.plannerapp.ui.main.SearchFragment"
+        android:label="fragment_search"
+        tools:layout="@layout/fragment_search" />
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.conboi.plannerapp.ui.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" />
+    <action
+        android:id="@+id/action_global_searchFragment"
+        app:destination="@id/searchFragment" />
+    <action
+        android:id="@+id/action_global_taskDetailsFragment"
+        app:destination="@id/taskDetailsFragment" />
+    <fragment
+        android:id="@+id/profileSettingsFragment"
+        android:name="com.conboi.plannerapp.ui.profile.ProfileSettingsFragment"
+        android:label="ProfileSettingsFragment" />
+    <action
+        android:id="@+id/action_global_profileSettingsFragment"
+        app:destination="@id/profileSettingsFragment" />
+    <fragment
+        android:id="@+id/friendDetailsFragment"
+        android:name="com.conboi.plannerapp.ui.friends.FriendDetailsFragment"
+        android:label="FriendFragment" >
+        <argument
+            android:name="friend"
+            app:argType="com.conboi.plannerapp.data.model.FriendType" />
+    </fragment><action android:id="@+id/action_global_friendDetailsFragment" app:destination="@id/friendDetailsFragment"/>
 </navigation>

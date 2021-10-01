@@ -1,32 +1,32 @@
 package com.conboi.plannerapp.adapter
 
+import android.animation.ArgbEvaluator
+import android.animation.ValueAnimator
 import android.graphics.Color
 import android.os.CountDownTimer
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import androidx.core.view.ViewCompat
 import androidx.core.widget.doOnTextChanged
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.conboi.plannerapp.data.TaskType
+import com.conboi.plannerapp.data.model.TaskType
 import com.conboi.plannerapp.databinding.ListTaskBinding
-import com.conboi.plannerapp.ui.water.WaterFragmentDirections
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 
-class TaskAdapter(
+class TaskAdapter @ExperimentalCoroutinesApi constructor(
     private val listener: OnTaskClickListener
-) : ListAdapter<TaskType, TaskAdapter.ViewHolder>(DiffCallback){
-
+) : ListAdapter<TaskType, TaskAdapter.ViewHolder>(TaskDiffCallback()) {
     inner class ViewHolder(private var binding: ListTaskBinding) :
         RecyclerView.ViewHolder(binding.root) {
         var timer: CountDownTimer? = null
-        val nameTaskVh:TextInputEditText = binding.nameTask
+        val titleTaskVh: TextInputEditText = binding.titleTask
+        var bufferTask: TaskType? = null
 
         init {
             binding.apply {
@@ -34,103 +34,68 @@ class TaskAdapter(
                     val position = bindingAdapterPosition
                     if (position != RecyclerView.NO_POSITION) {
                         val task = getItem(position)
-                        listener.onNameChanged(task, nameTask.text.toString())
-                        val transitionName =
-                            root.context.getString(com.conboi.plannerapp.R.string.edit_task_transition)
-                        val extras = FragmentNavigatorExtras(root to transitionName)
-                        val directions = WaterFragmentDirections.actionWaterFragmentToEditTask(
-                            idTask = task.idTask
-                        )
-                        root.findNavController().navigate(directions, extras)
+                        listener.onTitleChanged(task, titleTask.text.toString())
+                        listener.onEditTaskCLick(itemView, task)
                     }
                 }
                 checkTask.setOnClickListener {
-                    timer!!.cancel()
                     val position = bindingAdapterPosition
                     if (position != RecyclerView.NO_POSITION) {
+                        timer!!.cancel()
                         val task = getItem(position)
-                        listener.onCheckBoxClick(task.copy(
-                            nameTask = nameTaskVh.text.toString()
-                        ), checkTask.isChecked)
+                        if (titleTask.text!!.isNotBlank()) {
+                            listener.onCheckBoxClick(
+                                task.copy(
+                                    title = titleTaskVh.text.toString()
+                                ), checkTask.isChecked
+                            )
+                        } else {
+                            checkTask.isChecked = false
+                            listener.onCheckBoxClick(
+                                task.copy(
+                                    title = titleTaskVh.text.toString()
+                                ), false
+                            )
+
+                        }
                     }
                 }
-                nameTask.setOnFocusChangeListener { _, hasFocus ->
+                titleTask.setOnFocusChangeListener { _, hasFocus ->
                     if (hasFocus) {
-                        nameTaskLayout.endIconMode = TextInputLayout.END_ICON_CLEAR_TEXT
-                    }
-                    else{
-                        nameTaskLayout.endIconMode = TextInputLayout.END_ICON_NONE
+                        titleTaskLayout.endIconMode = TextInputLayout.END_ICON_CLEAR_TEXT
+                    } else {
+                        titleTaskLayout.endIconMode = TextInputLayout.END_ICON_NONE
                     }
                 }
             }
         }
 
         fun bind(taskType: TaskType) = with(binding) {
-            ViewCompat.setTransitionName(parentLayoutListTask, taskType.idTask.toString())
+            bufferTask = taskType
+            binding.task = taskType
+            binding.executePendingBindings()
+            titleTaskLayout.isHintEnabled = false
+            checkTask.isChecked = taskType.checked
 
-            nameTask.setText(taskType.nameTask)
-            nameTaskLayout.isHintEnabled = false
-            checkTask.isChecked = taskType.checkTask
-
-
-            if (checkTask.isChecked) {
-                nameTask.paint.isStrikeThruText = true
-                nameTask.isEnabled = false
-                nameTask.background.alpha = 255
-                nameTask.setBackgroundColor(Color.TRANSPARENT)
-                parentLayoutListTask.alpha = 0.5F
-                parentLayoutListTask.setBackgroundResource(0)
-            } else {
-                nameTask.paint.isStrikeThruText = false
-                nameTask.isEnabled = true
-                parentLayoutListTask.alpha = 1.0F
-
-
-                nameTask.setSelection(nameTask.length())
-                nameTask.background.alpha = 255
-                nameTask.setBackgroundColor(Color.TRANSPARENT)
-                when (taskType.priorityTask) {
-                    0 -> {
-                        parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.fragment_water_gradient_priority_leisurely)
-                    }
-                    1 -> {
-                        parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.fragment_water_gradient_priority_default)
-                    }
-                    2 -> {
-                        parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.fragment_water_gradient_priority_advisable)
-                    }
-                    3 -> {
-                        parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.fragment_water_gradient_priority_important)
-                    }
-                    else -> parentLayoutListTask.setBackgroundResource(com.conboi.plannerapp.R.drawable.fragment_water_gradient_priority_default)
-                }
-            }
-
-            nameTask.setOnEditorActionListener { _, actionId, _ ->
-                if (actionId == EditorInfo.IME_ACTION_DONE ||
-                    actionId == EditorInfo.IME_ACTION_PREVIOUS ||
-                    actionId == EditorInfo.IME_ACTION_NONE ||
-                    actionId == EditorInfo.IME_ACTION_UNSPECIFIED
+            titleTask.setOnEditorActionListener { _, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_DONE
                 ) {
-                    nameTask.setBackgroundColor(Color.TRANSPARENT)
-                    nameTask.clearFocus()
-                    listener.onNameChanged(taskType, nameTask.text.toString())
-
+                    timer!!.onFinish()
+                    titleTask.clearFocus()
                 }
                 false
             }
-            nameTask.doOnTextChanged { text, _, _, _ ->
-                if (!taskType.checkTask) {
-                    if (taskType.nameTask != text.toString()) {
+            titleTask.doOnTextChanged { text, _, _, _ ->
+                if (!taskType.checked) {
+                    if (taskType.title != text.toString()) {
                         timer!!.cancel()
                         timer!!.start()
-                        nameTask.setBackgroundColor(Color.GRAY)
-                        nameTask.background.alpha = 50
                     }
                 }
             }
         }
     }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -143,44 +108,70 @@ class TaskAdapter(
     }
 
     override fun onBindViewHolder(vh: ViewHolder, position: Int) {
-        val adapterPosition = getItem(position)
-        vh.bind(adapterPosition)
+        vh.bind(getItem(position))
 
         //Very important code for some problems
         if (vh.timer != null) {
             vh.timer!!.cancel()
         }
 
-        vh.timer = object : CountDownTimer(1500, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
+        //CountTimer
+        vh.timer = object : CountDownTimer(2000, 2000) {
+            override fun onTick(p0: Long) {
+                val taskInProcessSavingAnimation = ValueAnimator.ofObject(
+                    ArgbEvaluator(),
+                    Color.LTGRAY,
+                    Color.TRANSPARENT
+                )
+                taskInProcessSavingAnimation.duration = 2000
+                taskInProcessSavingAnimation.addUpdateListener { animator ->
+                    vh.titleTaskVh.setBackgroundColor(
+                        animator.animatedValue as Int
+                    )
+                }
+                taskInProcessSavingAnimation.start()
             }
+
             override fun onFinish() {
-                vh.nameTaskVh.setBackgroundColor(Color.TRANSPARENT)
-                vh.nameTaskVh.background.alpha = 255
-                listener.onNameChanged(adapterPosition, vh.nameTaskVh.text.toString())
+                val taskSavedAnimation = ValueAnimator.ofObject(
+                    ArgbEvaluator(),
+                    Color.GREEN,
+                    Color.TRANSPARENT
+                )
+                taskSavedAnimation.duration = 250
+                taskSavedAnimation.addUpdateListener { animator ->
+                    vh.titleTaskVh.setBackgroundColor(
+                        animator.animatedValue as Int
+                    )
+                }
+                taskSavedAnimation.start()
+                listener.onTitleChanged(
+                    vh.bufferTask!!,
+                    vh.titleTaskVh.text.toString()
+                )
+                vh.titleTaskVh.setSelection(vh.titleTaskVh.text!!.length)
             }
+
         }
     }
 
     interface OnTaskClickListener {
+        fun onEditTaskCLick(taskView: View, taskType: TaskType)
         fun onCheckBoxClick(taskType: TaskType, isChecked: Boolean)
-        fun onNameChanged(taskType: TaskType, name: String)
+        fun onTitleChanged(taskType: TaskType, title: String)
     }
-
 
     override fun getItemId(position: Int): Long = position.toLong()
+}
 
-    companion object {
-        private val DiffCallback = object : DiffUtil.ItemCallback<TaskType>() {
-            override fun areItemsTheSame(oldItem: TaskType, newItem: TaskType): Boolean {
-                return oldItem.idTask == newItem.idTask
-            }
-
-            override fun areContentsTheSame(oldItem: TaskType, newItem: TaskType): Boolean {
-                return oldItem == newItem
-            }
-
-        }
+class TaskDiffCallback : DiffUtil.ItemCallback<TaskType>() {
+    override fun areItemsTheSame(oldItem: TaskType, newItem: TaskType): Boolean {
+        return oldItem.idTask == newItem.idTask
     }
+
+    override fun areContentsTheSame(oldItem: TaskType, newItem: TaskType): Boolean {
+        return oldItem == newItem
+    }
+
 }
 

@@ -1,6 +1,6 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
-    <style name="WaterTheme.PlannerApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="PlannerApp.Theme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/primaryDarkColorWater</item>
         <item name="colorPrimaryVariant">@color/secondaryDarkColorWater</item>
@@ -9,10 +9,17 @@
         <item name="colorSecondary">@color/secondaryColorWater</item>
         <item name="colorSecondaryVariant">@color/secondaryDarkColorWater</item>
         <item name="colorOnSecondary">@color/secondaryTextColorWater</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
+
         <!-- Customize your theme here. -->
-        <item name="android:navigationBarColor">?attr/colorPrimary</item>
+        <item name="bottomSheetDialogTheme">@style/mBottomSheetDialogDark</item>
+
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
 
     </style>
 
