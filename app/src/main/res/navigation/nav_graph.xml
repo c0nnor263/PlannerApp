@@ -3,31 +3,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-
     app:startDestination="@id/mainFragment">
     <fragment
         android:id="@+id/mainFragment"
-        android:menuCategory="secondary"
         android:name="com.conboi.plannerapp.ui.main.MainFragment"
         android:label="Daily tasks"
+        android:menuCategory="secondary"
         tools:layout="@layout/fragment_main" />
 
     <fragment
         android:id="@+id/friendsFragment"
-        android:menuCategory="secondary"
         android:name="com.conboi.plannerapp.ui.friends.FriendsFragment"
         android:label="Friends"
+        android:menuCategory="secondary"
         tools:layout="@layout/fragment_friends" />
     <fragment
         android:id="@+id/settingsFragment"
-        android:menuCategory="secondary"
-        android:name="com.conboi.plannerapp.ui.settings.SettingsFragment"
+        android:name="com.conboi.plannerapp.ui.bottomsheet.SettingsFragment"
         android:label="Profile"
+        android:menuCategory="secondary"
         tools:layout="@layout/fragment_settings" />
     <fragment
         android:id="@+id/taskDetailsFragment"
         android:name="com.conboi.plannerapp.ui.main.TaskDetailsFragment"
-        android:label="Edit task">
+        android:label="Edit task"
+        tools:layout="@layout/fragment_task_details">
         <argument
             android:name="idTask"
             app:argType="integer" />
@@ -39,7 +39,7 @@
         tools:layout="@layout/fragment_search" />
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.conboi.plannerapp.ui.LoginFragment"
+        android:name="com.conboi.plannerapp.ui.auth.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" />
     <action
@@ -49,18 +49,20 @@
         android:id="@+id/action_global_taskDetailsFragment"
         app:destination="@id/taskDetailsFragment" />
     <fragment
-        android:id="@+id/profileSettingsFragment"
-        android:name="com.conboi.plannerapp.ui.profile.ProfileSettingsFragment"
-        android:label="ProfileSettingsFragment" />
-    <action
-        android:id="@+id/action_global_profileSettingsFragment"
-        app:destination="@id/profileSettingsFragment" />
+        android:id="@+id/profileFragment"
+        android:name="com.conboi.plannerapp.ui.profile.ProfileFragment"
+        android:label="ProfileFragment"
+        tools:layout="@layout/fragment_profile" />
     <fragment
         android:id="@+id/friendDetailsFragment"
         android:name="com.conboi.plannerapp.ui.friends.FriendDetailsFragment"
-        android:label="FriendFragment" >
+        android:label="FriendFragment"
+        tools:layout="@layout/fragment_friend_details">
         <argument
             android:name="friend"
-            app:argType="com.conboi.plannerapp.data.model.FriendType" />
-    </fragment><action android:id="@+id/action_global_friendDetailsFragment" app:destination="@id/friendDetailsFragment"/>
+            app:argType="com.conboi.plannerapp.model.FriendType" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_friendDetailsFragment"
+        app:destination="@id/friendDetailsFragment" />
 </navigation>

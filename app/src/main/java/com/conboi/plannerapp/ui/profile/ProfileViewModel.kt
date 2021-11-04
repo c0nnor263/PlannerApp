@@ -15,17 +15,15 @@ class ProfileViewModel @Inject constructor(
     private val taskDao: TaskDao,
     private val preferencesManager: PreferencesManager
 ) : ViewModel() {
-
     val totalCompleted = MutableLiveData(0)
     fun updateTotalCompleted(newTotal: Int) {
         totalCompleted.value = newTotal
     }
     suspend fun getTotalCompleted(): Int = preferencesManager.preferencesFlow.first().totalCompleted
 
-
     fun signOutDelete() =
         viewModelScope.launch {
-            taskDao.signOutDeleteTasks()
+            taskDao.deleteAllTasks()
             preferencesManager.updateTotalCompleted(0)
         }
 }

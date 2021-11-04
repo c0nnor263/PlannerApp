@@ -4,51 +4,169 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="friend"
-            type="com.conboi.plannerapp.data.model.FriendType" />
+            type="com.conboi.plannerapp.model.FriendType" />
     </data>
 
-    <RelativeLayout
-        android:id="@+id/parent_layout_friend_tasks"
-        paddingTopSystemWindowInsets="@{true}"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/parent_friend_details"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
         android:transitionName="@string/friend_detail_transition_name">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/fragment_friend_details_toolbar"
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            paddingTopSystemWindowInsets="@{true}"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:layout_alignParentTop="true"
-            android:background="?attr/colorSurface"
-            app:title="@{@string/friends_tasks(friend.user_name)}"
-            android:elevation="4dp"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            app:navigationIcon="@drawable/ic_baseline_close_24"
-            app:popupTheme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
+            android:layout_height="175dp"
+            android:background="@color/secondaryLightColorFire">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/parent_rv_friends_tasks"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/fragment_friend_details_toolbar"
-            android:layout_alignParentBottom="true"
-            android:layout_marginTop="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_friend_task"
+            <com.google.android.material.appbar.CollapsingToolbarLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingHorizontal="10dp"
-                android:paddingBottom="35dp"
-                tools:listitem="@layout/list_global_task" />
+                app:contentScrim="@color/secondaryLightColorFire"
+                app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
+                app:title="@{friend.user_name}">
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </RelativeLayout>
+                <ImageView
+                    android:id="@+id/friend_avatar"
+                    loadImage="@{friend.user_photo_url}"
+                    android:layout_width="170dp"
+                    android:layout_height="170dp"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:backgroundTint="@android:color/transparent"
+                    android:contentDescription="@string/profile_photo"
+                    android:scaleType="fitXY"
+                    android:visibility="visible"
+                    app:layout_collapseMode="parallax"
+                    tools:src="@drawable/ic_baseline_account_circle_24" />
+
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:elevation="5dp"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    app:layout_collapseMode="pin"
+                    app:navigationIcon="@drawable/ic_baseline_close_24"
+                    app:popupTheme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+        </com.google.android.material.appbar.AppBarLayout>
+
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nsv_friend_info"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_tasks_msg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="16sp"
+                    android:visibility="gone" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:ellipsize="end"
+                    android:text="@{friend.user_email}"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="@string/fui_email_hint" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_total_completed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="4dp"
+                    android:text="@{@string/total_completed_tasks(friend.user_count_completed)}"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="@+id/tv_email"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_email"
+                    tools:text="@string/total_completed_tasks" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_added"
+                    setFriendAdded="@{friend.user_friend_adding_time}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="4dp"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="@+id/tv_total_completed"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_total_completed"
+                    tools:text="@string/added_friend_time" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/count_of_tasks"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toTopOf="@+id/divider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="@string/count_of_tasks" />
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:id="@+id/divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="14dp"
+                    android:elevation="4dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_added" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_friend_task"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="94dp"
+                    android:clipToPadding="false"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="35dp"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/divider"
+                    tools:listitem="@layout/list_global_task" />
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/circular_loading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true"
+                    android:indeterminateBehavior="repeat"
+                    android:visibility="gone"
+                    app:indicatorSize="64dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
+
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

@@ -2,49 +2,145 @@ package com.conboi.plannerapp.ui.main
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.conboi.plannerapp.data.model.TaskType
+import com.conboi.plannerapp.model.TaskType
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class TaskDetailsViewModel : ViewModel() {
-    private var _bufferTask = MutableLiveData(TaskType(title = null, description = null))
+@HiltViewModel
+class TaskDetailsViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle
+) : ViewModel() {
+    private var _bufferTask = MutableLiveData(TaskType())
     val bufferTask: LiveData<TaskType> = _bufferTask
 
-    private var _newTaskTime = MutableLiveData(0)
-    val newTaskTime: LiveData<Int> = _newTaskTime
+    private var _newTime = MutableLiveData<Long>()
+    val newTime: LiveData<Long> = _newTime
 
+    private var _newDeadline = MutableLiveData<Long>()
+    val newDeadline: LiveData<Long> = _newDeadline
 
-    private var _newTaskPriority = MutableLiveData(1)
-    val newTaskPriority: LiveData<Int> = _newTaskPriority
+    private var _newPriority = MutableLiveData<Int>()
+    val newPriority: LiveData<Int> = _newPriority
 
-    private var _newTaskCompleted = MutableLiveData<Long>(0)
-    val newTaskCompleted: LiveData<Long> = _newTaskCompleted
+    private var _newCompleted = MutableLiveData<Long>()
+    val newCompleted: LiveData<Long> = _newCompleted
 
-    private var _newTaskChecked = MutableLiveData(false)
-    val newTaskChecked: LiveData<Boolean> = _newTaskChecked
+    private var _newChecked = MutableLiveData<Boolean>()
+    val newChecked: LiveData<Boolean> = _newChecked
 
+    private var _newRepeatMode = MutableLiveData<Int>()
+    val newRepeatMode: LiveData<Int> = _newRepeatMode
+
+    private var _newTotalChecked = MutableLiveData<Int>()
+    val newTotalChecked: LiveData<Int> = _newTotalChecked
 
     fun setBufferTask(task: TaskType) {
         _bufferTask.value = task
     }
 
-    fun updateTimeValue(time: Int) {
-        _newTaskTime.value = time
+    fun updateTimeValue(time: Long) {
+        _newTime.value = time
+    }
+
+    fun updateDeadlineValue(time: Long) {
+        _newDeadline.value = time
     }
 
     fun updatePriorityValue(priority: Int) {
-        _newTaskPriority.value = priority
+        _newPriority.value = priority
     }
 
     fun updateCompletedValue(completed: Long, checked: Boolean) {
         if (checked) {
-            _newTaskCompleted.value = completed
+            _newCompleted.value = completed
         } else {
-            _newTaskCompleted.value = 0
+            _newCompleted.value = 0
         }
     }
 
     fun updateCheckedValue(checked: Boolean) {
         updateCompletedValue(System.currentTimeMillis(), checked)
-        _newTaskChecked.value = checked
+        _newChecked.value = checked
+    }
+
+    fun updateTotalCheckedValue(totalChecked: Int) {
+        _newTotalChecked.value = totalChecked
+    }
+
+    fun increaseTotalChecked() {
+        _newChecked.value = true
+        newTotalChecked.value.let { totalChecked ->
+            _newTotalChecked.value = totalChecked!!.plus(1)
+        }
+    }
+
+    fun decreaseTotalChecked() {
+        if (newTotalChecked.value!! > 1) {
+            _newChecked.value = true
+            newTotalChecked.value.let { totalChecked ->
+                _newTotalChecked.value = totalChecked!!.minus(1)
+            }
+        } else {
+            _newTotalChecked.value = 0
+            _newChecked.value = false
+        }
+    }
+
+    fun updateRepeatModeValue(repeatMode: Int) {
+        _newRepeatMode.value = repeatMode
+    }
+
+    fun saveState(bufferedTask: TaskType, title: String, desc: String, checked: Boolean) {
+        savedStateHandle.apply {
+            set(BUFFER_TASK, bufferedTask)
+            set(NEW_TITLE, title)
+            set(NEW_DESCRIPTION, desc)
+            set(NEW_TIME, newTime.value)
+            set(NEW_REPEAT_MODE, newRepeatMode.value)
+            set(NEW_DEADLINE, newDeadline.value)
+            set(NEW_PRIORITY, newPriority.value)
+            set(NEW_COMPLETED, newCompleted.value)
+            set(NEW_CHECKED, checked)
+            set(NEW_TOTAL_CHECKED, newTotalChecked.value)
+        }
+    }
+
+    fun retrieveState(): Triple<String, String, Boolean> {
+        savedStateHandle.apply {
+            setBufferTask(getLiveData<TaskType>(BUFFER_TASK).value!!)
+            updateTimeValue(getLiveData<Long>(NEW_TIME).value!!)
+            updateDeadlineValue(getLiveData<Long>(NEW_DEADLINE).value!!)
+            updatePriorityValue(getLiveData<Int>(NEW_PRIORITY).value!!)
+            updateRepeatModeValue(getLiveData<Int>(NEW_REPEAT_MODE).value!!)
+            updateCheckedValue(getLiveData<Boolean>(NEW_CHECKED).value!!)
+            updateTotalCheckedValue(getLiveData<Int>(NEW_TOTAL_CHECKED).value!!)
+            updateCompletedValue(
+                getLiveData<Long>(NEW_COMPLETED).value!!,
+                newChecked.value!!
+            )
+
+            return Triple(
+                getLiveData<String>(NEW_TITLE).value!!,
+                getLiveData<String>(NEW_DESCRIPTION).value!!,
+                getLiveData<Boolean>(NEW_CHECKED).value!!
+
+            )
+        }
+    }
+
+
+    companion object {
+        private const val BUFFER_TASK = "bufferTask"
+        private const val NEW_TITLE = "newTitle"
+        private const val NEW_DESCRIPTION = "newDescription"
+        private const val NEW_CHECKED = "newChecked"
+        private const val NEW_TIME = "newTime"
+        private const val NEW_TOTAL_CHECKED = "newTotalChecked"
+        private const val NEW_REPEAT_MODE = "newRepeatMode"
+        private const val NEW_DEADLINE = "newDeadline"
+        private const val NEW_PRIORITY = "newPriority"
+        private const val NEW_COMPLETED = "newCompleted"
     }
 }

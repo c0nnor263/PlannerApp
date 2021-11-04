@@ -6,20 +6,23 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="task"
-            type="com.conboi.plannerapp.data.model.TaskType" />
+            type="com.conboi.plannerapp.model.TaskType" />
     </data>
 
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:id="@+id/parent_layout_list_task"
-        setTaskPriority="@{task.priority}"
-        setTextTaskChecked="@{task.checked}"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/parent_list_task"
+        parentChecked="@{task.checked}"
+        parentPriority="@{task.priority}"
+        parentTitle="@{task.title}"
+        parentTotal="@{task.totalChecked}"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="55dp"
         android:animateLayoutChanges="true"
         android:orientation="horizontal"
-        android:paddingHorizontal="10dp"
         android:paddingVertical="3dp"
         android:transitionName="@{@string/task_transition_name(task.idTask)}">
 
@@ -27,35 +30,56 @@
             android:id="@+id/check_task"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:buttonTint="@color/checkbox_filter_tint"
-            android:minWidth="0dp"
-            android:minHeight="0dp"
-            tools:checked="true"
-            tools:ignore="TouchTargetSizeCheck,TouchTargetSizeCheck" />
+            android:layout_gravity="center_vertical|end"
+            android:button="@null"
+            android:checked="@{task.checked}"
+            android:drawableEnd="?android:attr/listChoiceIndicatorMultiple"
+            android:paddingHorizontal="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:useMaterialThemeColors="true"
+            tools:checked="true" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/total_check"
+            setTotal="@{task.totalChecked}"
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="38dp"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@+id/title_layout"
+            app:layout_constraintStart_toStartOf="@+id/check_task"
+            tools:text="99+" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/title_task_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/title_layout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="265dp"
+            android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
             app:boxBackgroundColor="#FFF"
             app:boxStrokeColor="#FFF"
             app:boxStrokeWidth="0dp"
             app:boxStrokeWidthFocused="0dp"
-            app:endIconMode="none">
+            app:endIconMode="none"
+            app:hintEnabled="false"
+            app:layout_constraintBottom_toBottomOf="@+id/check_task"
+            app:layout_constraintStart_toEndOf="@+id/check_task"
+            app:layout_constraintTop_toTopOf="@+id/check_task">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/title_task"
-                setTietTextTaskChecked="@{task.checked}"
-                android:layout_width="265dp"
-                android:layout_height="48dp"
+                android:id="@+id/title"
+                setTextInputEditTextTaskChecked="@{task.checked}"
+                setTextInputEditTextTaskTotal="@{task.totalChecked}"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:background="@android:color/transparent"
                 android:hint="@string/add_task"
                 android:imeOptions="actionDone"
-                android:inputType="text|textCapSentences"
+                android:inputType="textNoSuggestions|textCapSentences"
                 android:maxLength="@integer/task_name_length"
-                android:paddingTop="8dp"
+                android:padding="8dp"
                 android:text="@{task.title}"
                 android:textSize="16sp" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -71,7 +95,23 @@
             android:contentDescription="@string/open_task"
             android:minWidth="0dp"
             android:minHeight="0dp"
-            android:src="@drawable/ic_baseline_edit_24" />
+            android:src="@drawable/ic_baseline_edit_24"
+            app:layout_constraintBottom_toBottomOf="@+id/title_layout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/title_layout" />
 
-    </androidx.appcompat.widget.LinearLayoutCompat>
+        <ImageView
+            android:id="@+id/saving_title_indicator"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_margin="12dp"
+            android:contentDescription="@string/saving_title_indicator"
+            android:src="@drawable/saving_anim"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/title_layout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/title_layout"
+            tools:visibility="visible" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -8,8 +8,8 @@
     <color name="secondaryColorWater">#42a5f5</color>
     <color name="secondaryLightColorWater">#80d6ff</color>
     <color name="secondaryDarkColorWater">#0077c2</color>
-    <color name="primaryTextColorWater">#000000</color>
-    <color name="secondaryTextColorWater">#000000</color>
+    <color name="primaryTextColor">#000000</color>
+    <color name="secondaryTextColor">#000000</color>
 
     <!--> FIRE <-->
     <color name="primaryColorFire">#ffa000</color>
@@ -17,9 +17,7 @@
     <color name="primaryDarkColorFire">#c67100</color>
     <color name="secondaryColorFire">#e64a19</color>
     <color name="secondaryLightColorFire">#ff7d47</color>
-    <color name="secondaryDarkColorFire">#ac0800</color>
-    <color name="primaryTextColorFire">#000000</color>
-    <color name="secondaryTextColorFire">#000000</color>
+    <color name="secondaryDarkColorFire">#c62828</color>
 
     <!--> AIR <-->
     <color name="primaryColorAir">#e0f2f1</color>
@@ -28,8 +26,6 @@
     <color name="secondaryColorAir">#66bb6a</color>
     <color name="secondaryLightColorAir">#98ee99</color>
     <color name="secondaryDarkColorAir">#338a3e</color>
-    <color name="primaryTextColorAir">#000000</color>
-    <color name="secondaryTextColorAir">#000000</color>
 
     <!--> TREE <-->
     <color name="primaryColorTree">#4caf50</color>
@@ -38,7 +34,5 @@
     <color name="secondaryColorTree">#388e3c</color>
     <color name="secondaryLightColorTree">#6abf69</color>
     <color name="secondaryDarkColorTree">#00600f</color>
-    <color name="primaryTextColorTree">#000000</color>
-    <color name="secondaryTextColorTree">#000000</color>
 
 </resources>

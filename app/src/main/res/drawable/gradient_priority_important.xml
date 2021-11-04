@@ -7,7 +7,7 @@
                 android:centerY="0.5"
                 android:centerColor="@android:color/transparent"
                 android:startColor="@android:color/transparent"
-                android:endColor="#c62828"
+                android:endColor="@color/secondaryDarkColorFire"
                 android:type="linear" />
         </shape>
     </item>

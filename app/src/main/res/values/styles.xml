@@ -1,47 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-->MaterialAlertDialog styles<-->
+    <style name="mMaterialAlertDialog.Rounded" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="alertDialogStyle">@style/MaterialAlertDialog.Rounded</item>
+    </style>
 
-    <style name="PlannerApp.Login.Theme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/primaryColorWater</item>
-        <item name="colorPrimaryVariant">@color/primaryLightColorWater</item>
-        <item name="colorOnPrimary">@color/primaryTextColorWater</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/secondaryColorWater</item>
-        <item name="colorSecondaryVariant">@color/secondaryDarkColorWater</item>
-        <item name="colorOnSecondary">@color/secondaryTextColorWater</item>
-        <!-- Customize your theme here. -->
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
+    <style name="MaterialAlertDialog.Rounded" parent="MaterialAlertDialog.Material3">
+        <item name="shapeAppearance">@style/ShapeAppearance.MaterialAlertDialog.Rounded</item>
+    </style>
 
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-
-        <item name="android:windowBackground">@drawable/login_background</item>
-
+    <style name="ShapeAppearance.MaterialAlertDialog.Rounded" parent="">
+        <item name="cornerSize">16dp</item>
     </style>
 
 
-    <style name="mBottomSheetDialogDark" parent="Theme.MaterialComponents.BottomSheetDialog">
+    <!-->BottomSheetDialog styles<-->
+    <style name="mBottomSheetDialogDayNight" parent="Theme.MaterialComponents.DayNight.BottomSheetDialog">
         <item name="android:windowTranslucentStatus">true</item>
         <item name="bottomSheetStyle">@style/mBottomSheetDialogBackground</item>
     </style>
 
-    <style name="mBottomSheetDialogLight" parent="Theme.MaterialComponents.Light.BottomSheetDialog">
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="bottomSheetStyle">@style/mBottomSheetDialogBackground</item>
-    </style>
 
     <style name="mBottomSheetDialogBackground" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@drawable/bottom_navigation_view_round_corners</item>
     </style>
 
-
     <style name="mCircleImageView" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
+
 
 </resources>

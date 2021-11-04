@@ -4,13 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/activity_main"
+        android:id="@+id/parent_activity_main"
         layoutFullscreen="@{true}"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
         android:orientation="vertical"
-
         tools:context=".ui.MainActivity">
 
         <androidx.fragment.app.FragmentContainerView
@@ -23,15 +22,25 @@
 
         <com.google.android.material.bottomappbar.BottomAppBar
             android:id="@+id/bottom_app_bar"
-            style="@style/Widget.MaterialComponents.BottomAppBar.PrimarySurface"
+            style="@style/Widget.Material3.BottomAppBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
+            android:backgroundTint="?colorPrimary"
+            app:contentInsetStartWithNavigation="0dp"
             app:fabAlignmentMode="center"
+            app:fabAnimationMode="slide"
             app:hideOnScroll="true"
             app:layout_scrollFlags="scroll|enterAlways"
             app:menu="@menu/bottom_app_bar_main_menu"
             app:navigationIcon="@drawable/ic_baseline_menu_24">
+
+            <ImageView
+                android:id="@+id/bottom_app_bar_sync_status"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="4dp"
+                android:contentDescription="@string/sync_status" />
 
             <LinearLayout
                 android:id="@+id/bottom_app_bar_content_container"
@@ -42,18 +51,18 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/bottom_app_bar_count_of_tasks"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     tools:text="@string/count_of_tasks" />
 
-                <TextView
-                    android:layout_marginStart="5dp"
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/bottom_app_bar_count_of_completed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
                     android:gravity="center_vertical"
                     tools:text="@string/count_of_tasks" />
 
@@ -65,9 +74,10 @@
             android:id="@+id/bottom_floating_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:backgroundTint="?attr/colorAccent"
             android:contentDescription="@string/add_task"
             app:layout_anchor="@id/bottom_app_bar"
-            app:srcCompat="@android:drawable/ic_input_add" />
+            app:srcCompat="@drawable/add_anim" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
