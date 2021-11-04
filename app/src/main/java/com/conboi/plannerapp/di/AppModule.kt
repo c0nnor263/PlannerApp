@@ -2,9 +2,9 @@ package com.conboi.plannerapp.di
 
 import android.app.Application
 import androidx.room.Room
-import com.conboi.plannerapp.data.TaskDatabase
-import com.conboi.plannerapp.data.model.TaskType
 import com.conboi.plannerapp.data.TaskDao
+import com.conboi.plannerapp.data.TaskDatabase
+import com.conboi.plannerapp.model.TaskType.TaskEntry.DATABASE_NAME
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,20 +17,19 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
     @Provides
     @Singleton
     fun provideDatabase(app: Application) = Room.databaseBuilder(
         app,
         TaskDatabase::class.java,
-        TaskType.TaskEntry.DATABASE_NAME
+        DATABASE_NAME
     )
         .fallbackToDestructiveMigration()
         .build()
 
     @Provides
     @Singleton
-    fun provideTaskDao(db:TaskDatabase):TaskDao = db.taskDao()
+    fun provideTaskDao(db: TaskDatabase): TaskDao = db.getTaskDao()
 
     @ApplicationScope
     @Provides

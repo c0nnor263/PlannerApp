@@ -1,31 +1,35 @@
 package com.conboi.plannerapp.adapter
 
-import android.animation.ArgbEvaluator
-import android.animation.ValueAnimator
-import android.graphics.Color
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.CountDownTimer
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.core.widget.doOnTextChanged
+import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.conboi.plannerapp.data.model.TaskType
+import com.conboi.plannerapp.R
 import com.conboi.plannerapp.databinding.ListTaskBinding
-import com.google.android.material.textfield.TextInputEditText
+import com.conboi.plannerapp.model.TaskType
+import com.conboi.plannerapp.utils.parentTask
+import com.conboi.plannerapp.utils.setTextInputCheckedTotal
+import com.conboi.plannerapp.utils.setTotal
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 
 class TaskAdapter @ExperimentalCoroutinesApi constructor(
     private val listener: OnTaskClickListener
-) : ListAdapter<TaskType, TaskAdapter.ViewHolder>(TaskDiffCallback()) {
-    inner class ViewHolder(private var binding: ListTaskBinding) :
+) : ListAdapter<TaskType, TaskAdapter.ViewHolder>(
+    AsyncDifferConfig.Builder(TaskDiffCallback()).build()
+) {
+    inner class ViewHolder(var binding: ListTaskBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        var timer: CountDownTimer? = null
-        val titleTaskVh: TextInputEditText = binding.titleTask
+        var titleTimer: CountDownTimer? = null
         var bufferTask: TaskType? = null
 
         init {
@@ -34,68 +38,182 @@ class TaskAdapter @ExperimentalCoroutinesApi constructor(
                     val position = bindingAdapterPosition
                     if (position != RecyclerView.NO_POSITION) {
                         val task = getItem(position)
-                        listener.onTitleChanged(task, titleTask.text.toString())
-                        listener.onEditTaskCLick(itemView, task)
+                        titleTimer!!.cancel()
+                        openTask.visibility = View.VISIBLE
+                        savingTitleIndicator.visibility = View.GONE
+                        (savingTitleIndicator.drawable as AnimatedVectorDrawable).stop()
+                        if (title.text.toString() != bufferTask!!.title) {
+                            listener.onTitleChanged(task, title.text.toString())
+                        }
+                        listener.onEditTaskCLick(task, itemView)
                     }
                 }
                 checkTask.setOnClickListener {
-                    val position = bindingAdapterPosition
-                    if (position != RecyclerView.NO_POSITION) {
-                        timer!!.cancel()
-                        val task = getItem(position)
-                        if (titleTask.text!!.isNotBlank()) {
-                            listener.onCheckBoxClick(
-                                task.copy(
-                                    title = titleTaskVh.text.toString()
-                                ), checkTask.isChecked
-                            )
-                        } else {
-                            checkTask.isChecked = false
-                            listener.onCheckBoxClick(
-                                task.copy(
-                                    title = titleTaskVh.text.toString()
-                                ), false
-                            )
-
-                        }
-                    }
+                    complexCheckTask(true)
                 }
-                titleTask.setOnFocusChangeListener { _, hasFocus ->
+                checkTask.setOnLongClickListener {
+                    complexCheckTask(false)
+                    true
+                }
+                title.setOnFocusChangeListener { _, hasFocus ->
                     if (hasFocus) {
-                        titleTaskLayout.endIconMode = TextInputLayout.END_ICON_CLEAR_TEXT
+                        titleLayout.endIconMode = TextInputLayout.END_ICON_CLEAR_TEXT
                     } else {
-                        titleTaskLayout.endIconMode = TextInputLayout.END_ICON_NONE
+                        titleLayout.endIconMode = TextInputLayout.END_ICON_NONE
                     }
                 }
             }
         }
 
-        fun bind(taskType: TaskType) = with(binding) {
-            bufferTask = taskType
-            binding.task = taskType
-            binding.executePendingBindings()
-            titleTaskLayout.isHintEnabled = false
-            checkTask.isChecked = taskType.checked
+        private fun complexCheckTask(one: Boolean) = with(binding) {
+            val position = bindingAdapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                titleTimer!!.cancel()
+                openTask.visibility = View.VISIBLE
+                savingTitleIndicator.visibility = View.GONE
+                (savingTitleIndicator.drawable as AnimatedVectorDrawable).stop()
+                val task = getItem(position)
+                if (task.totalChecked > 1) {
+                    checkTask.isChecked = true
+                }
+                if (title.text!!.isNotBlank()) {
+                    //Title is not empty
+                    if (one) {
+                        listener.onCheckBoxEvent(
+                            task.copy(
+                                title = title.text.toString()
+                            ),
+                            isChecked = checkTask.isChecked,
+                            isHold = false
+                        )
+                    } else {
+                        listener.onCheckBoxEvent(
+                            task.copy(
+                                title = title.text.toString()
+                            ),
+                            isChecked = true,
+                            isHold = true
+                        )
+                    }
+                } else {
+                    //Title is empty
+                    checkTask.isChecked = false
+                    if (one) {
+                        listener.onCheckBoxEvent(
+                            task.copy(
+                                title = title.text.toString()
+                            ),
+                            isChecked = false,
+                            isHold = false
+                        )
+                    } else {
+                        listener.onCheckBoxEvent(
+                            task.copy(
+                                title = title.text.toString()
+                            ),
+                            isChecked = false,
+                            isHold = true
+                        )
+                    }
+                }
+            } else {
+                return@with
+            }
 
-            titleTask.setOnEditorActionListener { _, actionId, _ ->
+        }
+
+        fun bind(task: TaskType) = with(binding) {
+            bufferTask = task
+            setTask(task)
+            executePendingBindings()
+
+            openTask.visibility = View.VISIBLE
+            openTask.alpha = 0.5f
+            savingTitleIndicator.visibility = View.GONE
+
+            title.setOnEditorActionListener { _, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_DONE
                 ) {
-                    timer!!.onFinish()
-                    titleTask.clearFocus()
+                    titleTimer!!.onFinish()
+                    title.clearFocus()
                 }
                 false
             }
-            titleTask.doOnTextChanged { text, _, _, _ ->
-                if (!taskType.checked) {
-                    if (taskType.title != text.toString()) {
-                        timer!!.cancel()
-                        timer!!.start()
-                    }
+            title.doOnTextChanged { text, _, _, _ ->
+                (savingTitleIndicator.drawable as AnimatedVectorDrawable).stop()
+                titleTimer!!.cancel()
+                titleTimer!!.start()
+                savingTitleIndicator.setImageResource(R.drawable.saving_anim)
+                (savingTitleIndicator.drawable as AnimatedVectorDrawable).start()
+                if (text?.isEmpty() != false) {
+                    parentListTask.setBackgroundResource(R.color.secondaryLightColorWater)
+                }
+            }
+        }
+
+        fun bindPayload(task: TaskType, payloads: MutableList<Any>) {
+            binding.apply {
+                val newTask = payloads.last() as TaskType
+                bufferTask = newTask
+                setTask(newTask)
+                executePendingBindings()
+
+                if (!title.isFocused) {
+                    title.setText(newTask.title)
+                }
+                listener.onTitleChanged(
+                    newTask,
+                    newTask.title
+                )
+
+                if (titleTimer != null) {
+                    titleTimer!!.cancel()
                 }
             }
         }
     }
 
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNullOrEmpty()) {
+            super.onBindViewHolder(holder, position, payloads)
+        } else {
+            holder.bindPayload(currentList[position], payloads)
+        }
+    }
+
+    override fun onBindViewHolder(vh: ViewHolder, position: Int) {
+        vh.bind(getItem(position))
+
+        if (vh.titleTimer != null) {
+            vh.titleTimer!!.cancel()
+        }
+
+        vh.binding.apply {
+            vh.titleTimer = object : CountDownTimer(3000, 1000) {
+                override fun onTick(remainingTime: Long) {
+                    openTask.visibility = View.GONE
+                    savingTitleIndicator.visibility = View.VISIBLE
+                    if (remainingTime <= 1000 && remainingTime != 0.toLong()) {
+                        (savingTitleIndicator.drawable as AnimatedVectorDrawable).stop()
+                        savingTitleIndicator.setImageResource(R.drawable.saving_done)
+                        (savingTitleIndicator.drawable as AnimatedVectorDrawable).start()
+                    }
+                }
+
+                override fun onFinish() {
+                    (savingTitleIndicator.drawable as AnimatedVectorDrawable).stop()
+                    openTask.visibility = View.VISIBLE
+                    savingTitleIndicator.visibility = View.GONE
+                    openTask.alpha = 0.5f
+                    listener.onTitleChanged(
+                        vh.bufferTask!!,
+                        title.text.toString()
+                    )
+                }
+            }
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -107,64 +225,27 @@ class TaskAdapter @ExperimentalCoroutinesApi constructor(
         )
     }
 
-    override fun onBindViewHolder(vh: ViewHolder, position: Int) {
-        vh.bind(getItem(position))
-
-        //Very important code for some problems
-        if (vh.timer != null) {
-            vh.timer!!.cancel()
-        }
-
-        //CountTimer
-        vh.timer = object : CountDownTimer(2000, 2000) {
-            override fun onTick(p0: Long) {
-                val taskInProcessSavingAnimation = ValueAnimator.ofObject(
-                    ArgbEvaluator(),
-                    Color.LTGRAY,
-                    Color.TRANSPARENT
-                )
-                taskInProcessSavingAnimation.duration = 2000
-                taskInProcessSavingAnimation.addUpdateListener { animator ->
-                    vh.titleTaskVh.setBackgroundColor(
-                        animator.animatedValue as Int
-                    )
-                }
-                taskInProcessSavingAnimation.start()
-            }
-
-            override fun onFinish() {
-                val taskSavedAnimation = ValueAnimator.ofObject(
-                    ArgbEvaluator(),
-                    Color.GREEN,
-                    Color.TRANSPARENT
-                )
-                taskSavedAnimation.duration = 250
-                taskSavedAnimation.addUpdateListener { animator ->
-                    vh.titleTaskVh.setBackgroundColor(
-                        animator.animatedValue as Int
-                    )
-                }
-                taskSavedAnimation.start()
-                listener.onTitleChanged(
-                    vh.bufferTask!!,
-                    vh.titleTaskVh.text.toString()
-                )
-                vh.titleTaskVh.setSelection(vh.titleTaskVh.text!!.length)
-            }
-
-        }
-    }
-
     interface OnTaskClickListener {
-        fun onEditTaskCLick(taskView: View, taskType: TaskType)
-        fun onCheckBoxClick(taskType: TaskType, isChecked: Boolean)
-        fun onTitleChanged(taskType: TaskType, title: String)
+        fun onEditTaskCLick(task: TaskType, taskView: View)
+        fun onCheckBoxEvent(task: TaskType, isChecked: Boolean, isHold: Boolean)
+        fun onTitleChanged(task: TaskType, title: String)
     }
 
     override fun getItemId(position: Int): Long = position.toLong()
+    override fun onViewDetachedFromWindow(holder: ViewHolder) {
+        if (holder.titleTimer != null) {
+            holder.titleTimer!!.onFinish()
+        }
+        super.onViewDetachedFromWindow(holder)
+    }
 }
 
 class TaskDiffCallback : DiffUtil.ItemCallback<TaskType>() {
+    override fun getChangePayload(oldItem: TaskType, newItem: TaskType): Any? {
+        if (oldItem != newItem) return newItem
+        return super.getChangePayload(oldItem, newItem)
+    }
+
     override fun areItemsTheSame(oldItem: TaskType, newItem: TaskType): Boolean {
         return oldItem.idTask == newItem.idTask
     }

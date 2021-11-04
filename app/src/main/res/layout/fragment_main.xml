@@ -4,31 +4,40 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/fragment_water_parent_layout"
+        android:id="@+id/parent_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/water_fragment_background">
 
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_no_tasks"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/there_are_no_tasks_for_showing"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="16sp"
+            android:visibility="gone" />
+
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_tasks"
+            android:id="@+id/rv_tasks"
             paddingTopSystemWindowInsets="@{true}"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:paddingBottom="?attr/actionBarSize"
-            android:scrollbars="vertical"
+            android:scrollbars="none"
             android:transitionGroup="true"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:id="@+id/myCoordinatorLayout"
+            android:id="@+id/cl_snack"
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            android:layout_marginBottom="90dp"
+            android:layout_marginBottom="100dp"
             app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

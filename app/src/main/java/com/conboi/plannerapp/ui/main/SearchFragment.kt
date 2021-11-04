@@ -14,10 +14,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.conboi.plannerapp.R
 import com.conboi.plannerapp.adapter.SearchTaskAdapter
 import com.conboi.plannerapp.databinding.FragmentSearchBinding
+import com.conboi.plannerapp.ui.MainActivity
 import com.google.android.material.transition.MaterialElevationScale
 import com.google.android.material.transition.MaterialSharedAxis
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.activity_main.*
+import jp.wasabeef.recyclerview.animators.FadeInAnimator
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @AndroidEntryPoint
@@ -34,6 +35,11 @@ class SearchFragment : Fragment() {
     ): View {
         _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_search, container, false)
         return binding.root
+    }
+
+    override fun onStart() {
+        super.onStart()
+        (activity as MainActivity).binding.bottomAppBar.visibility = View.GONE
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,15 +65,14 @@ class SearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         postponeEnterTransition()
         view.doOnPreDraw { startPostponedEnterTransition() }
-
         val mAdapter = SearchTaskAdapter()
 
         binding.apply {
-            fragmentSearchToolbar.setNavigationOnClickListener {
+            toolbar.setNavigationOnClickListener {
                 findNavController().navigateUp()
             }
 
-            binding.fragmentSearchEdittext.apply {
+            binding.etSearch.apply {
                 addTextChangedListener { text ->
                     if (text.toString().isNotBlank()) {
                         viewModel.searchQuery.value = text.toString()
@@ -78,23 +83,25 @@ class SearchFragment : Fragment() {
                 }
             }
 
-            fragmentSearchRvTasks.apply {
+            rvTasks.apply {
                 adapter = mAdapter
                 layoutManager = LinearLayoutManager(context)
                 setHasFixedSize(true)
-                setOnClickListener {
-                    requireActivity().bottom_floating_button.show()
+                itemAnimator = FadeInAnimator().apply {
+                    changeDuration = 300
+                    addDuration = 100
+                    removeDuration = 100
                 }
             }
 
         }
 
 
-        viewModel.allTasks.observe(viewLifecycleOwner) { items ->
+        viewModel.sortedTasks.observe(viewLifecycleOwner) { items ->
             items.let {
-                if (binding.fragmentSearchEdittext.text.isNotBlank()) {
-                    mAdapter.submitList(it)
-                }
+                if (binding.etSearch.text?.isNotBlank() == true) {
+                mAdapter.submitList(it)
+            }
                 if (it.isNotEmpty()) {
                     binding.tvNoTasks.visibility = View.GONE
                 } else {
@@ -105,6 +112,10 @@ class SearchFragment : Fragment() {
 
     }
 
+    override fun onStop() {
+        super.onStop()
+        (activity as MainActivity).binding.bottomAppBar.visibility = View.VISIBLE
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

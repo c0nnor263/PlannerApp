@@ -8,8 +8,8 @@ import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.conboi.plannerapp.R
-import com.conboi.plannerapp.data.model.TaskType
 import com.conboi.plannerapp.databinding.ListGlobalTaskBinding
+import com.conboi.plannerapp.model.TaskType
 import com.conboi.plannerapp.ui.main.TaskDetailsFragmentDirections
 
 class SearchTaskAdapter :
@@ -21,7 +21,7 @@ class SearchTaskAdapter :
         RecyclerView.ViewHolder(binding.root) {
         init {
             binding.apply {
-                itemView.setOnClickListener {
+               itemView.setOnClickListener {
                     val position = bindingAdapterPosition
                     if (position != RecyclerView.NO_POSITION) {
                         val task = getItem(position)
@@ -39,8 +39,9 @@ class SearchTaskAdapter :
         }
 
         fun bind(task: TaskType) = with(binding) {
-            parentLayoutListGlobalTask.setPadding(30)
+            parentListGlobalTask.setPadding(30)
             binding.task = task
+            globalCheckTask.isChecked = task.checked
             executePendingBindings()
         }
     }

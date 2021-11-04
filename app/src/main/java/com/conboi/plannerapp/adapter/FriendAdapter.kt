@@ -3,17 +3,19 @@ package com.conboi.plannerapp.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.conboi.plannerapp.data.model.FriendType
 import com.conboi.plannerapp.databinding.ListFriendBinding
+import com.conboi.plannerapp.model.FriendType
+import com.firebase.ui.firestore.paging.FirestorePagingAdapter
+import com.firebase.ui.firestore.paging.FirestorePagingOptions
+import com.google.firebase.firestore.ktx.toObject
 
 class FriendAdapter(
+    options: FirestorePagingOptions<FriendType>,
     private val listener: OnFriendListInterface
 ) :
-    ListAdapter<FriendType, FriendAdapter.ViewHolder>(FriendDiffCallBack()) {
-
+    FirestorePagingAdapter<FriendType, FriendAdapter.ViewHolder>(options) {
     inner class ViewHolder(private var binding: ListFriendBinding) :
         RecyclerView.ViewHolder(binding.root) {
         init {
@@ -22,12 +24,15 @@ class FriendAdapter(
                     val position = bindingAdapterPosition
                     if (position != RecyclerView.NO_POSITION) {
                         val friend = getItem(position)
-                        listener.onFriendClick(itemView, friend)
+                        listener.onFriendClick(
+                            itemView,
+                            binding.friendAvatar,
+                            friend!!.toObject<FriendType>()!!
+                        )
                     }
                 }
             }
         }
-
         fun bind(friend: FriendType) = with(binding) {
             binding.friend = friend
             executePendingBindings()
@@ -44,24 +49,13 @@ class FriendAdapter(
         )
     }
 
-
     interface OnFriendListInterface {
-        fun onFriendClick(view: View, friend: FriendType)
+        fun onFriendClick(view: View, avatar: ImageView, friend: FriendType)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, model: FriendType) {
+        holder.bind(model)
     }
 }
 
-class FriendDiffCallBack : DiffUtil.ItemCallback<FriendType>() {
-    override fun areContentsTheSame(oldItem: FriendType, newItem: FriendType): Boolean {
-        return oldItem == newItem
-    }
-
-    override fun areItemsTheSame(oldItem: FriendType, newItem: FriendType): Boolean {
-        return oldItem.user_id == newItem.user_id
-    }
-
-}
 

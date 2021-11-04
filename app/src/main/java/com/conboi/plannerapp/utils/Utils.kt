@@ -2,20 +2,22 @@ package com.conboi.plannerapp.utils
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.addCallback
 import androidx.annotation.AttrRes
-import androidx.appcompat.widget.SearchView
 import androidx.core.content.res.use
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
-import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
+import java.util.*
 
 
-const val GLOBAL_DATE = 1555200000
-const val GLOBAL_DATE_FOR_CHECK = GLOBAL_DATE - 100000
+const val GLOBAL_START_DATE: Long = 0L
 fun Context.themeColor(
     @AttrRes themeAttrId: Int
 ): Int {
@@ -38,23 +40,6 @@ fun hideKeyboard(activity: Activity) {
     }
 }
 
-val <T> T.exhaustive: T
-    get() = this
-
-
-inline fun SearchView.onQueryTextChanged(crossinline listener: (String) -> Unit) {
-    this.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-        override fun onQueryTextSubmit(query: String?): Boolean {
-            return true
-        }
-
-        override fun onQueryTextChange(newText: String?): Boolean {
-            listener(newText.orEmpty())
-            return true
-        }
-    })
-}
-
 fun NavController.popBackStackAllInstances(destination: Int, inclusive: Boolean): Boolean {
     var popped: Boolean
     while (true) {
@@ -66,18 +51,26 @@ fun NavController.popBackStackAllInstances(destination: Int, inclusive: Boolean)
     return popped
 }
 
+fun updateLocale(context: Context, localeToSwitchTo: Locale) {
+    val configuration = context.resources.configuration
+    configuration.setLocale(localeToSwitchTo)
+    context.resources.updateConfiguration(configuration, context.resources.displayMetrics)
+}
+
+fun drawableToBitmap(drawable: Drawable): Bitmap? {
+    if (drawable is BitmapDrawable) {
+        return drawable.bitmap
+    }
+    val bitmap =
+        Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    drawable.setBounds(0, 0, canvas.width, canvas.height)
+    drawable.draw(canvas)
+    return bitmap
+}
+
 open class BaseTabFragment : Fragment() {
-    var isNavigated = false
-
-    fun navigateWithAction(action: NavDirections) {
-        isNavigated = true
-        findNavController().navigate(action)
-    }
-
-    fun navigate(resId: Int) {
-        isNavigated = true
-        findNavController().navigate(resId)
-    }
+    private var isNavigated = false
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -94,5 +87,4 @@ open class BaseTabFragment : Fragment() {
             }
     }
 }
-
 

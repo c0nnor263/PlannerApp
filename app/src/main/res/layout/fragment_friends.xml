@@ -10,11 +10,11 @@
         android:background="@drawable/fire_background">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_friends"
+            android:id="@+id/parent_friends"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tv_friend_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -29,9 +29,8 @@
             <com.google.android.material.divider.MaterialDivider
                 android:id="@+id/divider"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="8dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_friend_list" />
@@ -40,21 +39,40 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/cl_friends"
-            android:layout_alignParentBottom="true"
-            android:layout_marginTop="8dp"
-            android:padding="8dp">
+            android:layout_below="@id/parent_friends"
+            android:layout_alignParentBottom="true">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_friends"
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/swiperefresh"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingHorizontal="10dp"
-                android:paddingBottom="35dp"
-                android:transitionGroup="true"
-                tools:listitem="@layout/list_friend" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_height="match_parent">
 
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_friends"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="10dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="35dp"
+                    android:transitionGroup="true"
+                    tools:listitem="@layout/list_friend" />
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tv_no_friends"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="75dp"
+                android:gravity="center"
+                android:text="@string/there_are_no_friends_for_showing"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="16sp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </RelativeLayout>
 </layout>

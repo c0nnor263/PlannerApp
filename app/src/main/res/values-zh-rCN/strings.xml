@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PlannerApp</string>
+
+
+    <string name="reminders_state">Напоминать: %1$s</string>
+    <string name="vibration_state">Вибрация приложение: %1$s</string>
+    <string name="private_state">Приватность режим: %1$s</string>
+    <string name="notifications_state">Уведомлять: %1$s</string>
+
+    <string name="on">Включение</string>
+    <string name="off">Выключение</string>
+</resources>

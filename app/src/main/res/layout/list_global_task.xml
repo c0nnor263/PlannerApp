@@ -1,49 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="task"
-            type="com.conboi.plannerapp.data.model.TaskType" />
+            type="com.conboi.plannerapp.model.TaskType" />
     </data>
 
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:id="@+id/parent_layout_list_global_task"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/parent_list_global_task"
+        parentChecked="@{task.checked}"
+        parentPriority="@{task.priority}"
+        parentTitle="@{task.title}"
+        parentTotal="@{task.totalChecked}"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        android:background="?attr/selectableItemBackground"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:clickable="true"
         android:focusable="true"
-        android:orientation="horizontal"
         android:paddingHorizontal="10dp"
         android:paddingVertical="3dp"
         android:transitionName="@{@string/task_transition_name(task.idTask)}">
 
         <com.google.android.material.checkbox.MaterialCheckBox
             android:id="@+id/global_check_task"
-            android:layout_width="32dp"
-            android:enabled="false"
-            android:layout_height="32dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:buttonTint="@color/primaryLightColorTree"
             android:checked="@{task.checked}"
+            android:clickable="false"
             android:minWidth="0dp"
             android:minHeight="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:useMaterialThemeColors="false"
             tools:checked="true" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/total_check"
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:text="@{Integer.toString(task.totalChecked)}"
+            android:textSize="11sp"
+            android:visibility="@{task.totalChecked > 1 ? View.VISIBLE:View.GONE}"
+            app:layout_constraintBottom_toBottomOf="@+id/parent_list_global_task"
+            app:layout_constraintStart_toStartOf="@+id/global_check_task"
+            tools:text="99+" />
+
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/global_title_task"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="18dp"
             android:text="@{task.title}"
             android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/global_check_task"
+            app:layout_constraintStart_toEndOf="@+id/global_check_task"
+            app:layout_constraintTop_toTopOf="@+id/global_check_task"
             tools:text="@string/add_task" />
 
 
-    </androidx.appcompat.widget.LinearLayoutCompat>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

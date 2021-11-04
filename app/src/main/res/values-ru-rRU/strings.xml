@@ -1,0 +1,196 @@
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+
+    <!-->System<-->
+    <string name="app_name" translatable="false">PlannerApp</string>
+    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
+
+    <string name="reminder_notification_channel_id" translatable="false">reminderChannelID</string>
+    <string name="reminder_notification_channel_name">Напоминания</string>
+
+    <string name="task_transition_name" translatable="false">task_%1$d</string>
+    <string name="task_detail_transition_name" translatable="false">task_detail</string>
+
+    <string name="friend_transition_name" translatable="false">friend_%1$s</string>
+    <string name="friend_detail_transition_name" translatable="false">friend_detail</string>
+
+
+    <!-->Global<-->
+    <string name="language">Язык</string>
+    <string-array name="languages">
+        <item>Английский</item>
+        <item>Русский</item>
+        <item>Китайский</item>
+    </string-array>
+
+    <string name="main">Главная</string>
+    <string name="friends">Друзья</string>
+    <string name="settings">Настройки</string>
+    <string name="ok">ОК</string>
+    <string name="dismiss">Отменить</string>
+    <string name="save">Сохранить</string>
+    <string name="on">ВКЛ</string>
+    <string name="off">ВЫКЛ</string>
+    <string name="cancel">Отмена</string>
+    <string name="search">Поиск</string>
+    <string name="sort">Сортировать</string>
+    <string name="priority">Приоритет</string>
+    <string name="add">Добавить</string>
+    <string name="close">Закрыть</string>
+    <string name="profile_photo">Фотография профиля</string>
+    <string name="request_status">Статус запроса</string>
+    <string name="sign_out">Выход</string>
+    <string name="submit">Подтвердить</string>
+    <string name="confirm">Подтвердить</string>
+    <string name="confirm_removing">Удаление напоминаний</string>
+    <string name="confirm_deletion">Удаление заданий</string>
+    <string name="check_your_internet">Проверьте Ваше подключение и повторите попытку.\n\n</string>
+    <string name="try_word">Повторить</string>
+    <string name="time_word">Время</string>
+    <string name="date_word">Дата</string>
+    <string name="loading">Загрузка…</string>
+    <string name="exit">Выход</string>
+    <string name="undo">Отмена</string>
+    <string name="deny">Отклонить</string>
+    <string name="saved">Сохранено</string>
+    <string name="warning">Внимание!</string>
+
+
+    <!-->MainFragment<-->
+    <string name="max_total_check" translatable="false">%1$d+</string>
+    <string name="count_of_tasks" translatable="false">%1$d/%2$d</string>
+    <string name="count_of_completed" translatable="false">(%1$d)</string>
+
+    <string name="enter_amount_title">Введите количество заданий</string>
+    <string name="enter_amount_hint">Максимально - %1$d</string>
+    <string name="add_task">Добавить задание</string>
+    <string name="task_deleted">Задание удалено</string>
+    <string name="incorrect_add_tasks">Неверно, максимальное количество - %1$d</string>
+    <string name="reaching_max_tasks">Вы достигли максимума заданий</string>
+    <plurals name="tasks_been_added">
+        <item quantity="one">%d задание добавлено</item>
+        <item quantity="other">%d задания добавлены</item>
+        <item quantity="few">%d задания добавлены</item>
+        <item quantity="many">%d задания добавлены</item>
+    </plurals>
+
+    <string name="sort_by_title">Название</string>
+    <string name="sort_by_date_created">Дата создания</string>
+    <string name="sort_by_date_completed">Дата выполнения</string>
+    <string name="sort_by_overcompleted">Ежедневные</string>
+
+    <string name="hide_tasks">Скрытие заданий</string>
+    <string name="hide_completed">Выполненные задания</string>
+    <string name="hide_overcompleted">Ежедневные задания</string>
+    <string name="you_delete_completed">Вы точно хотите удалить выполненные задания?</string>
+    <string name="you_delete_overcompleted">Вы точно хотите удалить ежедневные задания?</string>
+    <string name="delete_only_completed">Удалить только выполненные</string>
+    <string name="action_delete_overcompleted">Удалить только ежедневные</string>
+    <string name="action_delete_tasks">Удалить задания</string>
+    <string name="completed_deleted">Выполненные задания успешно удалены</string>
+    <string name="overcompleted_deleted">Ежедневные задания успешно удалены</string>
+
+    <string name="cant_check_task">Вы не можете выполнить это задание. Нет названия</string>
+    <string name="there_are_no_tasks_for_showing">Список заданий пуст</string>
+    <string name="saving_title_indicator">Индикатор сохранения</string>
+
+    <string name="error_importing_tasks">Ошибка импорта заданий!</string>
+    <string name="backup_tasks_message">Похоже, у Вас есть резервная копия предыдущих заданий и данных Вашего профиля.\n
+        \n
+        Хотите ли Вы восстановить её?\n
+        (\"Отклонить\" - запись поверх резервной копии)</string>
+    <string name="error_checking_tasks">Ошибка проверки резервной копии заданий!</string>
+    <string name="sync_status">Статус синхронизации</string>
+    <string name="dont_forget_your_task">Не забудьте о своём задании!</string>
+    <string name="check_tasks">Проверить задания</string>
+    <string name="you_sure_quit">Уверены, что хотите выйти?</string>
+
+
+    <!-->TaskDetailsFragment<-->
+    <string name="task_created">Создано в: %1$s</string>
+    <string name="task_completed">Выполнено в: %1$s</string>
+
+    <string name="open_task">Открыть задание</string>
+    <string name="edit_task">Изменить задание</string>
+    <string name="edit_title">Название</string>
+    <string name="describe_task">Описание</string>
+    <string name="set_deadline">Крайний срок</string>
+    <string name="set_reminder">Напоминание</string>
+    <string name="add_deadline">Добавить крайний срок</string>
+    <string name="add_reminder">Добавить напоминание</string>
+    <string name="reminders_are_off">Напоминания отключены</string>
+    <string name="remove_reminder">Отключить напоминание</string>
+    <string name="remove_deadline">Удалить дату крайнего срока</string>
+    <string name="reminder_task_removed">Напоминание этого задания удалено</string>
+    <string name="deadline_task_removed">Крайний срок этого задания удалён</string>
+    <string name="you_quit_without_changes">Вы уверены, что хотите выйти без изменений?</string>
+    <string-array name="priorities">
+        <item>Неважно</item>
+        <item>Обычно</item>
+        <item>Желательно</item>
+        <item>Важно</item>
+    </string-array>
+    <string name="repeat_mode">Repeat mode</string>
+    <string-array name="repeat_modes">
+        <item>Единожды</item>
+        <item>Каждый день</item>
+        <item>Каждую неделю</item>
+    </string-array>
+
+
+    <!-->FriendsFragment<-->
+    <string name="friends_list">Список друзей</string>
+    <string name="friends_tasks">%1$s задания</string>
+    <string name="there_will_be_shown_friends_tasks">Тут будут отображены %1$s задания</string>
+    <string name="completed_tasks">Выполненные задания</string>
+
+    <string name="enter_user_id">Введите ID пользователя</string>
+    <string name="enter_id_alert">Введите ID!</string>
+    <string name="friend_is_not_exist">Пользователь, которого вы ищете, не существует</string>
+    <string name="you_add_friend_yourself">Вы не можете добавить СЕБЯ в список друзей</string>
+    <string name="error_adding_friend_is_list">Ошибка:пользователь уже находится в Вашем списке друзей</string>
+
+    <string name="you_add_friend">Вы хотите добавить пользователя в друзья?</string>
+    <string name="successfully_adding_friend">Новый друг успешно добавлен!</string>
+    <string name="friend_request_deny">Вы отклонили запрос</string>
+
+    <string name="there_are_no_friends_for_showing">Список друзей пуст</string>
+    <string name="error_loading_friends">Ошибка загрузки списка друзей</string>
+    <string name="there_are_no_more_friends_for_loading">Больше нет друзей для загрузки</string>
+    <string name="cant_get_user_friends">Ошибка: %1$s\n
+Невозможно получить список друзей.\n
+Попробуйте позже</string>
+
+
+    <!--FriendDetailsFragment-->
+    <string name="added_friend_time">Время добавления: %1$s</string>
+    <string name="friends_tasks_empty">Список заданий друга пуст</string>
+    <string name="friends_tasks_private">Список заданий %1$s приватный</string>
+
+    <!-->ProfileSettings<-->
+    <string name="profile">Профиль</string>
+    <string name="total_completed_tasks">Всего выполнено: %1$d</string>
+    <string name="user_id">ID пользователя</string>
+    <string name="copy_user_id">Копировать ID:</string>
+    <string name="copied_user_id">Скопировано ID</string>
+    <string name="you_sign_out">Вы точно хотите выйти из аккаунта?</string>
+
+
+    <!--SettingsFragment-->
+    <string name="reminders_state">Напоминания: %1$s</string>
+    <string name="vibration_state">Вибрация приложения: %1$s</string>
+    <string name="private_state">Приватный режим: %1$s</string>
+    <string name="notifications_state">Уведомления: %1$s</string>
+
+    <string name="remove_all_reminders">Удалить все напоминания</string>
+    <string name="you_remove_reminders">Вы точно хотите удалить все напоминания?</string>
+    <string name="reminders_removed">Удалены все напоминания</string>
+    <string name="delete_all_tasks">Удалить все задания</string>
+    <string name="you_delete_tasks">Вы точно хотите удалить все задания?</string>
+    <string name="tasks_deleted">Удалены все задания</string>
+
+
+    <!-->LoginFragment<-->
+    <string name="successfully_sign_in">Успешная авторизация в аккаунт %1$s!</string>
+    <string name="unsuccessful_sign_in">Неудачный вход %1$d</string>
+
+</resources>

@@ -2,11 +2,13 @@ package com.conboi.plannerapp.data
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.conboi.plannerapp.data.model.TaskType
+import com.conboi.plannerapp.model.TaskType
 
-@Database(entities = [TaskType::class], version = 1)
+@Database(
+    version = 3,
+    entities = [TaskType::class]
+)
 abstract class TaskDatabase : RoomDatabase() {
-
-    abstract fun taskDao(): TaskDao
+    abstract fun getTaskDao(): TaskDao
 
 }

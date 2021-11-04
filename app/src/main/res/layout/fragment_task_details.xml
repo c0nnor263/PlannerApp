@@ -4,43 +4,46 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <import type="android.view.View" />
 
         <variable
             name="viewModel"
             type="com.conboi.plannerapp.ui.main.TaskDetailsViewModel" />
+
         <variable
-            name="EditTaskFragment"
+            name="TaskDetailsFragment"
             type="com.conboi.plannerapp.ui.main.TaskDetailsFragment" />
 
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/fragment_edit_task_parent"
+        android:id="@+id/parent_task_details"
         paddingTopSystemWindowInsets="@{true}"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:transitionName="@string/task_detail_transition_name">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/fragment_task_details_toolbar"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorSurface"
             android:elevation="4dp"
-            app:navigationIcon="@drawable/ic_baseline_close_24"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:popupTheme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
+            app:navigationIcon="@drawable/ic_baseline_close_24"
+            app:popupTheme="@style/Theme.Material3.DayNight.NoActionBar"
+            app:title="@string/edit_task" />
 
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fragment_task_details_toolbar"
+            android:layout_below="@id/toolbar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fragment_task_details_toolbar">
+            app:layout_constraintTop_toBottomOf="@id/toolbar">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -49,51 +52,58 @@
                 android:animateLayoutChanges="true"
                 android:padding="16dp">
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_created_task"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
+                    android:layout_marginTop="4dp"
                     android:text="@{@string/task_created(viewModel.bufferTask.createdFormatted)}"
                     android:textColor="@android:color/darker_gray"
                     android:textSize="12sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_completed_task"
+                    setTextCompleted="@{ viewModel.newCompleted}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
-                    setTextNewCompleted ="@{ viewModel.newTaskCompleted}"
                     android:textColor="@android:color/darker_gray"
                     android:textSize="12sp"
-                    android:visibility="@{viewModel.newTaskChecked ? View.VISIBLE:View.GONE}"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tv_created_task" />
 
                 <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/fragment_edit_check_task"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:buttonTint="@color/checkbox_filter_tint"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
+                    android:id="@+id/check_task"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:onCheckedChanged="@{(compoundButton, checked)-> viewModel.updateCheckedValue(checked)}"
                     app:layout_constraintBottom_toBottomOf="@+id/tv_created_task"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/tv_created_task" />
+                    app:layout_constraintTop_toTopOf="@+id/tv_created_task"
+                    app:useMaterialThemeColors="true" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/total_checked"
+                    setTotal="@{viewModel.newTotalChecked}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="@+id/check_task"
+                    app:layout_constraintTop_toBottomOf="@+id/check_task"
+                    tools:text="99+" />
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/fragment_edit_title_task_layout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:id="@+id/title_layout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="8dp"
-                    android:enabled="@{viewModel.newTaskChecked ? false:true}"
                     app:counterEnabled="true"
                     app:counterMaxLength="@integer/task_name_length"
                     app:endIconMode="clear_text"
@@ -102,7 +112,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/tv_completed_task">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/fragment_edit_title_task"
+                        android:id="@+id/title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/edit_title"
@@ -124,17 +134,16 @@
                     android:background="?android:attr/listDivider"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/fragment_edit_title_task_layout" />
+                    app:layout_constraintTop_toBottomOf="@+id/title_layout" />
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/fragment_edit_desc_task_layout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:id="@+id/desc_layout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="8dp"
-                    android:enabled="@{viewModel.newTaskChecked ? false:true}"
                     app:counterEnabled="true"
                     app:counterMaxLength="@integer/task_description_length"
                     app:endIconMode="clear_text"
@@ -144,17 +153,17 @@
                     app:layout_constraintTop_toBottomOf="@+id/divider1">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/fragment_edit_desc_task"
+                        android:id="@+id/desc"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:ems="10"
-                        android:hint="@string/describe_this_task"
-                        android:textColorHint="#757575"
+                        android:hint="@string/describe_task"
                         android:inputType="textCapSentences|textMultiLine"
                         android:maxLength="@integer/task_description_length"
                         android:maxLines="5"
-                        android:text="@{viewModel.bufferTask.description}" />
+                        android:text="@{viewModel.bufferTask.description}"
+                        android:textColorHint="#757575" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <View
@@ -165,58 +174,85 @@
                     android:background="?android:attr/listDivider"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/fragment_edit_desc_task_layout" />
+                    app:layout_constraintTop_toBottomOf="@+id/desc_layout" />
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/fragment_edit_time_layout"
-                    android:layout_width="140dp"
-                    android:layout_height="60dp"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:id="@+id/time_layout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="16dp"
-                    android:enabled="@{viewModel.newTaskChecked ? false:true}"
-                    app:endIconMode="clear_text"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/divider">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/fragment_edit_time_input_text"
-                        setTextTime="@{viewModel.bufferTask.time}"
+                        android:id="@+id/time"
+                        setWholeTaskTime="@{viewModel.bufferTask.time}"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:cursorVisible="false"
-                        android:onClick="@{() -> EditTaskFragment.setTime()}"
                         android:ems="10"
+                        android:singleLine="true"
+                        android:ellipsize="end"
                         android:focusable="false"
-                        android:hint="@string/due_time"
-                        android:inputType="text"
-                        android:text="@string/currently_unavailable" />
+                        android:hint="@string/set_reminder"
+                        android:inputType="textNoSuggestions"
+                        android:onClick="@{() -> TaskDetailsFragment.setTime()}"
+                        android:text="@string/set_reminder" />
                 </com.google.android.material.textfield.TextInputLayout>
 
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/textPriorityLayout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                    android:layout_width="140dp"
-                    android:layout_height="60dp"
+                    android:id="@+id/priority_layout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="145dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="8dp"
-                    android:enabled="@{viewModel.newTaskChecked ? false:true}"
                     android:hint="@string/priority"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/divider">
 
-                    <AutoCompleteTextView
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:id="@+id/drop_priority"
-                        setTextNewPriority="@{viewModel.newTaskPriority}"
+                        setActvPriority="@{viewModel.newPriority}"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="true"
                         android:focusable="false"
+                        android:singleLine="true"
+                        android:ellipsize="end"
                         android:inputType="none"
-                        android:onClick="@{() -> EditTaskFragment.priorityList()}"
-                        android:textColorHint="#757575"
-                        tools:ignore="LabelFor" />
+                        android:onClick="@{() ->TaskDetailsFragment.getAndSetPriority()}" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/deadline_layout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    android:layout_marginTop="16dp"
+                    app:endIconMode="clear_text"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/time_layout">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/deadline"
+                        setWholeTaskTime="@{viewModel.bufferTask.deadline}"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:cursorVisible="false"
+                        android:ems="10"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:focusable="false"
+                        android:hint="@string/set_deadline"
+                        android:inputType="textNoSuggestions"
+                        android:onClick="@{() -> TaskDetailsFragment.setDeadline()}"
+                        android:text="@string/set_deadline" />
                 </com.google.android.material.textfield.TextInputLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>

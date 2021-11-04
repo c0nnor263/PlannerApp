@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="user"
             type="com.google.firebase.auth.FirebaseUser" />
@@ -26,8 +25,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/bottom_navigation_profile_name"
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/profile_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
@@ -36,23 +35,23 @@
             android:text="@{user.displayName}"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@+id/bottom_navigation_profile_avatar"
+            app:layout_constraintStart_toEndOf="@+id/profile_avatar"
             app:layout_constraintTop_toBottomOf="@id/drag_view"
             tools:text="@string/fui_name_hint" />
 
-        <TextView
-            android:id="@+id/bottom_navigation_profile_email"
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/profile_email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:ellipsize="end"
             android:text="@{user.email}"
-            app:layout_constraintStart_toStartOf="@+id/bottom_navigation_profile_name"
-            app:layout_constraintTop_toBottomOf="@+id/bottom_navigation_profile_name"
+            app:layout_constraintStart_toStartOf="@+id/profile_name"
+            app:layout_constraintTop_toBottomOf="@+id/profile_name"
             tools:text="@string/fui_email_hint" />
 
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/bottom_navigation_profile_avatar"
+        <ImageView
+            android:id="@+id/profile_avatar"
             loadImage="@{user.photoUrl.toString()}"
             android:layout_width="48dp"
             android:layout_height="48dp"
@@ -60,8 +59,7 @@
             android:contentDescription="@string/profile_photo"
             android:scaleType="fitXY"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/bottom_navigation_profile_name"
-            app:shapeAppearanceOverlay="@style/mCircleImageView" />
+            app:layout_constraintTop_toTopOf="@+id/profile_name" />
 
         <View
             android:id="@+id/divider"
@@ -72,10 +70,10 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/bottom_navigation_profile_email" />
+            app:layout_constraintTop_toBottomOf="@+id/profile_email" />
 
         <ImageButton
-            android:id="@+id/bottom_navigation_profile_settings"
+            android:id="@+id/im_btn_profile_settings"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginTop="8dp"
@@ -85,18 +83,23 @@
             android:clickable="true"
             android:contentDescription="@string/settings"
             android:src="@drawable/ic_baseline_settings_24"
-            app:layout_constraintBottom_toBottomOf="@+id/bottom_navigation_profile_email"
+            app:layout_constraintBottom_toBottomOf="@+id/profile_email"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/bottom_navigation_profile_name" />
+            app:layout_constraintTop_toTopOf="@+id/profile_name" />
+
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            app:layout_constraintBottom_toTopOf="@+id/app_navigation_view"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <com.google.android.material.navigation.NavigationView
-            android:id="@+id/bottom_navigation_view"
+            android:id="@+id/app_navigation_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/divider"
+            app:layout_constraintTop_toBottomOf="@id/divider"
             app:menu="@menu/bottom_navigation_view_menu" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
