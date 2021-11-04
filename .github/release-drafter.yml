@@ -1,0 +1,2 @@
+_extends: .github
+tag-template:PlannerApp-$NEXT_MINOR_VERSION
