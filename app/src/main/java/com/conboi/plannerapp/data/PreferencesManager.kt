@@ -14,7 +14,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 enum class SortOrder { BY_TITLE, BY_DATE, BY_COMPLETE, BY_OVERCOMPLETED }
-enum class SynchronizationState { PENDING_SYNC, COMPLETE_SYNC, ERROR_SYNC }
+enum class SynchronizationState { PENDING_SYNC, COMPLETE_SYNC, ERROR_SYNC, DISABLED_SYNC }
 
 val Context.dataStore by preferencesDataStore("user_preferences")
 
@@ -48,7 +48,7 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
                 preferences[PreferencesKeys.LANGUAGE_STATE] ?: Locale.getDefault().language
 
             val syncState = SynchronizationState.valueOf(
-                preferences[PreferencesKeys.SYNC_STATE] ?: SynchronizationState.COMPLETE_SYNC.name
+                preferences[PreferencesKeys.SYNC_STATE] ?: SynchronizationState.DISABLED_SYNC.name
             )
             val sortOrder = SortOrder.valueOf(
                 preferences[PreferencesKeys.SORT_ORDER] ?: SortOrder.BY_DATE.name

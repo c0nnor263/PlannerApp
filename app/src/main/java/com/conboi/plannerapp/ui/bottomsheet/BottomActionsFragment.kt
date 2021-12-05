@@ -40,11 +40,9 @@ class BottomActionsFragment : BottomSheetDialogFragment() {
             when (arguments?.getInt("action")) {
                 0 -> {
                     bottomActions.inflateMenu(R.menu.bottom_app_bar_main_delete_menu)
-                    bottomActionsTitle.text = resources.getString(R.string.action_delete_tasks)
                 }
                 1 -> {
                     bottomActions.inflateMenu(R.menu.bottom_app_bar_main_sort_menu)
-                    bottomActionsTitle.text = resources.getString(R.string.sort)
                 }
             }
             bottomActions.setNavigationItemSelectedListener {
@@ -55,7 +53,7 @@ class BottomActionsFragment : BottomSheetDialogFragment() {
                             .setTitle(resources.getString(R.string.confirm_deletion))
                             .setMessage(resources.getString(R.string.you_delete_completed))
                             .setPositiveButton(resources.getString(R.string.confirm)) { _, _ ->
-                                sharedViewModel.deleteOnlyCompletedTasks()
+                                sharedViewModel.deleteOnlyCompletedTasks(requireContext())
                                 Toast.makeText(
                                     requireContext(),
                                     resources.getString(R.string.completed_deleted),
@@ -70,7 +68,7 @@ class BottomActionsFragment : BottomSheetDialogFragment() {
                             .setTitle(resources.getString(R.string.confirm_deletion))
                             .setMessage(resources.getString(R.string.you_delete_overcompleted))
                             .setPositiveButton(resources.getString(R.string.confirm)) { _, _ ->
-                                sharedViewModel.deleteOnlyOvercompletedTasks()
+                                sharedViewModel.deleteOnlyOvercompletedTasks(requireContext())
                                 Toast.makeText(
                                     requireContext(),
                                     resources.getString(R.string.overcompleted_deleted),

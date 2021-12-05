@@ -2,16 +2,12 @@ package com.conboi.plannerapp.adapter
 
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.CountDownTimer
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.core.widget.doOnTextChanged
-import androidx.recyclerview.widget.AsyncDifferConfig
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
 import com.conboi.plannerapp.R
 import com.conboi.plannerapp.databinding.ListTaskBinding
 import com.conboi.plannerapp.model.TaskType
@@ -21,12 +17,12 @@ import com.conboi.plannerapp.utils.setTotal
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-
 class TaskAdapter @ExperimentalCoroutinesApi constructor(
     private val listener: OnTaskClickListener
 ) : ListAdapter<TaskType, TaskAdapter.ViewHolder>(
     AsyncDifferConfig.Builder(TaskDiffCallback()).build()
 ) {
+
     inner class ViewHolder(var binding: ListTaskBinding) :
         RecyclerView.ViewHolder(binding.root) {
         var titleTimer: CountDownTimer? = null
@@ -146,26 +142,28 @@ class TaskAdapter @ExperimentalCoroutinesApi constructor(
                 savingTitleIndicator.setImageResource(R.drawable.saving_anim)
                 (savingTitleIndicator.drawable as AnimatedVectorDrawable).start()
                 if (text?.isEmpty() != false) {
-                    parentListTask.setBackgroundResource(R.color.secondaryLightColorWater)
+                    subparentListTask.setBackgroundResource(R.color.secondaryDarkColorWater)
                 }
             }
         }
 
         fun bindPayload(task: TaskType, payloads: MutableList<Any>) {
             binding.apply {
-                val newTask = payloads.last() as TaskType
-                bufferTask = newTask
-                setTask(newTask)
-                executePendingBindings()
+                val newTitle = payloads.first() as String
+                subparentListTask.parentTask(
+                    task.priority,
+                    task.checked,
+                    newTitle,
+                    task.totalChecked,
+                    task.missed
+                )
+                checkTask.isChecked = task.checked
+                totalCheck.setTotal(task.totalChecked)
+                title.setTextInputCheckedTotal(task.checked, task.totalChecked)
 
                 if (!title.isFocused) {
-                    title.setText(newTask.title)
+                    title.setText(newTitle)
                 }
-                listener.onTitleChanged(
-                    newTask,
-                    newTask.title
-                )
-
                 if (titleTimer != null) {
                     titleTimer!!.cancel()
                 }
@@ -173,8 +171,11 @@ class TaskAdapter @ExperimentalCoroutinesApi constructor(
         }
     }
 
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
+    override fun onBindViewHolder(
+        holder: TaskAdapter.ViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
         if (payloads.isNullOrEmpty()) {
             super.onBindViewHolder(holder, position, payloads)
         } else {
@@ -182,13 +183,11 @@ class TaskAdapter @ExperimentalCoroutinesApi constructor(
         }
     }
 
-    override fun onBindViewHolder(vh: ViewHolder, position: Int) {
+    override fun onBindViewHolder(vh: TaskAdapter.ViewHolder, position: Int) {
         vh.bind(getItem(position))
-
         if (vh.titleTimer != null) {
             vh.titleTimer!!.cancel()
         }
-
         vh.binding.apply {
             vh.titleTimer = object : CountDownTimer(3000, 1000) {
                 override fun onTick(remainingTime: Long) {
@@ -215,7 +214,7 @@ class TaskAdapter @ExperimentalCoroutinesApi constructor(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskAdapter.ViewHolder {
         return ViewHolder(
             ListTaskBinding.inflate(
                 LayoutInflater.from(parent.context),
@@ -223,7 +222,9 @@ class TaskAdapter @ExperimentalCoroutinesApi constructor(
                 false
             )
         )
+
     }
+
 
     interface OnTaskClickListener {
         fun onEditTaskCLick(task: TaskType, taskView: View)
@@ -232,20 +233,11 @@ class TaskAdapter @ExperimentalCoroutinesApi constructor(
     }
 
     override fun getItemId(position: Int): Long = position.toLong()
-    override fun onViewDetachedFromWindow(holder: ViewHolder) {
-        if (holder.titleTimer != null) {
-            holder.titleTimer!!.onFinish()
-        }
-        super.onViewDetachedFromWindow(holder)
-    }
+
+
 }
 
 class TaskDiffCallback : DiffUtil.ItemCallback<TaskType>() {
-    override fun getChangePayload(oldItem: TaskType, newItem: TaskType): Any? {
-        if (oldItem != newItem) return newItem
-        return super.getChangePayload(oldItem, newItem)
-    }
-
     override fun areItemsTheSame(oldItem: TaskType, newItem: TaskType): Boolean {
         return oldItem.idTask == newItem.idTask
     }
@@ -254,5 +246,10 @@ class TaskDiffCallback : DiffUtil.ItemCallback<TaskType>() {
         return oldItem == newItem
     }
 
+    override fun getChangePayload(oldItem: TaskType, newItem: TaskType): Any? {
+        if (oldItem.title != newItem.title) return newItem.title
+        return super.getChangePayload(oldItem, newItem)
+
+    }
 }
 

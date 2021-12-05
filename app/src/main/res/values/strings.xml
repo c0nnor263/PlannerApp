@@ -1,11 +1,18 @@
-<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+<resources>
 
     <!-->System<-->
+    <string name="app_ad_unit_id" translatable="false">ca-app-pub-4559958901091262~8305721699</string>
+    <string name="main_ad_unit_id" translatable="false">ca-app-pub-4559958901091262/5140695822</string>
+    <string name="friends_ad_unit_id" translatable="false">ca-app-pub-4559958901091262/6190865684</string>
+    <string name="login_ad_unit_id" translatable="false">ca-app-pub-4559958901091262/8537827426</string>
+
     <string name="app_name" translatable="false">PlannerApp</string>
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
 
     <string name="reminder_notification_channel_id" translatable="false">reminderChannelID</string>
     <string name="reminder_notification_channel_name">Reminders</string>
+    <string name="deadline_notification_channel_id" translatable="false">deadlineChannelID</string>
+    <string name="deadline_notification_channel_name">Deadlines</string>
 
     <string name="task_transition_name" translatable="false">task_%1$d</string>
     <string name="task_detail_transition_name" translatable="false">task_detail</string>
@@ -98,8 +105,12 @@
         (\"Deny\" - means overriding backup)</string>
     <string name="error_checking_tasks">Error checking your backup tasks!</string>
     <string name="sync_status">Sync status</string>
-    <string name="dont_forget_your_task">Don\'t forget your task!</string>
+    <string name="reminder_msg">Don\'t forget your task!</string>
+    <string name="deadline_msg">Deadline is came for this task😔</string>
+    <string name="deadline_reminder">4 hours left before completing the task(or not 4😏)</string>
     <string name="check_tasks">Check tasks</string>
+    <string name="check_reminders">Check reminders</string>
+    <string name="check_deadlines">Check deadlines</string>
     <string name="you_sure_quit">Are you sure you want to quit?</string>
 
 
@@ -111,6 +122,8 @@
     <string name="edit_task">Edit task</string>
     <string name="edit_title">Edit title</string>
     <string name="describe_task">Describe task</string>
+    <string name="select_date">Select date</string>
+    <string name="select_time">Select time</string>
     <string name="set_deadline">Set deadline</string>
     <string name="set_reminder">Set reminder</string>
     <string name="add_deadline">Add deadline</string>
@@ -121,18 +134,45 @@
     <string name="reminder_task_removed">Reminder for this task has been removed</string>
     <string name="deadline_task_removed">Deadline for this task has been removed</string>
     <string name="you_quit_without_changes">Are you sure want to exit without changes?</string>
+
+    <string name="reminder_less_than_minute">Reminder set for less than minute from now.</string>
+    <string name="reminder_for_minutes">Reminder set for %1$s from now.</string>
+    <string name="reminder_for_hour_minute">Reminder set for %1$s and %2$s from now.</string>
+    <string name="reminder_for_day_hour_minute">Reminder set for %1$s, %2$s and %3$s from now.</string>
+
+    <string name="deadline_less_than_minute">Deadline set for less than minute from now.</string>
+    <string name="deadline_for_minutes">Deadline set for %1$s from now.</string>
+    <string name="deadline_for_hour_minute">Deadline set for %1$s and %2$s from now.</string>
+    <string name="deadline_for_day_hour_minute">Deadline set for %1$s, %2$s and %3$s from now.</string>
+
     <string-array name="priorities">
         <item>Leisurely</item>
         <item>Default</item>
         <item>Advisable</item>
         <item>Important</item>
     </string-array>
+
     <string name="repeat_mode">Repeat mode</string>
     <string-array name="repeat_modes">
         <item>Once</item>
         <item>Daily</item>
         <item>Weekly</item>
     </string-array>
+
+    <plurals name="days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
 
 
     <!-->FriendsFragment<-->
@@ -150,6 +190,8 @@
     <string name="you_add_friend">Do you want to add this user to friends?</string>
     <string name="successfully_adding_friend">Successfully added new friend</string>
     <string name="friend_request_deny">User request has been denied</string>
+    <string name="delete_friend">Delete friend</string>
+    <string name="friend_removed">User has been removed from friend\'s list</string>
 
     <string name="there_are_no_friends_for_showing">There are no friends for showing</string>
     <string name="error_loading_friends">Error loading friends list</string>
@@ -189,5 +231,30 @@
     <string name="successfully_sign_in">Successfully signed in user %1$s!</string>
     <string name="unsuccessful_sign_in">Sign in unsuccessful %1$d</string>
 
+
+    <string name="new_email">New email</string>
+    <string name="new_password">New password</string>
+    <string name="current_password">Current password</string>
+    <string name="edit_profile">Edit profile</string>
+    <string name="email_not_confirmed">Email not confirmed</string>
+    <string name="you_confirm_email">To enable tasks sync confirm your email \nWould you like to go on Profile tab?</string>
+    <string name="reset_password">Reset password</string>
+    <string name="you_sent_email_confirm">Email confirmation is sent to your email</string>
+    <string name="cannot_sent_email_confirm">Can\'t sent email confirmation to your email</string>
+    <string name="check_new_email">Check new email</string>
+    <string name="error_check_new_email">Error check new email</string>
+    <string name="successfully_change_password">Successfully change password</string>
+    <string name="error_check_new_password">Error check new password</string>
+    <string name="reset_password_sent">Reset password sent</string>
+    <string name="error_reset_password_sent">Error reset password sent</string>
+    <string name="new_name">New name</string>
+    <string name="unsuccessful_sign_in_current_password">The password is invalid</string>
+    <string name="alert_enter_current_password">Enter your current password</string>
+    <string name="specify_fields">Specify fields</string>
+    <string name="same_new_old_name">same_new_old_name</string>
+    <string name="same_new_old_email">same_new_old_email</string>
+    <string name="same_new_old_password">same_new_old_password</string>
+    <string name="name_updated">Name updated</string>
+    <string name="error_name_update">Error name update</string>
 
 </resources>

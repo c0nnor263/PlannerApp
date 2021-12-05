@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <import type="android.view.View" />
 
         <variable
@@ -54,11 +53,11 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_created_task"
+                    setTextCreated="@{viewModel.bufferTask.created}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="4dp"
-                    android:text="@{@string/task_created(viewModel.bufferTask.createdFormatted)}"
                     android:textColor="@android:color/darker_gray"
                     android:textSize="12sp"
                     app:layout_constraintStart_toStartOf="parent"
@@ -192,13 +191,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:cursorVisible="false"
-                        android:ems="10"
-                        android:singleLine="true"
                         android:ellipsize="end"
+                        android:ems="10"
                         android:focusable="false"
                         android:hint="@string/set_reminder"
                         android:inputType="textNoSuggestions"
-                        android:onClick="@{() -> TaskDetailsFragment.setTime()}"
+                        android:onClick="@{() -> TaskDetailsFragment.setTimeReminder()}"
+                        android:singleLine="true"
                         android:text="@string/set_reminder" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -220,11 +219,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="true"
-                        android:focusable="false"
-                        android:singleLine="true"
                         android:ellipsize="end"
+                        android:focusable="false"
                         android:inputType="none"
-                        android:onClick="@{() ->TaskDetailsFragment.getAndSetPriority()}" />
+                        android:singleLine="true" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -241,17 +239,16 @@
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/deadline"
-                        setWholeTaskTime="@{viewModel.bufferTask.deadline}"
+                        setWholeTaskTime="@{viewModel.newDeadline}"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:cursorVisible="false"
-                        android:ems="10"
-                        android:singleLine="true"
                         android:ellipsize="end"
                         android:focusable="false"
                         android:hint="@string/set_deadline"
                         android:inputType="textNoSuggestions"
-                        android:onClick="@{() -> TaskDetailsFragment.setDeadline()}"
+                        android:onClick="@{() -> TaskDetailsFragment.setTimeDeadline()}"
+                        android:singleLine="true"
                         android:text="@string/set_deadline" />
                 </com.google.android.material.textfield.TextInputLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>

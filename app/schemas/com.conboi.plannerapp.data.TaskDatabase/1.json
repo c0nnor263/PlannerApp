@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "efc9b0adddcebbdf321416509b1da0e6",
+    "identityHash": "c41514a8bdea61ca0d6aefb6cfb2a056",
     "entities": [
       {
         "tableName": "UserTasks",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `time` INTEGER NOT NULL, `deadline` INTEGER NOT NULL, `priority` INTEGER NOT NULL, `checked` INTEGER NOT NULL, `created` INTEGER NOT NULL, `completed` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `time` INTEGER NOT NULL, `repeatMode` INTEGER NOT NULL, `deadline` INTEGER NOT NULL, `priority` INTEGER NOT NULL, `checked` INTEGER NOT NULL, `totalChecked` INTEGER NOT NULL, `created` INTEGER NOT NULL, `completed` INTEGER NOT NULL, `missed` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "idTask",
@@ -33,6 +33,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "repeatMode",
+            "columnName": "repeatMode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "deadline",
             "columnName": "deadline",
             "affinity": "INTEGER",
@@ -51,6 +57,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "totalChecked",
+            "columnName": "totalChecked",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "created",
             "columnName": "created",
             "affinity": "INTEGER",
@@ -59,6 +71,12 @@
           {
             "fieldPath": "completed",
             "columnName": "completed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "missed",
+            "columnName": "missed",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -76,7 +94,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'efc9b0adddcebbdf321416509b1da0e6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c41514a8bdea61ca0d6aefb6cfb2a056')"
     ]
   }
 }

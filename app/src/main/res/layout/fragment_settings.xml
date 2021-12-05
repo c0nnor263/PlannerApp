@@ -44,17 +44,17 @@
         <LinearLayout
             android:id="@+id/ll_first_group"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="80dp"
+            android:layout_marginTop="16dp"
             android:gravity="center_horizontal"
-            android:padding="8dp"
+            android:paddingHorizontal="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar">
+            app:layout_constraintTop_toBottomOf="@+id/divider">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/private_mode"
                 style="@style/Widget.Material3.Button.Icon"
-                setPrivateModeState="@{viewModel.privateModeState}"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginHorizontal="8dp"
@@ -67,7 +67,6 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/vibrations"
                 style="@style/Widget.Material3.Button.Icon"
-                setVibrationModeState="@{viewModel.vibrationModeState}"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginHorizontal="8dp"
@@ -80,9 +79,10 @@
         <LinearLayout
             android:id="@+id/ll_second_group"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="80dp"
+            android:layout_marginTop="8dp"
             android:gravity="center_horizontal"
-            android:padding="8dp"
+            android:paddingHorizontal="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ll_first_group">
@@ -90,7 +90,6 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/reminders"
                 style="@style/Widget.Material3.Button.Icon"
-                setRemindersModeState="@{viewModel.remindersModeState}"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginHorizontal="8dp"
@@ -102,7 +101,6 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/notifications"
                 style="@style/Widget.Material3.Button.Icon"
-                setNotificationsModeState="@{viewModel.notificationsModeState}"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginHorizontal="8dp"
@@ -116,8 +114,9 @@
             android:id="@+id/ll_third_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:gravity="center_horizontal"
-            android:padding="8dp"
+            android:paddingHorizontal="8dp"
             app:layout_constraintTop_toBottomOf="@+id/ll_second_group">
 
             <com.google.android.material.textfield.TextInputLayout
@@ -139,7 +138,6 @@
                     android:ellipsize="end"
                     android:focusable="false"
                     android:inputType="none"
-                    android:onClick="@{() -> settingsFragment.getAndSetLanguage()}"
                     android:singleLine="true" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -163,16 +161,16 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             app:layout_constraintTop_toBottomOf="@+id/ll_third_group" />
 
         <LinearLayout
             android:id="@+id/ll_fours_group"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="16dp"
             android:gravity="center_horizontal"
-            android:padding="8dp"
+            android:paddingHorizontal="8dp"
             app:layout_constraintTop_toBottomOf="@+id/materialDivider">
 
             <com.google.android.material.button.MaterialButton

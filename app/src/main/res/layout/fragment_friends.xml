@@ -44,6 +44,7 @@
 
             <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
                 android:id="@+id/swiperefresh"
+                android:layout_marginTop="50dp"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
@@ -53,12 +54,20 @@
                     android:layout_height="match_parent"
                     android:clipToPadding="false"
                     android:paddingHorizontal="10dp"
-                    android:paddingTop="8dp"
                     android:paddingBottom="35dp"
                     android:transitionGroup="true"
                     tools:listitem="@layout/list_friend" />
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+            <com.google.android.gms.ads.AdView
+                android:id="@+id/adView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:adSize="BANNER"
+                app:adUnitId="@string/friends_ad_unit_id"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tv_no_friends"
                 android:layout_width="wrap_content"

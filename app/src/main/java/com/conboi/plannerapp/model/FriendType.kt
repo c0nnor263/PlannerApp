@@ -1,12 +1,10 @@
 package com.conboi.plannerapp.model
 
 import android.os.Parcelable
-import androidx.annotation.Keep
 import com.conboi.plannerapp.utils.GLOBAL_START_DATE
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-@Keep
 data class FriendType(
     val user_id: String = "",
     val user_request_code: Int = 0,

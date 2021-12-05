@@ -18,7 +18,6 @@ import com.conboi.plannerapp.ui.MainActivity
 import com.google.android.material.transition.MaterialElevationScale
 import com.google.android.material.transition.MaterialSharedAxis
 import dagger.hilt.android.AndroidEntryPoint
-import jp.wasabeef.recyclerview.animators.FadeInAnimator
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @AndroidEntryPoint
@@ -87,11 +86,6 @@ class SearchFragment : Fragment() {
                 adapter = mAdapter
                 layoutManager = LinearLayoutManager(context)
                 setHasFixedSize(true)
-                itemAnimator = FadeInAnimator().apply {
-                    changeDuration = 300
-                    addDuration = 100
-                    removeDuration = 100
-                }
             }
 
         }

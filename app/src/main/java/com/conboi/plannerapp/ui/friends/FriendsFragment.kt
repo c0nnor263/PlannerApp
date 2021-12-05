@@ -1,10 +1,12 @@
 package com.conboi.plannerapp.ui.friends
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.core.view.doOnPreDraw
@@ -27,6 +29,8 @@ import com.conboi.plannerapp.utils.BaseTabFragment
 import com.conboi.plannerapp.utils.hideKeyboard
 import com.conboi.plannerapp.utils.myclass.NoPreAnGridLayoutManager
 import com.firebase.ui.firestore.paging.FirestorePagingOptions
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.transition.MaterialElevationScale
@@ -64,7 +68,8 @@ class FriendsFragment : BaseTabFragment(), FriendAdapter.OnFriendListInterface {
         .setQuery(query, config, FriendType::class.java)
         .build()
 
-    private val mAdapterFriends: FriendAdapter = FriendAdapter(options, this)
+    private lateinit var mAdapterFriends: FriendAdapter
+    private lateinit var adView: AdView
 
     private var currentUserFriendList: List<DocumentSnapshot>? = null
     private var totalCompleted = 0
@@ -83,6 +88,7 @@ class FriendsFragment : BaseTabFragment(), FriendAdapter.OnFriendListInterface {
         _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_friends, container, false)
         return binding.root
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -105,22 +111,30 @@ class FriendsFragment : BaseTabFragment(), FriendAdapter.OnFriendListInterface {
 
         (activity as MainActivity).binding.bottomFloatingButton.apply {
             setOnClickListener {
-               inviteFriend()
+                inviteFriend()
             }
             setOnLongClickListener(null)
         }
-
-        //Friends RV
-        binding.rvFriends.apply {
-            adapter = mAdapterFriends
-            layoutManager =
-                NoPreAnGridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-            setHasFixedSize(true)
-        }
+        adView = binding.adView
+        adView.loadAd(AdRequest.Builder().build())
+        initRvFriend()
 
         binding.swiperefresh.setOnRefreshListener {
             mAdapterFriends.refresh()
             checkUserFriendList()
+        }
+
+    }
+
+    private fun initRvFriend() {
+        mAdapterFriends = FriendAdapter(options, this)
+        //Friends RV
+        binding.rvFriends.apply {
+            layoutManager?.supportsPredictiveItemAnimations()
+            adapter = mAdapterFriends
+            layoutManager =
+                NoPreAnGridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+            setHasFixedSize(true)
         }
         lifecycleScope.launch {
             mAdapterFriends.loadStateFlow.collectLatest { loadStates ->
@@ -129,7 +143,7 @@ class FriendsFragment : BaseTabFragment(), FriendAdapter.OnFriendListInterface {
                         binding.tvNoFriends.visibility = View.VISIBLE
                         binding.swiperefresh.isRefreshing = false
                         Toast.makeText(
-                            requireContext(),
+                            context,
                             resources.getString(R.string.error_loading_friends),
                             Toast.LENGTH_SHORT
                         ).show()
@@ -140,13 +154,14 @@ class FriendsFragment : BaseTabFragment(), FriendAdapter.OnFriendListInterface {
                     is LoadState.NotLoading -> {
                         binding.swiperefresh.isRefreshing = false
                     }
-                    else -> {}
+                    else -> {
+                    }
 
                 }
                 when (loadStates.append) {
                     is LoadState.Error -> {
                         Toast.makeText(
-                            requireContext(),
+                            context,
                             resources.getString(R.string.there_are_no_more_friends_for_loading),
                             Toast.LENGTH_SHORT
                         ).show()
@@ -161,13 +176,11 @@ class FriendsFragment : BaseTabFragment(), FriendAdapter.OnFriendListInterface {
                             // ...
                         }
                     }
-                    else -> {}
+                    else -> {
+                    }
                 }
             }
         }
-
-        val helper: SnapHelper = LinearSnapHelper()
-        helper.attachToRecyclerView(binding.rvFriends)
     }
 
     private fun checkUserFriendList() {
@@ -399,6 +412,7 @@ class FriendsFragment : BaseTabFragment(), FriendAdapter.OnFriendListInterface {
                                                             resources.getString(R.string.successfully_adding_friend),
                                                             Toast.LENGTH_SHORT
                                                         ).show()
+                                                        mAdapterFriends.refresh()
                                                         return@addOnCompleteListener
                                                     } else {
                                                         Toast.makeText(
@@ -413,6 +427,7 @@ class FriendsFragment : BaseTabFragment(), FriendAdapter.OnFriendListInterface {
                                         }
                                 }
                             }
+
                         dialog.dismiss()
                     } else {
                         Toast.makeText(
@@ -448,13 +463,54 @@ class FriendsFragment : BaseTabFragment(), FriendAdapter.OnFriendListInterface {
             val extras = FragmentNavigatorExtras(
                 view to transitionNameView
             )
-            val directions = FriendsFragmentDirections.actionGlobalFriendDetailsFragment(
+            val directions = FriendsFragmentDirections.actionFriendsFragmentToFriendDetailsFragment(
                 friend = friend
             )
             findNavController().navigate(directions, extras)
         } else if (friend.user_request_code == 2) {
             promptRequestFriend(friend.user_id)
         }
+    }
+
+    override fun onFriendHold(view: View, friendId: String, friendName: String) {
+        PopupMenu(requireContext(), view).apply {
+            menuInflater.inflate(R.menu.popup_menu_friend_options, menu)
+            setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.action_delete_friend -> {
+                        Log.d("TAG", "onFriendHold: $friendId")
+                        db.collection("Users/${auth.currentUser!!.uid}/FriendList")
+                            .document(friendId).delete()
+                        db.collection("Users/$friendId/FriendList")
+                            .document(auth.currentUser!!.uid).delete()
+                        mAdapterFriends.refresh()
+                        Toast.makeText(
+                            requireContext(),
+                            resources.getString(R.string.friend_removed),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                true
+            }
+            show()
+        }
+
+    }
+
+    override fun onPause() {
+        adView.pause()
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        adView.resume()
+    }
+
+    override fun onDestroy() {
+        adView.destroy()
+        super.onDestroy()
     }
 
     override fun onDestroyView() {

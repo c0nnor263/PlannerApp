@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <style name="PlannerApp.Login.Theme" parent="Theme.Material3.Dark.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/primaryColorWater</item>
+        <item name="colorPrimaryVariant">@color/primaryLightColorWater</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/secondaryColorWater</item>
+        <item name="colorSecondaryVariant">@color/secondaryDarkColorWater</item>
+        <item name="colorOnSecondary">@android:color/white</item>
+        <item name="android:windowBackground">@drawable/login_background</item>
+        <item name="android:statusBarColor">@android:color/black</item>
+
+
+    </style>
+
+    <style name="PlannerApp.Theme.Main.Launcher" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/primaryDarkColorWater</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/primaryColorWater</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/PlannerApp.Theme.Main</item>
+    </style>
+
     <!-->MaterialAlertDialog styles<-->
     <style name="mMaterialAlertDialog.Rounded" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="alertDialogStyle">@style/MaterialAlertDialog.Rounded</item>
@@ -12,7 +35,6 @@
     <style name="ShapeAppearance.MaterialAlertDialog.Rounded" parent="">
         <item name="cornerSize">16dp</item>
     </style>
-
 
     <!-->BottomSheetDialog styles<-->
     <style name="mBottomSheetDialogDayNight" parent="Theme.MaterialComponents.DayNight.BottomSheetDialog">
