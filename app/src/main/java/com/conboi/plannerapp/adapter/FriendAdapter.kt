@@ -31,8 +31,17 @@ class FriendAdapter(
                         )
                     }
                 }
+                itemView.setOnLongClickListener {
+                    val position = bindingAdapterPosition
+                    if (position != RecyclerView.NO_POSITION) {
+                        val friend = getItem(position)!!.toObject<FriendType>()!!
+                        listener.onFriendHold(binding.friendAvatar, friend.user_id, friend.user_name)
+                    }
+                    true
+                }
             }
         }
+
         fun bind(friend: FriendType) = with(binding) {
             binding.friend = friend
             executePendingBindings()
@@ -49,8 +58,10 @@ class FriendAdapter(
         )
     }
 
+
     interface OnFriendListInterface {
         fun onFriendClick(view: View, avatar: ImageView, friend: FriendType)
+        fun onFriendHold(view: View, friendId: String, friendName: String)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int, model: FriendType) {

@@ -1,5 +1,6 @@
 package com.conboi.plannerapp.ui.bottomsheet
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,7 +22,7 @@ class BottomNavigationFragment : BottomSheetDialogFragment() {
     val binding get() = _binding!!
 
     //Firebase
-    private var auth: FirebaseAuth = Firebase.auth
+    private val auth: FirebaseAuth = Firebase.auth
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,6 +40,9 @@ class BottomNavigationFragment : BottomSheetDialogFragment() {
         binding.apply {
             lifecycleOwner = this@BottomNavigationFragment
             user = auth.currentUser
+            if (!auth.currentUser?.isEmailVerified!!) {
+                profileEmail.setTextColor(Color.RED)
+            }
             appNavigationView.setNavigationItemSelectedListener { menuItem ->
                 val id = menuItem.itemId
                 if (menuItem.isChecked) return@setNavigationItemSelectedListener false
@@ -78,7 +82,10 @@ class BottomNavigationFragment : BottomSheetDialogFragment() {
                     return@setOnClickListener
                 }
                 val settingsFragment = SettingsFragment()
-                settingsFragment.show(requireActivity().supportFragmentManager, settingsFragment.tag)
+                settingsFragment.show(
+                    requireActivity().supportFragmentManager,
+                    settingsFragment.tag
+                )
                 dismiss()
             }
         }

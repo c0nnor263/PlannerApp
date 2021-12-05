@@ -5,7 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.conboi.plannerapp.model.TaskType
+import com.conboi.plannerapp.utils.GLOBAL_START_DATE
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,6 +38,9 @@ class TaskDetailsViewModel @Inject constructor(
     private var _newTotalChecked = MutableLiveData<Int>()
     val newTotalChecked: LiveData<Int> = _newTotalChecked
 
+    private var _newMissed = MutableLiveData<Boolean>()
+    val newMissed: LiveData<Boolean> = _newMissed
+
     fun setBufferTask(task: TaskType) {
         _bufferTask.value = task
     }
@@ -63,10 +68,23 @@ class TaskDetailsViewModel @Inject constructor(
     fun updateCheckedValue(checked: Boolean) {
         updateCompletedValue(System.currentTimeMillis(), checked)
         _newChecked.value = checked
+        if (bufferTask.value?.missed == true) {
+            if (checked) {
+                _newMissed.value = false
+                _newDeadline.value = GLOBAL_START_DATE
+            } else {
+                _newMissed.value = true
+                _newDeadline.value = bufferTask.value?.deadline
+            }
+        }
     }
 
     fun updateTotalCheckedValue(totalChecked: Int) {
         _newTotalChecked.value = totalChecked
+    }
+
+    fun updateMissedValue(missed: Boolean) {
+        _newMissed.value = missed
     }
 
     fun increaseTotalChecked() {
@@ -104,6 +122,7 @@ class TaskDetailsViewModel @Inject constructor(
             set(NEW_COMPLETED, newCompleted.value)
             set(NEW_CHECKED, checked)
             set(NEW_TOTAL_CHECKED, newTotalChecked.value)
+            set(NEW_MISSED, newMissed.value)
         }
     }
 
@@ -120,6 +139,7 @@ class TaskDetailsViewModel @Inject constructor(
                 getLiveData<Long>(NEW_COMPLETED).value!!,
                 newChecked.value!!
             )
+            updateMissedValue(getLiveData<Boolean>(NEW_MISSED).value!!)
 
             return Triple(
                 getLiveData<String>(NEW_TITLE).value!!,
@@ -142,5 +162,6 @@ class TaskDetailsViewModel @Inject constructor(
         private const val NEW_DEADLINE = "newDeadline"
         private const val NEW_PRIORITY = "newPriority"
         private const val NEW_COMPLETED = "newCompleted"
+        private const val NEW_MISSED = "newMissed"
     }
 }

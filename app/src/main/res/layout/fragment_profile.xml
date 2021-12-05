@@ -4,13 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
-            name="user"
+            name="bindUser"
             type="com.google.firebase.auth.FirebaseUser" />
 
         <variable
             name="viewModel"
-            type="com.conboi.plannerapp.ui.profile.ProfileViewModel" />
+            type="com.conboi.plannerapp.ui.main.SharedViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -69,7 +70,7 @@
 
                 <ImageView
                     android:id="@+id/user_avatar"
-                    loadImage="@{user.photoUrl.toString()}"
+                    loadProfileImage="@{bindUser.photoUrl.toString()}"
                     android:layout_width="140dp"
                     android:layout_height="140dp"
                     android:layout_gravity="center"
@@ -80,24 +81,39 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/user_email"
+                <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginBottom="8dp"
-                    android:gravity="center"
-                    android:text="@{user.email}"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    tools:text="@string/fui_email_hint" />
+                    android:layout_height="wrap_content">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/user_email"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{bindUser.email}"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginEnd="8dp"
+                        tools:text="@string/fui_email_hint" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/user_confirm_email"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        android:visibility="gone"
+                        android:text="\?"
+                        android:textStyle="bold"
+                        tools:text="@string/fui_email_link_confirm_email_message" />
+                </LinearLayout>
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/user_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="@{user.displayName}"
+                    android:text="@{bindUser.displayName}"
                     android:textSize="16sp"
                     tools:text="@string/fui_name_hint" />
 
@@ -107,7 +123,6 @@
                     android:layout_height="70dp"
                     android:layout_gravity="center"
                     android:layout_marginTop="96dp"
-                    android:backgroundTint="@color/secondaryLightColorTree"
                     android:text="@string/sign_out"
                     android:textColor="?attr/colorOnPrimary"
                     android:textSize="14sp"
@@ -130,11 +145,10 @@
                     android:layout_height="30dp"
                     android:layout_gravity="center"
                     android:layout_marginHorizontal="8dp"
-                    android:background="?attr/selectableItemBackground"
                     android:gravity="center"
                     android:maxLines="3"
                     android:paddingHorizontal="8dp"
-                    android:text="@{user.uid}"
+                    android:text="@{bindUser.uid}"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     tools:text="@string/com.crashlytics.android.build_id" />

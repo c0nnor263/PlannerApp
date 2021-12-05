@@ -3,9 +3,9 @@ package com.conboi.plannerapp.data
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.conboi.plannerapp.model.TaskType
-import com.conboi.plannerapp.model.TaskType.TaskEntry.COLUMN_CHECKED
-import com.conboi.plannerapp.model.TaskType.TaskEntry.COLUMN_TOTAL_CHECKED
-import com.conboi.plannerapp.model.TaskType.TaskEntry.TABLE_NAME
+import com.conboi.plannerapp.model.TaskType.Companion.COLUMN_CHECKED
+import com.conboi.plannerapp.model.TaskType.Companion.COLUMN_TOTAL_CHECKED
+import com.conboi.plannerapp.model.TaskType.Companion.TABLE_NAME
 import kotlinx.coroutines.flow.Flow
 
 
@@ -84,6 +84,12 @@ interface TaskDao {
 
     @Query("SELECT * from  $TABLE_NAME WHERE id = :id")
     fun getTask(id: Int): Flow<TaskType>
+
+    @Query("SELECT * from $TABLE_NAME WHERE $COLUMN_CHECKED == 1 AND $COLUMN_TOTAL_CHECKED < 2")
+    fun getTasksOnlyCompleted():Flow<List<TaskType>>
+
+    @Query("SELECT * from $TABLE_NAME WHERE $COLUMN_TOTAL_CHECKED > 1")
+    fun getTasksOvercompleted(): Flow<List<TaskType>>
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

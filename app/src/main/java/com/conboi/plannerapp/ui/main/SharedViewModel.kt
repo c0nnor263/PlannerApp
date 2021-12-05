@@ -1,5 +1,7 @@
 package com.conboi.plannerapp.ui.main
 
+import android.content.Context
+import androidx.annotation.ColorRes
 import androidx.lifecycle.*
 import com.conboi.plannerapp.data.PreferencesManager
 import com.conboi.plannerapp.data.SortOrder
@@ -7,6 +9,9 @@ import com.conboi.plannerapp.data.SynchronizationState
 import com.conboi.plannerapp.data.TaskDao
 import com.conboi.plannerapp.model.TaskType
 import com.conboi.plannerapp.utils.GLOBAL_START_DATE
+import com.conboi.plannerapp.utils.MAX_ADD_TASK
+import com.conboi.plannerapp.utils.MAX_TASK_COUNT
+import com.conboi.plannerapp.utils.myclass.AlarmMethods
 import com.conboi.plannerapp.utils.myclass.FirebaseUserLiveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,16 +21,38 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
-const val MAX_TASK_COUNT: Int = 50
-const val MAX_ADD_TASK: Int = 15
-
 @HiltViewModel
 class SharedViewModel @Inject constructor(
     private val taskDao: TaskDao,
     private val preferencesManager: PreferencesManager,
-    savedState: SavedStateHandle
+    savedState: SavedStateHandle,
+    private val alarmMethods: AlarmMethods
 ) : ViewModel() {
+    private val _colorPrimary = MutableLiveData<Int>()
+    val colorPrimary: LiveData<Int> = _colorPrimary
+
+    private val _colorPrimaryVariant = MutableLiveData<Int>()
+    val colorPrimaryVariant: LiveData<Int> = _colorPrimaryVariant
+
+    private val _colorSecondary = MutableLiveData<Int>()
+    val colorSecondary: LiveData<Int> = _colorSecondary
+
+    private val _colorSecondaryVariant = MutableLiveData<Int>()
+    val colorSecondaryVariant: LiveData<Int> = _colorSecondaryVariant
+
+    fun updateColorPalette(
+        @ColorRes p: Int,
+        @ColorRes pL: Int,
+        @ColorRes s: Int,
+        @ColorRes sD: Int
+    ) {
+        _colorPrimary.value = p
+        _colorPrimaryVariant.value = pL
+        _colorSecondary.value = s
+        _colorSecondaryVariant.value = sD
+    }
+
+
     val authenticationState = FirebaseUserLiveData().map { user ->
         if (user != null) {
             FirebaseUserLiveData.AuthenticationState.AUTHENTICATED
@@ -58,6 +85,9 @@ class SharedViewModel @Inject constructor(
 
     val notificationsModeState: LiveData<Boolean> =
         combine(preferencesFlow) { it.first().notificationsModeState }.asLiveData()
+
+    val totalCompleted =
+        combine(preferencesManager.preferencesFlow) { it.first().totalCompleted }.asLiveData()
 
     val syncState = combine(preferencesFlow) {
         it.first().syncState
@@ -93,7 +123,12 @@ class SharedViewModel @Inject constructor(
         taskDao.update(task.copy(title = title))
     }
 
-    fun onTaskCheckedChanged(task: TaskType, checked: Boolean, increase: Boolean) =
+    fun onTaskCheckedChanged(
+        task: TaskType,
+        checked: Boolean,
+        increase: Boolean,
+        context: Context
+    ) =
         viewModelScope.launch {
             if (increase) {
                 if (task.totalChecked == 0) {
@@ -104,6 +139,13 @@ class SharedViewModel @Inject constructor(
                             totalChecked = 1
                         )
                     )
+                    utilsSetNotification(
+                        context,
+                        task.idTask,
+                        task.repeatMode,
+                        task.time,
+                        task.deadline
+                    )
                 } else {
                     taskDao.update(
                         task.copy(
@@ -111,6 +153,13 @@ class SharedViewModel @Inject constructor(
                             checked = true,
                             totalChecked = task.totalChecked + 1
                         )
+                    )
+                    utilsSetNotification(
+                        context,
+                        task.idTask,
+                        task.repeatMode,
+                        task.time,
+                        task.deadline,
                     )
                 }
                 preferencesManager.incrementTotalCompleted()
@@ -123,6 +172,13 @@ class SharedViewModel @Inject constructor(
                                 completed = System.currentTimeMillis(),
                             )
                         )
+                        utilsSetNotification(
+                            context,
+                            task.idTask,
+                            task.repeatMode,
+                            task.time,
+                            task.deadline,
+                        )
                         preferencesManager.decrementTotalCompleted()
                     } else {
                         taskDao.update(
@@ -131,6 +187,13 @@ class SharedViewModel @Inject constructor(
                                 checked = checked,
                                 totalChecked = 1
                             )
+                        )
+                        utilsSetNotification(
+                            context,
+                            task.idTask,
+                            task.repeatMode,
+                            task.time,
+                            task.deadline
                         )
                         preferencesManager.incrementTotalCompleted()
                     }
@@ -142,10 +205,37 @@ class SharedViewModel @Inject constructor(
                             totalChecked = 0
                         )
                     )
+                    utilsSetNotification(
+                        context,
+                        task.idTask,
+                        task.repeatMode,
+                        task.time,
+                        task.deadline
+                    )
                     preferencesManager.decrementTotalCompleted()
                 }
             }
         }
+
+    private fun utilsSetNotification(
+        context: Context,
+        idTask: Int,
+        repeatMode: Int,
+        newTime: Long,
+        newDeadline: Long
+    ) {
+        if (newTime != GLOBAL_START_DATE) {
+            alarmMethods.setReminder(
+                context,
+                idTask,
+                repeatMode,
+                newTime
+            )
+        }
+        if (newDeadline != GLOBAL_START_DATE) {
+            alarmMethods.setDeadline(context, idTask, newDeadline)
+        }
+    }
 
     fun onSortOrderSelected(sortOrder: SortOrder) = viewModelScope.launch {
         preferencesManager.updateSortOrder(sortOrder)
@@ -176,6 +266,7 @@ class SharedViewModel @Inject constructor(
     fun incrementTotalCompleted(differ: Int) = viewModelScope.launch {
         preferencesManager.incrementTotalCompleted(differ)
     }
+
     fun decrementTotalCompleted(differ: Int) = viewModelScope.launch {
         preferencesManager.decrementTotalCompleted(differ)
     }
@@ -205,12 +296,13 @@ class SharedViewModel @Inject constructor(
         title: String,
         description: String,
         time: Long,
+        repeatMode: Int,
         deadline: Long,
         priority: Int,
-        check: Boolean,
+        checked: Boolean,
+        totalChecked: Int,
         completed: Long,
-        repeatMode: Int,
-        totalChecked: Int
+        missed: Boolean
     ) =
         viewModelScope.launch {
             taskDao.update(
@@ -218,12 +310,13 @@ class SharedViewModel @Inject constructor(
                     title = title,
                     description = description,
                     time = time,
+                    repeatMode = repeatMode,
                     deadline = deadline,
                     priority = priority,
-                    checked = check,
+                    checked = checked,
+                    totalChecked = totalChecked,
                     completed = completed,
-                    repeatMode = repeatMode,
-                    totalChecked = totalChecked
+                    missed = missed
                 )
             )
         }
@@ -235,24 +328,59 @@ class SharedViewModel @Inject constructor(
             taskDao.delete(task)
         }
 
-    fun onUndoDeleteClick(task: TaskType) =
+    fun onUndoDeleteClick(task: TaskType, context: Context) =
         viewModelScope.launch {
+            if (task.time != GLOBAL_START_DATE) {
+                if (task.time <= System.currentTimeMillis() && task.repeatMode == 0) {
+                    task.time = GLOBAL_START_DATE
+                } else {
+                    alarmMethods.setReminder(
+                        context,
+                        task.idTask,
+                        task.repeatMode,
+                        task.time
+                    )
+                }
+            }
+
+            if (task.deadline != GLOBAL_START_DATE) {
+                if (task.deadline <= System.currentTimeMillis()) {
+                    task.missed = true
+                } else {
+                    alarmMethods.setDeadline(
+                        context,
+                        task.idTask,
+                        task.deadline
+                    )
+                }
+            }
             taskDao.insert(task)
         }
 
-    fun deleteOnlyCompletedTasks() =
+    fun deleteOnlyCompletedTasks(context: Context) =
         viewModelScope.launch {
+            val listOnlyCompleted = taskDao.getTasksOnlyCompleted().first().toList()
+            for (task in listOnlyCompleted) {
+                alarmMethods.cancelReminder(context, task.idTask)
+                alarmMethods.cancelDeadline(context, task.idTask)
+            }
             taskDao.deleteOnlyCompletedTasks()
         }
 
-    fun deleteOnlyOvercompletedTasks() =
+    fun deleteOnlyOvercompletedTasks(context: Context) =
         viewModelScope.launch {
+            val listOnlyCompleted = taskDao.getTasksOvercompleted().first().toList()
+            for (task in listOnlyCompleted) {
+                 alarmMethods.cancelReminder(context, task.idTask)
+                 alarmMethods.cancelDeadline(context, task.idTask)
+            }
             taskDao.deleteOnlyOvercompletedTasks()
         }
 
 
-    fun deleteAllTasks() = viewModelScope.launch {
+    fun deleteAllTasks(context: Context) = viewModelScope.launch {
         taskDao.deleteAllTasks()
+        alarmMethods.cancelAllAlarmsType(context, null)
     }
 
 
@@ -278,5 +406,9 @@ class SharedViewModel @Inject constructor(
     fun updateLanguageState(locale: String) =
         viewModelScope.launch { preferencesManager.updateLanguageState(locale) }
 
-
+    fun signOutDelete() =
+        viewModelScope.launch {
+            taskDao.deleteAllTasks()
+            preferencesManager.updateTotalCompleted(0)
+        }
 }

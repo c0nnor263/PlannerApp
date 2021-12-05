@@ -1,12 +1,9 @@
 package com.conboi.plannerapp.ui.main
 
-import android.app.AlarmManager
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.os.VibrationEffect
-import android.text.format.DateFormat
+import android.text.format.DateFormat.is24HourFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,46 +11,52 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.work.*
 import com.conboi.plannerapp.R
 import com.conboi.plannerapp.databinding.AlertdialogAddDeadlineTimeBinding
 import com.conboi.plannerapp.databinding.AlertdialogAddReminderTimeBinding
 import com.conboi.plannerapp.databinding.FragmentTaskDetailsBinding
 import com.conboi.plannerapp.model.TaskType
 import com.conboi.plannerapp.ui.MainActivity
-import com.conboi.plannerapp.utils.GLOBAL_START_DATE
-import com.conboi.plannerapp.utils.cancelReminder
-import com.conboi.plannerapp.utils.setOrUpdateReminder
-import com.conboi.plannerapp.utils.themeColor
+import com.conboi.plannerapp.utils.*
+import com.conboi.plannerapp.utils.myclass.AlarmMethods
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointForward
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import com.google.android.material.transition.MaterialContainerTransform
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
+import java.text.DateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class TaskDetailsFragment : Fragment() {
+    @Inject
+    lateinit var alarmMethods: AlarmMethods
+    @Inject
+    lateinit var mainFragment: MainFragment
+
     private var _binding: FragmentTaskDetailsBinding? = null
     private val binding get() = _binding!!
 
     private val navigationArgs: TaskDetailsFragmentArgs by navArgs()
-    private val sharedViewModel: SharedViewModel by activityViewModels()
+    private val sharedViewModel: SharedViewModel by viewModels()
     private val taskDetailsViewModel: TaskDetailsViewModel by viewModels()
 
-    private var alarmManager: AlarmManager? = null
     private lateinit var bufferedTask: TaskType
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,7 +90,6 @@ class TaskDetailsFragment : Fragment() {
             }
             setOnLongClickListener(null)
         }
-        alarmManager = getSystemService(requireContext(), AlarmManager::class.java)
         binding.apply {
             lifecycleOwner = this@TaskDetailsFragment
             viewModel = taskDetailsViewModel
@@ -107,13 +109,21 @@ class TaskDetailsFragment : Fragment() {
                         updatePriorityValue(selectedItem.priority)
                         updateRepeatModeValue(selectedItem.repeatMode)
                         updateCompletedValue(selectedItem.completed, selectedItem.checked)
+                        updateMissedValue(selectedItem.missed)
                         bufferedTask = selectedItem
-                        getAndSetPriority()
                     }
                 newChecked.observe(this@TaskDetailsFragment.viewLifecycleOwner) {
                     checkTask.isChecked = it
                     if (it) {
                         tvCompletedTask.visibility = View.VISIBLE
+                        if (bufferTask.value?.missed == true) {
+                            deadline.setTextColor(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    android.R.color.black
+                                )
+                            )
+                        }
                     } else {
                         titleLayout.isEnabled = true
                         descLayout.isEnabled = true
@@ -121,6 +131,14 @@ class TaskDetailsFragment : Fragment() {
                         deadlineLayout.isEnabled = true
                         priorityLayout.isEnabled = true
                         tvCompletedTask.visibility = View.GONE
+                        if (bufferTask.value?.missed == true) {
+                            deadline.setTextColor(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    R.color.secondaryDarkColorFire
+                                )
+                            )
+                        }
                     }
                 }
                 newTotalChecked.observe(this@TaskDetailsFragment.viewLifecycleOwner) {
@@ -195,65 +213,60 @@ class TaskDetailsFragment : Fragment() {
                     }
                     true
                 }
-            }
-        }
-    }
-
-    fun getAndSetPriority() {
-        binding.apply {
-            dropPriority.setOnItemClickListener { _, _, position, _ ->
-                when (position) {
-                    0 -> {
-                        taskDetailsViewModel.updatePriorityValue(0)
-                        dropPriority.setTextColor(
-                            ContextCompat.getColor(
-                                requireContext(),
-                                R.color.primaryDarkColorAir
+                dropPriority.setOnItemClickListener { _, _, position, _ ->
+                    when (position) {
+                        0 -> {
+                            taskDetailsViewModel.updatePriorityValue(0)
+                            dropPriority.setTextColor(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    R.color.primaryDarkColorAir
+                                )
                             )
-                        )
-                    }
-                    1 -> {
-                        taskDetailsViewModel.updatePriorityValue(1)
-                        dropPriority.setTextColor(
-                            ContextCompat.getColor(
-                                requireContext(),
-                                R.color.secondaryColorWater
+                        }
+                        1 -> {
+                            taskDetailsViewModel.updatePriorityValue(1)
+                            dropPriority.setTextColor(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    R.color.secondaryColorWater
+                                )
                             )
-                        )
-                    }
-                    2 -> {
-                        taskDetailsViewModel.updatePriorityValue(2)
-                        dropPriority.setTextColor(
-                            ContextCompat.getColor(
-                                requireContext(),
-                                R.color.primaryLightColorFire
+                        }
+                        2 -> {
+                            taskDetailsViewModel.updatePriorityValue(2)
+                            dropPriority.setTextColor(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    R.color.primaryLightColorFire
+                                )
                             )
-                        )
-                    }
-                    3 -> {
-                        taskDetailsViewModel.updatePriorityValue(3)
-                        dropPriority.setTextColor(
-                            ContextCompat.getColor(
-                                requireContext(),
-                                R.color.secondaryDarkColorFire
+                        }
+                        3 -> {
+                            taskDetailsViewModel.updatePriorityValue(3)
+                            dropPriority.setTextColor(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    R.color.secondaryDarkColorFire
+                                )
                             )
-                        )
-                    }
-                    else -> {
-                        taskDetailsViewModel.updatePriorityValue(1)
-                        dropPriority.setTextColor(
-                            ContextCompat.getColor(
-                                requireContext(),
-                                R.color.primaryLightColorWater
+                        }
+                        else -> {
+                            taskDetailsViewModel.updatePriorityValue(1)
+                            dropPriority.setTextColor(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    R.color.primaryLightColorWater
+                                )
                             )
-                        )
+                        }
                     }
                 }
             }
         }
     }
 
-    fun setTime() {
+    fun setTimeReminder() {
         var reminderBinding: AlertdialogAddReminderTimeBinding? =
             DataBindingUtil.inflate(
                 layoutInflater,
@@ -261,7 +274,6 @@ class TaskDetailsFragment : Fragment() {
                 view as ViewGroup?,
                 false
             )
-
         var setTime: Calendar = Calendar.getInstance().apply {
             timeInMillis = GLOBAL_START_DATE
         }
@@ -275,6 +287,7 @@ class TaskDetailsFragment : Fragment() {
             Calendar.MONTH, Calendar.getInstance().get(Calendar.MONTH)
         )
         setTime.set(Calendar.DAY_OF_MONTH, Calendar.getInstance().get(Calendar.DAY_OF_MONTH))
+
 
         val addReminderDialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle(resources.getString(R.string.add_reminder))
@@ -304,19 +317,47 @@ class TaskDetailsFragment : Fragment() {
                         updateRemainingTime()
                         taskDetailsViewModel.updateTimeValue(setTime.timeInMillis)
                     }
-
                     when {
                         days != 0L -> {
                             Toast.makeText(
                                 context,
-                                "Reminder set for $days days, $hours hours and $minutes minutes from now.",
+                                getString(
+                                    R.string.reminder_for_day_hour_minute,
+                                    resources.getQuantityString(
+                                        R.plurals.days,
+                                        days.toInt(),
+                                        days
+                                    ),
+                                    resources.getQuantityString(
+                                        R.plurals.hours,
+                                        hours.toInt(),
+                                        hours
+                                    ),
+                                    resources.getQuantityString(
+                                        R.plurals.minutes,
+                                        minutes.toInt(),
+                                        minutes
+                                    )
+                                ),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
                         hours != 0L -> {
                             Toast.makeText(
                                 context,
-                                "Reminder set for $hours hours and $minutes minutes from now.",
+                                getString(
+                                    R.string.reminder_for_hour_minute,
+                                    resources.getQuantityString(
+                                        R.plurals.hours,
+                                        hours.toInt(),
+                                        hours
+                                    ),
+                                    resources.getQuantityString(
+                                        R.plurals.minutes,
+                                        minutes.toInt(),
+                                        minutes
+                                    )
+                                ),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -324,13 +365,20 @@ class TaskDetailsFragment : Fragment() {
                             if (minutes == 0L) {
                                 Toast.makeText(
                                     context,
-                                    "Reminder set for less than minute from now.",
+                                    getString(R.string.reminder_less_than_minute),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             } else {
                                 Toast.makeText(
                                     context,
-                                    "Reminder set for $minutes minutes from now.",
+                                    getString(
+                                        R.string.reminder_for_minutes,
+                                        resources.getQuantityString(
+                                            R.plurals.minutes,
+                                            minutes.toInt(),
+                                            minutes
+                                        )
+                                    ),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -339,17 +387,37 @@ class TaskDetailsFragment : Fragment() {
                         else -> {
                             Toast.makeText(
                                 context,
-                                "Reminder set for $days days, $hours hours and $minutes minutes from now.",
+                                getString(
+                                    R.string.reminder_for_day_hour_minute,
+                                    resources.getQuantityString(
+                                        R.plurals.days,
+                                        days.toInt(),
+                                        days
+                                    ),
+                                    resources.getQuantityString(
+                                        R.plurals.hours,
+                                        hours.toInt(),
+                                        hours
+                                    ),
+                                    resources.getQuantityString(
+                                        R.plurals.minutes,
+                                        minutes.toInt(),
+                                        minutes
+                                    )
+                                ),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
                     }
                     binding.time.setText(
-                        SimpleDateFormat(
-                            "EEE, d MMM, h:mm a", Locale.getDefault()
-                        ).format(
-                            Date(setTime.timeInMillis)
+                        DateFormat.getDateTimeInstance(
+                            DateFormat.DEFAULT,
+                            DateFormat.DEFAULT,
+                            resources.configuration.locales[0]
                         )
+                            .format(
+                                Date(setTime.timeInMillis)
+                            )
                     )
                 } else {
                     binding.time.setText(
@@ -404,7 +472,7 @@ class TaskDetailsFragment : Fragment() {
 
     }
 
-    fun setDeadline() {
+    fun setTimeDeadline() {
         var deadlineBinding: AlertdialogAddDeadlineTimeBinding? =
             DataBindingUtil.inflate(
                 layoutInflater,
@@ -412,7 +480,6 @@ class TaskDetailsFragment : Fragment() {
                 view as ViewGroup?,
                 false
             )
-
         var setTime: Calendar = Calendar.getInstance().apply {
             timeInMillis = GLOBAL_START_DATE
         }
@@ -426,6 +493,7 @@ class TaskDetailsFragment : Fragment() {
             Calendar.MONTH, Calendar.getInstance().get(Calendar.MONTH)
         )
         setTime.set(Calendar.DAY_OF_MONTH, Calendar.getInstance().get(Calendar.DAY_OF_MONTH))
+
 
         val addDeadlineDialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle(resources.getString(R.string.add_deadline))
@@ -457,14 +525,43 @@ class TaskDetailsFragment : Fragment() {
                         days != 0L -> {
                             Toast.makeText(
                                 context,
-                                "Deadline set for $days days, $hours hours and $minutes minutes from now.",
+                                getString(
+                                    R.string.deadline_for_day_hour_minute,
+                                    resources.getQuantityString(
+                                        R.plurals.days,
+                                        days.toInt(),
+                                        days
+                                    ),
+                                    resources.getQuantityString(
+                                        R.plurals.hours,
+                                        hours.toInt(),
+                                        hours
+                                    ),
+                                    resources.getQuantityString(
+                                        R.plurals.minutes,
+                                        minutes.toInt(),
+                                        minutes
+                                    )
+                                ),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
                         hours != 0L -> {
                             Toast.makeText(
                                 context,
-                                "Deadline set for $hours hours and $minutes minutes from now.",
+                                getString(
+                                    R.string.deadline_for_hour_minute,
+                                    resources.getQuantityString(
+                                        R.plurals.hours,
+                                        hours.toInt(),
+                                        hours
+                                    ),
+                                    resources.getQuantityString(
+                                        R.plurals.minutes,
+                                        minutes.toInt(),
+                                        minutes
+                                    )
+                                ),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -472,13 +569,20 @@ class TaskDetailsFragment : Fragment() {
                             if (minutes == 0L) {
                                 Toast.makeText(
                                     context,
-                                    "Deadline set for less than minute from now.",
+                                    getString(R.string.deadline_less_than_minute),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             } else {
                                 Toast.makeText(
                                     context,
-                                    "Deadline set for $minutes minutes from now.",
+                                    getString(
+                                        R.string.deadline_for_minutes,
+                                        resources.getQuantityString(
+                                            R.plurals.minutes,
+                                            minutes.toInt(),
+                                            minutes
+                                        )
+                                    ),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -487,14 +591,33 @@ class TaskDetailsFragment : Fragment() {
                         else -> {
                             Toast.makeText(
                                 context,
-                                "Deadline set for $days days, $hours hours and $minutes minutes from now.",
+                                getString(
+                                    R.string.deadline_for_day_hour_minute,
+                                    resources.getQuantityString(
+                                        R.plurals.days,
+                                        days.toInt(),
+                                        days
+                                    ),
+                                    resources.getQuantityString(
+                                        R.plurals.hours,
+                                        hours.toInt(),
+                                        hours
+                                    ),
+                                    resources.getQuantityString(
+                                        R.plurals.minutes,
+                                        minutes.toInt(),
+                                        minutes
+                                    )
+                                ),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
                     }
                     binding.deadline.setText(
-                        SimpleDateFormat(
-                            "EEE, d MMM, h:mm a", Locale.getDefault()
+                        DateFormat.getDateTimeInstance(
+                            DateFormat.DEFAULT,
+                            DateFormat.DEFAULT,
+                            resources.configuration.locales[0]
                         ).format(
                             Date(setTime.timeInMillis)
                         )
@@ -511,6 +634,8 @@ class TaskDetailsFragment : Fragment() {
             .setNegativeButton(resources.getString(R.string.cancel))
             { dialog, _ ->
                 deadlineBinding = null
+                taskDetailsViewModel.updateMissedValue(taskDetailsViewModel.bufferTask.value!!.missed)
+                taskDetailsViewModel.updateDeadlineValue(taskDetailsViewModel.bufferTask.value!!.deadline)
                 dialog.cancel()
             }
             .show()
@@ -532,6 +657,7 @@ class TaskDetailsFragment : Fragment() {
 
             removeDeadline.setOnClickListener {
                 taskDetailsViewModel.updateDeadlineValue(GLOBAL_START_DATE)
+                taskDetailsViewModel.updateMissedValue(false)
                 binding.time.setText(resources.getString(R.string.set_deadline))
                 addDeadlineDialog.cancel()
                 Toast.makeText(
@@ -547,20 +673,24 @@ class TaskDetailsFragment : Fragment() {
         }
     }
 
-    private fun setReminder(title: String, triggerTime: Long, repeatMode: Int) {
-        lifecycleScope.launch {
-            alarmManager!!.setOrUpdateReminder(
-                requireContext(),
-                bufferedTask.idTask,
-                title,
-                triggerTime,
-                repeatMode
-            )
-        }
+    private fun createWorkReminder(
+        newTime: Long,
+        repeatMode: Int
+    ) {
+        alarmMethods.setReminder(
+            requireContext(),
+            bufferedTask.idTask,
+            repeatMode,
+            newTime
+        )
     }
 
-    private fun cancelReminder() {
-        alarmManager!!.cancelReminder(requireContext(), bufferedTask.idTask)
+    private fun createWorkDeadline(
+        newTime: Long
+    ) {
+        alarmMethods.setDeadline(
+            requireContext(), bufferedTask.idTask, newTime
+        )
     }
 
     private fun getAndSetRepeatMode(reminderBinding: AlertdialogAddReminderTimeBinding) {
@@ -574,37 +704,42 @@ class TaskDetailsFragment : Fragment() {
         reminderBinding: AlertdialogAddReminderTimeBinding?,
         calendar: Calendar
     ): Calendar {
-        TimePickerDialog(
-            context,
-            { _, hourOfDay, minute ->
-                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
-                calendar.set(Calendar.MINUTE, minute)
-                calendar.set(Calendar.SECOND, 0)
+        val isSystem24Hour = is24HourFormat(context)
+        val clockFormat = if (isSystem24Hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H
+        val picker = MaterialTimePicker.Builder()
+            .setTimeFormat(clockFormat)
+            .setHour(calendar[Calendar.HOUR_OF_DAY])
+            .setMinute(calendar[Calendar.MINUTE])
+            .setTitleText(resources.getString(R.string.select_time))
+            .build()
 
-                if (reminderBinding != null) {
-                    reminderBinding.reminderAddTimeEdittext.setText(
-                        SimpleDateFormat(
-                            "h:mm a", Locale.getDefault()
-                        ).format(
-                            Date(calendar.timeInMillis)
-                        )
+        picker.addOnPositiveButtonClickListener {
+            calendar[Calendar.HOUR_OF_DAY] = picker.hour
+            calendar[Calendar.MINUTE] = picker.minute
+            if (reminderBinding != null) {
+                reminderBinding.reminderAddTimeEdittext.setText(
+                    DateFormat.getTimeInstance(
+                        DateFormat.DEFAULT,
+                        resources.configuration.locales[0]
+                    ).format(
+                        Date(calendar.timeInMillis)
                     )
-                    taskDetailsViewModel.updateTimeValue(calendar.timeInMillis)
-                } else {
-                    deadlineTimeBinding!!.deadlineAddTimeEdittext.setText(
-                        SimpleDateFormat(
-                            "h:mm a", Locale.getDefault()
-                        ).format(
-                            Date(calendar.timeInMillis)
-                        )
+                )
+                taskDetailsViewModel.updateTimeValue(calendar.timeInMillis)
+            } else {
+                deadlineTimeBinding!!.deadlineAddTimeEdittext.setText(
+                    DateFormat.getTimeInstance(
+                        DateFormat.DEFAULT,
+                        resources.configuration.locales[0]
+                    ).format(
+                        Date(calendar.timeInMillis)
                     )
-                    taskDetailsViewModel.updateDeadlineValue(calendar.timeInMillis)
-                }
-            },
-            calendar.get(Calendar.HOUR),
-            calendar.get(Calendar.MINUTE),
-            DateFormat.is24HourFormat(requireActivity())
-        ).show()
+                )
+                taskDetailsViewModel.updateDeadlineValue(calendar.timeInMillis)
+                taskDetailsViewModel.updateMissedValue(false)
+            }
+        }
+        picker.show(requireActivity().supportFragmentManager, "tag")
         return calendar
     }
 
@@ -613,37 +748,46 @@ class TaskDetailsFragment : Fragment() {
         reminderBinding: AlertdialogAddReminderTimeBinding?,
         calendar: Calendar
     ): Calendar {
+        val picker = MaterialDatePicker.Builder.datePicker()
+            .setTitleText(resources.getString(R.string.select_date))
+            .setCalendarConstraints(
+                CalendarConstraints.Builder()
+                    .setValidator(DateValidatorPointForward.now()).build()
+            )
+            .setSelection(calendar.timeInMillis)
+            .build()
+        picker.addOnPositiveButtonClickListener {
+            val dateCalendar = Calendar.getInstance().apply { timeInMillis = it }
+            calendar.set(
+                dateCalendar[Calendar.YEAR],
+                dateCalendar[Calendar.MONTH],
+                dateCalendar[Calendar.DAY_OF_MONTH]
+            )
+            if (reminderBinding != null) {
+                reminderBinding.reminderAddDateEdittext.setText(
+                    DateFormat.getDateInstance(
+                        DateFormat.DEFAULT,
+                        resources.configuration.locales[0]
+                    ).format(
+                        Date(calendar.timeInMillis)
+                    )
+                )
+                taskDetailsViewModel.updateTimeValue(calendar.timeInMillis)
+            } else {
+                deadlineTimeBinding!!.deadlineAddDateEdittext.setText(
+                    DateFormat.getDateInstance(
+                        DateFormat.DEFAULT,
+                        resources.configuration.locales[0]
+                    ).format(
+                        Date(calendar.timeInMillis)
+                    )
+                )
+                taskDetailsViewModel.updateDeadlineValue(calendar.timeInMillis)
+                taskDetailsViewModel.updateMissedValue(false)
+            }
+        }
+        picker.show(requireActivity().supportFragmentManager, "tag")
 
-        DatePickerDialog(
-            requireContext(),
-            { _, year, month, dayOfMonth ->
-                calendar.set(Calendar.YEAR, year)
-                calendar.set(Calendar.MONTH, month)
-                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                if (reminderBinding != null) {
-                    reminderBinding.reminderAddDateEdittext.setText(
-                        SimpleDateFormat(
-                            "EEE, d MMM yyyy", Locale.getDefault()
-                        ).format(
-                            Date(calendar.timeInMillis)
-                        )
-                    )
-                    taskDetailsViewModel.updateTimeValue(calendar.timeInMillis)
-                } else {
-                    deadlineTimeBinding!!.deadlineAddDateEdittext.setText(
-                        SimpleDateFormat(
-                            "EEE, d MMM yyyy", Locale.getDefault()
-                        ).format(
-                            Date(calendar.timeInMillis)
-                        )
-                    )
-                    taskDetailsViewModel.updateDeadlineValue(calendar.timeInMillis)
-                }
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        ).show()
         return calendar
     }
 
@@ -667,13 +811,6 @@ class TaskDetailsFragment : Fragment() {
         binding.apply {
             taskDetailsViewModel.apply {
                 if (isEdited()) {
-                    if (checkTask.isChecked != bufferedTask.checked) {
-                        sharedViewModel.onTaskCheckedChanged(
-                            bufferedTask,
-                            checkTask.isChecked,
-                            false
-                        )
-                    }
                     if (newTotalChecked.value != bufferedTask.totalChecked) {
                         val differ: Int
                         if (newTotalChecked.value!! > bufferedTask.totalChecked) {
@@ -693,35 +830,66 @@ class TaskDetailsFragment : Fragment() {
                             sharedViewModel.decrementTotalCompleted(differ)
                         }
                     }
+                    if (newTime.value != bufferedTask.time) {
+                        if (newTime.value != GLOBAL_START_DATE) {
+                            createWorkReminder(
+                                newTime.value!!,
+                                newRepeatMode.value!!
+                            )
+                        } else {
+                            alarmMethods.cancelReminder(requireContext(), bufferedTask.idTask)
+                        }
+                    }
+                    if (newDeadline.value != bufferedTask.time) {
+                        if (newDeadline.value != GLOBAL_START_DATE) {
+                            createWorkDeadline(
+                                newDeadline.value!!
+                            )
+                        } else {
+                            alarmMethods.cancelDeadline(requireContext(), bufferedTask.idTask)
+                        }
+                    } else {
+                        if (bufferTask.value?.missed == true && newChecked.value!!) {
+                            updateDeadlineValue(GLOBAL_START_DATE)
+                        }
+                    }
+                    if (newChecked.value != bufferedTask.checked) {
+                        if (newTime.value != GLOBAL_START_DATE) {
+                            createWorkReminder(
+                                newTime.value!!,
+                                newRepeatMode.value!!
+                            )
+                        } else {
+                            alarmMethods.cancelReminder(requireContext(), bufferedTask.idTask)
+                        }
+                        if (newDeadline.value != GLOBAL_START_DATE) {
+                            createWorkDeadline(
+                                newDeadline.value!!
+                            )
+                        } else {
+                            alarmMethods.cancelDeadline(requireContext(), bufferedTask.idTask)
+                        }
+                    }
                     sharedViewModel.updateTask(
                         bufferedTask,
                         title.text.toString(),
                         desc.text.toString(),
                         newTime.value!!,
+                        newRepeatMode.value!!,
                         newDeadline.value!!,
                         newPriority.value!!,
                         checkTask.isChecked,
+                        newTotalChecked.value!!,
                         newCompleted.value!!,
-                        newRepeatMode.value!!,
-                        newTotalChecked.value!!
+                        newMissed.value!!
                     )
-                    if (newTime.value != bufferedTask.time) {
-                        if (newTime.value != GLOBAL_START_DATE) {
-                            setReminder(
-                                title.text.toString(),
-                                newTime.value!!,
-                                newRepeatMode.value!!
-                            )
-                        } else {
-                            cancelReminder()
-                        }
-                    }
-                    Toast.makeText(
-                        context,
+                    Snackbar.make(
+                        (activity as MainActivity).binding.clSnack,
                         resources.getString(R.string.saved),
-                        Toast.LENGTH_SHORT
+                        Snackbar.LENGTH_SHORT
                     )
                         .show()
+
                 }
             }
         }
@@ -747,7 +915,6 @@ class TaskDetailsFragment : Fragment() {
             }
         }
     }
-
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)

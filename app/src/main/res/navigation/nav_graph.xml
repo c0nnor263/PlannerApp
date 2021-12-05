@@ -8,20 +8,28 @@
         android:id="@+id/mainFragment"
         android:name="com.conboi.plannerapp.ui.main.MainFragment"
         android:label="Daily tasks"
-        android:menuCategory="secondary"
-        tools:layout="@layout/fragment_main" />
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_taskDetailsFragment"
+            app:destination="@id/taskDetailsFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/friendsFragment"
         android:name="com.conboi.plannerapp.ui.friends.FriendsFragment"
         android:label="Friends"
-        android:menuCategory="secondary"
-        tools:layout="@layout/fragment_friends" />
+        tools:layout="@layout/fragment_friends" >
+        <action
+            android:id="@+id/action_friendsFragment_to_friendDetailsFragment"
+            app:destination="@id/friendDetailsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.conboi.plannerapp.ui.bottomsheet.SettingsFragment"
         android:label="Profile"
-        android:menuCategory="secondary"
         tools:layout="@layout/fragment_settings" />
     <fragment
         android:id="@+id/taskDetailsFragment"
@@ -36,18 +44,16 @@
         android:id="@+id/searchFragment"
         android:name="com.conboi.plannerapp.ui.main.SearchFragment"
         android:label="fragment_search"
-        tools:layout="@layout/fragment_search" />
+        tools:layout="@layout/fragment_search" >
+        <action
+            android:id="@+id/action_searchFragment_to_taskDetailsFragment"
+            app:destination="@id/taskDetailsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.conboi.plannerapp.ui.auth.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" />
-    <action
-        android:id="@+id/action_global_searchFragment"
-        app:destination="@id/searchFragment" />
-    <action
-        android:id="@+id/action_global_taskDetailsFragment"
-        app:destination="@id/taskDetailsFragment" />
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.conboi.plannerapp.ui.profile.ProfileFragment"
@@ -62,7 +68,4 @@
             android:name="friend"
             app:argType="com.conboi.plannerapp.model.FriendType" />
     </fragment>
-    <action
-        android:id="@+id/action_global_friendDetailsFragment"
-        app:destination="@id/friendDetailsFragment" />
 </navigation>

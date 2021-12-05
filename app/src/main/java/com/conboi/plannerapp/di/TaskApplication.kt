@@ -1,10 +1,12 @@
 package com.conboi.plannerapp.di
 
 import android.app.Application
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import coil.ImageLoader
 import coil.ImageLoaderFactory
-import coil.request.CachePolicy
 import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 
 @HiltAndroidApp
 class TaskApplication : Application(), ImageLoaderFactory {
@@ -12,6 +14,5 @@ class TaskApplication : Application(), ImageLoaderFactory {
          return ImageLoader.Builder(applicationContext)
             .crossfade(true)
             .build()
-
     }
 }

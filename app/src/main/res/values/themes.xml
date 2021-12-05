@@ -55,11 +55,4 @@
         <item name="colorSecondaryVariant">@color/secondaryDarkColorAir</item>
         <item name="colorOnSecondary">@color/secondaryTextColor</item>
     </style>
-
-
-    <style name="PlannerApp.Login.Theme" parent="PlannerApp.Theme.Main">
-        <item name="android:windowTranslucentStatus">false</item>
-        <item name="windowNoTitle">false</item>
-        <item name="android:windowBackground">@drawable/login_background</item>
-    </style>
 </resources>

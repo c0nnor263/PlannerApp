@@ -15,17 +15,11 @@ class FriendTasksAdapter :
     inner class ViewHolder(private var binding: ListGlobalTaskBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(minimalTask: TaskType) = with(binding) {
-            task = minimalTask
-
-            globalCheckTask.isChecked = minimalTask.checked
-            if (minimalTask.checked) {
-                parentListGlobalTask.alpha = 0.5f
-            } else {
-                parentListGlobalTask.alpha = 1f
-            }
+        fun bind(friendTask: TaskType) = with(binding) {
+            task = friendTask
+            globalCheckTask.isChecked = friendTask.checked
+            globalCheckTask.isClickable = false
             executePendingBindings()
-            globalCheckTask.isEnabled = false
         }
     }
 

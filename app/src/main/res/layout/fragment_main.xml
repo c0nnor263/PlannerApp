@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -7,6 +6,7 @@
         android:id="@+id/parent_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
         android:background="@drawable/water_fragment_background">
 
         <com.google.android.material.textview.MaterialTextView
@@ -22,8 +22,10 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_tasks"
             paddingTopSystemWindowInsets="@{true}"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:paddingTop="50dp"
+            android:paddingHorizontal="2dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:clipToPadding="false"
             android:paddingBottom="?attr/actionBarSize"
             android:scrollbars="none"
@@ -37,7 +39,27 @@
             android:id="@+id/cl_snack"
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            android:layout_marginBottom="100dp"
+            android:layout_marginBottom="112dp"
             app:layout_constraintBottom_toBottomOf="parent" />
+
+        <RelativeLayout
+            android:id="@+id/adLayout"
+            paddingTopSystemWindowInsets="@{true}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.gms.ads.AdView
+                android:id="@+id/adView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                app:adSize="BANNER"
+                app:adUnitId="@string/main_ad_unit_id" />
+        </RelativeLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

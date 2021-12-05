@@ -24,7 +24,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/deadline_add_time_edittext"
-                setTaskTime="@{viewModel.newTime}"
+                setTaskTime="@{viewModel.newDeadline}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
@@ -45,7 +45,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/deadline_add_date_edittext"
-                setTaskDate="@{viewModel.newTime}"
+                setTaskDate="@{viewModel.newDeadline}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
@@ -83,13 +83,14 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/remove_deadline"
             style="@style/Widget.Material3.Button.OutlinedButton.Icon"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginVertical="8dp"
-            app:icon="@drawable/ic_baseline_delete_24"
+            android:maxLines="3"
             android:text="@string/remove_deadline"
+            app:icon="@drawable/ic_baseline_delete_24"
             app:layout_constraintEnd_toEndOf="@+id/open_datepicker"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/deadline_add_date_layout"
             app:layout_constraintTop_toBottomOf="@+id/deadline_add_date_layout" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

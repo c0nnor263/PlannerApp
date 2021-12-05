@@ -33,7 +33,7 @@
 
             <ImageView
                 android:id="@+id/friend_avatar"
-                loadImage="@{friend.user_photo_url}"
+                loadProfileImage="@{friend.user_photo_url}"
                 android:layout_width="135dp"
                 android:layout_height="135dp"
                 android:layout_gravity="center"

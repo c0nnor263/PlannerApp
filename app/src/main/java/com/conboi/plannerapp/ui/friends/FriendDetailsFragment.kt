@@ -10,7 +10,9 @@ import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,13 +22,15 @@ import com.conboi.plannerapp.R
 import com.conboi.plannerapp.adapter.FriendTasksAdapter
 import com.conboi.plannerapp.databinding.FragmentFriendDetailsBinding
 import com.conboi.plannerapp.model.TaskType
+import com.conboi.plannerapp.ui.main.SharedViewModel
 import com.conboi.plannerapp.utils.GLOBAL_START_DATE
 import com.conboi.plannerapp.utils.themeColor
 import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
-import jp.wasabeef.recyclerview.animators.FadeInAnimator
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 
@@ -35,6 +39,7 @@ class FriendDetailsFragment : Fragment() {
     private var _binding: FragmentFriendDetailsBinding? = null
     val binding get() = _binding!!
 
+    val sharedViewModel: SharedViewModel by activityViewModels()
     private val navigationArgs: FriendDetailsFragmentArgs by navArgs()
 
     private val friendDetailsViewModel: FriendDetailsViewModel by viewModels()
@@ -71,10 +76,10 @@ class FriendDetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         with(binding) {
             lifecycleOwner = this@FriendDetailsFragment
+            viewModel = sharedViewModel
             toolbar.setNavigationOnClickListener {
                 requireActivity().onBackPressedDispatcher.onBackPressed()
             }
-
             appBarLayout.addOnOffsetChangedListener(OnOffsetChangedListener { appBarLayout, verticalOffset ->
                 if (abs(verticalOffset) == appBarLayout.totalScrollRange) {
                     TransitionManager.beginDelayedTransition(
@@ -94,11 +99,6 @@ class FriendDetailsFragment : Fragment() {
                 adapter = mAdapterFriendTask
                 layoutManager = LinearLayoutManager(context)
                 setHasFixedSize(true)
-                itemAnimator = FadeInAnimator().apply {
-                    changeDuration = 300
-                    addDuration = 100
-                    removeDuration = 100
-                }
             }
             navigationArgs.apply {
                 binding.friend = friend
@@ -107,7 +107,11 @@ class FriendDetailsFragment : Fragment() {
                 }
                 getFriendTasks(friend.user_id, friend.user_name, friend.user_private_mode)
             }
-
+            lifecycleScope.launch {
+                delay(100)
+                binding.collapsingToolbar.setContentScrimResource(sharedViewModel.colorPrimaryVariant.value!!)
+                binding.appBarLayout.setBackgroundResource(sharedViewModel.colorPrimaryVariant.value!!)
+            }
         }
     }
 
@@ -130,21 +134,23 @@ class FriendDetailsFragment : Fragment() {
 
                             for (task in currentTasksList) {
                                 val idTask = currentTasksList.size + currentTasksList.indexOf(task)
-                                if (taskDocument.getString("$task.${TaskType.TaskEntry.COLUMN_TITLE}")
+                                if (taskDocument.getString("$task.${TaskType.COLUMN_TITLE}")
                                         .toString().isNotBlank()
                                 ) {
                                     val taskType = TaskType(
                                         idTask = idTask,
-                                        title = taskDocument.getString("$task.${TaskType.TaskEntry.COLUMN_TITLE}")
+                                        title = taskDocument.getString("$task.${TaskType.COLUMN_TITLE}")
                                             ?: "Error getting title",
-                                        priority = taskDocument.getLong("$task.${TaskType.TaskEntry.COLUMN_PRIORITY}")
+                                        priority = taskDocument.getLong("$task.${TaskType.COLUMN_PRIORITY}")
                                             ?.toInt() ?: 1,
-                                        totalChecked = taskDocument.getLong("$task.${TaskType.TaskEntry.COLUMN_TOTAL_CHECKED}")
+                                        totalChecked = taskDocument.getLong("$task.${TaskType.COLUMN_TOTAL_CHECKED}")
                                             ?.toInt() ?: 0,
-                                        checked = taskDocument.getBoolean("$task.${TaskType.TaskEntry.COLUMN_CHECKED}")
+                                        checked = taskDocument.getBoolean("$task.${TaskType.COLUMN_CHECKED}")
                                             ?: false,
-                                        completed = taskDocument.getLong("$task.${TaskType.TaskEntry.COLUMN_COMPLETED}")
-                                            ?: GLOBAL_START_DATE
+                                        completed = taskDocument.getLong("$task.${TaskType.COLUMN_COMPLETED}")
+                                            ?: GLOBAL_START_DATE,
+                                        missed = taskDocument.getBoolean("$task.${TaskType.COLUMN_MISSED}")
+                                            ?: false,
                                     )
                                     lateinitTaskList.add(taskType)
                                 }
@@ -197,6 +203,7 @@ class FriendDetailsFragment : Fragment() {
         }
 
     }
+
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)

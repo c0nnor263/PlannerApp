@@ -5,10 +5,9 @@ import androidx.room.RoomDatabase
 import com.conboi.plannerapp.model.TaskType
 
 @Database(
-    version = 3,
+    version = 1,
     entities = [TaskType::class]
 )
 abstract class TaskDatabase : RoomDatabase() {
     abstract fun getTaskDao(): TaskDao
-
 }

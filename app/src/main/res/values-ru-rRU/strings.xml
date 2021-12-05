@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+<resources>
 
     <!-->System<-->
     <string name="app_name" translatable="false">PlannerApp</string>
@@ -6,6 +6,8 @@
 
     <string name="reminder_notification_channel_id" translatable="false">reminderChannelID</string>
     <string name="reminder_notification_channel_name">Напоминания</string>
+    <string name="deadline_notification_channel_id" translatable="false">deadlineChannelID</string>
+    <string name="deadline_notification_channel_name">Крайние сроки</string>
 
     <string name="task_transition_name" translatable="false">task_%1$d</string>
     <string name="task_detail_transition_name" translatable="false">task_detail</string>
@@ -100,8 +102,13 @@
         (\"Отклонить\" - запись поверх резервной копии)</string>
     <string name="error_checking_tasks">Ошибка проверки резервной копии заданий!</string>
     <string name="sync_status">Статус синхронизации</string>
-    <string name="dont_forget_your_task">Не забудьте о своём задании!</string>
+    <string name="reminder_msg">Не забудьте о своём задании!</string>
     <string name="check_tasks">Проверить задания</string>
+    <string name="deadline_msg">Крайний срок наступил😔</string>
+    Осталось 4 часа для выполнения задачи(или не 4😏)
+    <string name="deadline_reminder">Осталось 4 часа для выполнения задачи(или не 4😏)</string>
+    <string name="check_reminders">Проверить напоминания</string>
+    <string name="check_deadlines">Проверить крайние сроки</string>
     <string name="you_sure_quit">Уверены, что хотите выйти?</string>
 
 
@@ -113,6 +120,8 @@
     <string name="edit_task">Изменить задание</string>
     <string name="edit_title">Название</string>
     <string name="describe_task">Описание</string>
+    <string name="select_date">Выбрать дату</string>
+    <string name="select_time">Выбрать время</string>
     <string name="set_deadline">Крайний срок</string>
     <string name="set_reminder">Напоминание</string>
     <string name="add_deadline">Добавить крайний срок</string>
@@ -123,12 +132,24 @@
     <string name="reminder_task_removed">Напоминание этого задания удалено</string>
     <string name="deadline_task_removed">Крайний срок этого задания удалён</string>
     <string name="you_quit_without_changes">Вы уверены, что хотите выйти без изменений?</string>
+
+    <string name="reminder_less_than_minute">До напоминания меньше одной минуты.</string>
+    <string name="reminder_for_minutes">До напоминания %1$s.</string>
+    <string name="reminder_for_hour_minute">До напоминания %1$s и %2$s.</string>
+    <string name="reminder_for_day_hour_minute">До напоминания %1$s, %2$s и %3$s.</string>
+
+    <string name="deadline_less_than_minute">До крайнего срока меньше одной минуты.</string>
+    <string name="deadline_for_minutes">До крайнего срока %1$s.</string>
+    <string name="deadline_for_hour_minute">До крайнего срока %1$s и %2$s.</string>
+    <string name="deadline_for_day_hour_minute">До крайнего срока %1$s, %2$s и %3$s.</string>
+
     <string-array name="priorities">
         <item>Неважно</item>
         <item>Обычно</item>
         <item>Желательно</item>
         <item>Важно</item>
     </string-array>
+
     <string name="repeat_mode">Repeat mode</string>
     <string-array name="repeat_modes">
         <item>Единожды</item>
@@ -136,6 +157,26 @@
         <item>Каждую неделю</item>
     </string-array>
 
+    <plurals name="days">
+        <item quantity="one">%d день</item>
+        <item quantity="other">%d дней</item>
+        <item quantity="few">%d дней</item>
+        <item quantity="many">%d дней</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d час</item>
+        <item quantity="other">%d часов</item>
+        <item quantity="few">%d часов</item>
+        <item quantity="many">%d часов</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d минута</item>
+        <item quantity="other">%d минут</item>
+        <item quantity="few">%d минут</item>
+        <item quantity="many">%d минут</item>
+    </plurals>
 
     <!-->FriendsFragment<-->
     <string name="friends_list">Список друзей</string>
@@ -152,13 +193,16 @@
     <string name="you_add_friend">Вы хотите добавить пользователя в друзья?</string>
     <string name="successfully_adding_friend">Новый друг успешно добавлен!</string>
     <string name="friend_request_deny">Вы отклонили запрос</string>
+    <string name="delete_friend">Удалить друга</string>
+    <string name="friend_removed">Пользователь был удален из списка друзей</string>
 
     <string name="there_are_no_friends_for_showing">Список друзей пуст</string>
     <string name="error_loading_friends">Ошибка загрузки списка друзей</string>
     <string name="there_are_no_more_friends_for_loading">Больше нет друзей для загрузки</string>
     <string name="cant_get_user_friends">Ошибка: %1$s\n
 Невозможно получить список друзей.\n
-Попробуйте позже</string>
+Попробуйте позже
+    </string>
 
 
     <!--FriendDetailsFragment-->
@@ -193,4 +237,28 @@
     <string name="successfully_sign_in">Успешная авторизация в аккаунт %1$s!</string>
     <string name="unsuccessful_sign_in">Неудачный вход %1$d</string>
 
+    <string name="new_email">New email</string>
+    <string name="new_password">New password</string>
+    <string name="current_password">Current password</string>
+    <string name="edit_profile">Edit profile</string>
+    <string name="email_not_confirmed">Email not confirmed</string>
+    <string name="you_confirm_email">To enable tasks sync confirm your email \nWould you like to go on Profile tab?</string>
+    <string name="reset_password">Reset password</string>
+    <string name="you_sent_email_confirm">Email confirmation is sent to your email</string>
+    <string name="cannot_sent_email_confirm">Can\'t sent email confirmation to your email</string>
+    <string name="check_new_email">Check new email</string>
+    <string name="error_check_new_email">Error check new email</string>
+    <string name="successfully_change_password">Successfully change password</string>
+    <string name="error_check_new_password">Error check new password</string>
+    <string name="reset_password_sent">Reset password sent</string>
+    <string name="error_reset_password_sent">Error reset password sent</string>
+    <string name="new_name">New name</string>
+    <string name="unsuccessful_sign_in_current_password">The password is invalid</string>
+    <string name="alert_enter_current_password">Enter your current password</string>
+    <string name="specify_fields">Specify fields</string>
+    <string name="same_new_old_name">same_new_old_name</string>
+    <string name="same_new_old_email">same_new_old_email</string>
+    <string name="same_new_old_password">same_new_old_password</string>
+    <string name="name_updated">Name updated</string>
+    <string name="error_name_update">Error name update</string>
 </resources>
