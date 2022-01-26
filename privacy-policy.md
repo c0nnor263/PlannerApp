@@ -13,7 +13,7 @@ In this privacy notice, if we refer to:
 The purpose of this privacy notice is to explain to you in the clearest way possible what information we collect, how we use it, and what rights you have in relation to it. If there are any terms in this privacy notice that you do not agree with, please discontinue use of our Services immediately.
 Please read this privacy notice carefully, as it will help you understand what we do with the information that we collect.
 
-# 1. WHAT INFORMATION DO WE COLLECT?
+### <a href = "INFORMATION_COLLECT">1. WHAT INFORMATION DO WE COLLECT?</a>
 Personal information you disclose to us
 In Short:  We collect personal information that you provide to us.
 We collect personal information that you voluntarily provide to us when you register on the App, express an interest in obtaining information about us or our products and Services, when you participate in activities on the App (such as by posting messages in our online forums or entering competitions, contests or giveaways) or otherwise when you contact us.
@@ -38,7 +38,7 @@ If you use our App, we also collect the following information:
 * Push Notifications. We may request to send you push notifications regarding your account or certain features of the App. If you wish to opt-out from receiving these types of communications, you may turn them off in your device's settings.
 
 This information is primarily needed to maintain the security and operation of our App, for troubleshooting and for our internal analytics and reporting purposes.
-# 2. HOW DO WE USE YOUR INFORMATION?
+### <a href = "USE_INFORMATION">2. HOW DO WE USE YOUR INFORMATION?</a>
 In Short:  We process your information for purposes based on legitimate business interests, the fulfillment of our contract with you, compliance with our legal obligations, and/or your consent.
 We use personal information collected via our App for a variety of business purposes described below. We process your personal information for these purposes in reliance on our legitimate business interests, in order to enter into or perform a contract with you, with your consent, and/or for compliance with our legal obligations. We indicate the specific processing grounds we rely on next to each purpose listed below.
 We use the information we collect or receive:
