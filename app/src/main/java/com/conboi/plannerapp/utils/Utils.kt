@@ -14,23 +14,29 @@ import androidx.core.content.res.use
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import java.util.*
+const val PROJECT_KEY = "ofRBlNjdwHFUFAYItO9sEVKOdaXcN0Aw"
 
 
 const val MAX_TASK_COUNT: Int = 50
 const val MAX_ADD_TASK: Int = 15
+const val MIDDLE_COUNT:Int = 50
 
 const val GLOBAL_START_DATE: Long = 0L
-const val BACKGROUND_CLOUD_WORKER = "backgroundCloudWorker"
+const val LANGUAGE ="LANGUAGE"
+const val APP_FILE = "APP_FILE"
+const val FIRST_LAUNCH = "FIRST_LAUNCH"
 const val IMPORT_CONFIRM = "IMPORT_CONFIRM"
+const val IMPORT_DOWNLOADED = "IMPORT_DOWNLOADED"
 const val EMAIL_CONFIRM = "EMAIL_CONFIRM"
+const val RESUBSCRIBE_ALERT = "RESUBSCRIBE_ALERT"
+
 
 const val ID_TASK = "idTask"
 
 const val NOTIFY_INTENT = "notifyIntent"
 
-const val ALARMS_FILE = "alarmsFile"
-const val ALARMS_FILE_INITIALIZED = "alarmsFileInitialized"
+const val ALARM_FILE = "alarmFile"
+const val ALARM_FILE_INITIALIZED = "alarmFileInitialized"
 const val UNIQUE_REMINDER_ID = "1111"
 const val UNIQUE_DEADLINE_ID = "2222"
 
@@ -44,7 +50,7 @@ const val NOTIFICATION_CODE = "notifyCode"
 
 const val GROUP_NOTIFICATION_REMINDERS = "groupNotificationReminders"
 const val GROUP_NOTIFICATION_DEADLINES = "groupNotificationDeadlines"
-
+const val GROUP_NOTIFICATION_FRIENDS = "groupNotificationFriends"
 
 fun Context.themeColor(
     @AttrRes themeAttrId: Int
@@ -77,12 +83,6 @@ fun NavController.popBackStackAllInstances(destination: Int, inclusive: Boolean)
         }
     }
     return popped
-}
-
-fun updateLocale(context: Context, localeToSwitchTo: Locale) {
-    val configuration = context.resources.configuration
-    configuration.setLocale(localeToSwitchTo)
-    context.resources.updateConfiguration(configuration, context.resources.displayMetrics)
 }
 
 fun drawableToBitmap(drawable: Drawable): Bitmap? {

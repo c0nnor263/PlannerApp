@@ -20,7 +20,7 @@
         android:id="@+id/parent_task_details"
         paddingTopSystemWindowInsets="@{true}"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:transitionName="@string/task_detail_transition_name">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -65,11 +65,12 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_completed_task"
-                    setTextCompleted="@{ viewModel.newCompleted}"
+                    setTextCompleted="@{viewModel.newCompleted}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
+                    android:visibility="gone"
                     android:textColor="@android:color/darker_gray"
                     android:textSize="12sp"
                     app:layout_constraintStart_toStartOf="parent"
@@ -194,7 +195,7 @@
                         android:ellipsize="end"
                         android:ems="10"
                         android:focusable="false"
-                        android:hint="@string/set_reminder"
+                        android:hint="@string/reminder"
                         android:inputType="textNoSuggestions"
                         android:onClick="@{() -> TaskDetailsFragment.setTimeReminder()}"
                         android:singleLine="true"
@@ -245,7 +246,7 @@
                         android:cursorVisible="false"
                         android:ellipsize="end"
                         android:focusable="false"
-                        android:hint="@string/set_deadline"
+                        android:hint="@string/deadline"
                         android:inputType="textNoSuggestions"
                         android:onClick="@{() -> TaskDetailsFragment.setTimeDeadline()}"
                         android:singleLine="true"

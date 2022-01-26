@@ -20,6 +20,7 @@
         android:layout_marginBottom="4dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:clickable="true"
+        android:descendantFocusability="beforeDescendants"
         android:focusable="true"
         android:transitionName="@{@string/task_transition_name(task.idTask)}"
         app:cardCornerRadius="@dimen/material_corner_radius"
@@ -27,8 +28,8 @@
         app:strokeColor="@android:color/transparent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            parentChecked="@{task.checked}"
             android:id="@+id/subparent_list_global_task"
+            parentChecked="@{task.checked}"
             parentMissed="@{task.missed}"
             parentPriority="@{task.priority}"
             parentTitle="@{task.title}"
@@ -46,6 +47,8 @@
                 android:layout_gravity="center_vertical"
                 android:buttonTint="@color/primaryLightColorTree"
                 android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -58,6 +61,8 @@
                 android:layout_marginStart="30dp"
                 android:text="@{Integer.toString(task.totalChecked)}"
                 android:textSize="11sp"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:visibility="@{task.totalChecked > 1 ? View.VISIBLE:View.GONE}"
                 app:layout_constraintBottom_toBottomOf="@+id/subparent_list_global_task"
                 app:layout_constraintStart_toStartOf="@+id/global_check_task"
@@ -65,11 +70,15 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/global_title_task"
-                android:layout_width="wrap_content"
+                setTextTaskChecked="@{task.checked}"
+                setTextTaskTotal="@{task.totalChecked}"
+                android:layout_width="265dp"
                 android:layout_height="match_parent"
-                android:layout_marginStart="18dp"
+                android:layout_marginStart="12dp"
                 android:gravity="center_vertical"
                 android:text="@{task.title}"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="@+id/global_check_task"
                 app:layout_constraintStart_toEndOf="@+id/global_check_task"

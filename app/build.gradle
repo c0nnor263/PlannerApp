@@ -8,23 +8,6 @@ plugins {
     id 'com.google.gms.google-services'
     id 'com.google.firebase.firebase-perf'
     id 'com.google.firebase.crashlytics'
-    id ('io.gitlab.arturbosch.detekt').version('1.18.1')
-}
-
-detekt {
-    buildUponDefaultConfig = true // preconfigure defaults
-    allRules = false // activate all available (even unstable) rules.
-    baseline = file('$projectDir/config/baseline.xml')
-    // a way of suppressing issues before introducing detekt
-
-    reports {
-        html.enabled = true // observe findings in your browser with structure and code snippets
-        xml.enabled = true // checkstyle like format mainly for integrations like Jenkins
-        txt.enabled = true
-        // similar to the console output, contains issue signature to manually edit baseline files
-        sarif.enabled = true
-        // standardized SARIF format (https://sarifweb.azurewebsites.net/) to support integrations with Github Code Scanning
-    }
 }
 
 def keystorePropertiesFile = rootProject.file('keystore.properties')
@@ -42,6 +25,7 @@ android {
     }
 
     compileSdk 31
+    compileSdkVersion 31
     buildToolsVersion '30.0.3'
 
     buildFeatures {
@@ -53,8 +37,11 @@ android {
         applicationId "com.conboi.plannerapp"
         minSdk 28
         targetSdk 31
-        versionCode 1
-        versionName "1.5"
+        versionCode 20
+        versionName "1.5.1"
+        ndk {
+            debugSymbolLevel 'SYMBOL_TABLE'
+        }
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         kapt {
@@ -66,11 +53,13 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            debuggable false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
@@ -78,60 +67,72 @@ android {
     kotlinOptions {
         jvmTarget = '11'
     }
-    compileSdkVersion 31
+
+    bundle {
+        language {
+            enableSplit = true
+        }
+        density {
+            enableSplit = true
+        }
+        abi {
+            enableSplit = true
+        }
+    }
 }
 
 dependencies {
-    implementation 'com.google.android.gms:play-services-auth:19.2.0'
+    implementation 'com.google.android.gms:play-services-auth:20.0.1'
     implementation 'com.google.android.gms:play-services-ads:20.5.0'
 
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
+    //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
     // Default dependencies
-    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.6.0'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.6.10'
     implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-
     implementation 'androidx.annotation:annotation:1.3.0'
+    implementation 'com.google.android.play:core-ktx:1.8.1'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
-    implementation 'com.google.android.material:material:1.6.0-alpha01'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
+    implementation 'com.google.android.material:material:1.6.0-alpha02'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
-    implementation 'androidx.core:core-splashscreen:1.0.0-alpha02'
+    implementation 'androidx.core:core-splashscreen:1.0.0-beta01'
+
 
     // Fragment
     implementation 'androidx.fragment:fragment-ktx:1.4.0'
     // Navigation Component
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.0-beta02'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.4.0-beta02'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.0-rc01'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.4.0-rc01'
 
 
     // Lifecycle + ViewModel & LiveData
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.0'
 
+
     // Coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0-native-mt'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0-native-mt'
 
 
     // Dagger Hilt
-    implementation 'com.google.dagger:hilt-android:2.40.1'
-    kapt 'com.google.dagger:hilt-android-compiler:2.40.1'
+    implementation 'com.google.dagger:hilt-android:2.40.5'
+    kapt 'com.google.dagger:hilt-android-compiler:2.40.5'
     implementation 'androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03'
     kapt 'androidx.hilt:hilt-compiler:1.0.0'
     implementation 'androidx.hilt:hilt-work:1.0.0'
 
 
     // Room
-    implementation 'androidx.room:room-runtime:2.3.0'
-    implementation 'androidx.room:room-ktx:2.3.0'
-    kapt 'androidx.room:room-compiler:2.3.0'
-    kapt 'androidx.room:room-compiler:2.3.0'
+    implementation 'androidx.room:room-runtime:2.4.1'
+    implementation 'androidx.room:room-ktx:2.4.1'
+    kapt 'androidx.room:room-compiler:2.4.1'
 
     // DataStore
     implementation 'androidx.datastore:datastore-core:1.0.0'
@@ -150,23 +151,30 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:21.0.1'
     implementation 'com.google.firebase:firebase-auth-ktx:21.0.1'
     //Firebase SDK for Google Analytics
-    implementation 'com.google.firebase:firebase-analytics-ktx:20.0.0'
+    implementation 'com.google.firebase:firebase-analytics-ktx:20.0.2'
     //Firebase Performance
     implementation 'com.google.firebase:firebase-perf-ktx:20.0.4'
     //Firebase Firestore
-    implementation 'com.google.firebase:firebase-firestore-ktx:24.0.0'
+    implementation 'com.google.firebase:firebase-firestore-ktx:24.0.1'
     //Firebase Crashlytics
-    implementation 'com.google.firebase:firebase-crashlytics-ktx:18.2.5'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx:18.2.7'
+    //Firebase AppCheck SafetyNet
+    implementation 'com.google.firebase:firebase-appcheck-safetynet:16.0.0-beta04'
 
-    
     //Coil
     implementation 'io.coil-kt:coil:1.4.0'
-
 
     //Paging3
     implementation 'androidx.paging:paging-runtime-ktx:3.1.0'
 
+    //AppIntro
+    implementation 'com.github.AppIntro:AppIntro:6.1.0'
 
-    //WorkManager
-    implementation 'androidx.work:work-runtime-ktx:2.7.1'
+    //Gif drawable
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.23'
+
+    //Qonversion
+    implementation 'io.qonversion.android.sdk:sdk:3.2.3'
+
+    implementation 'androidx.preference:preference-ktx:1.1.1'
 }

@@ -7,7 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
-        android:background="@drawable/water_fragment_background">
+        android:background="@drawable/main_fragment_bg">
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_no_tasks"
@@ -19,26 +19,32 @@
             android:textSize="16sp"
             android:visibility="gone" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_tasks"
+        <FrameLayout
             paddingTopSystemWindowInsets="@{true}"
-            android:paddingTop="50dp"
-            android:paddingHorizontal="2dp"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:clipToPadding="false"
-            android:paddingBottom="?attr/actionBarSize"
-            android:scrollbars="none"
-            android:transitionGroup="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_tasks"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:clipToPadding="false"
+                android:paddingHorizontal="2dp"
+                android:paddingTop="55dp"
+                android:paddingBottom="?attr/actionBarSize"
+                android:scrollbars="none"
+                android:transitionGroup="true"/>
+        </FrameLayout>
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:id="@+id/cl_snack"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="112dp"
             app:layout_constraintBottom_toBottomOf="parent" />
 

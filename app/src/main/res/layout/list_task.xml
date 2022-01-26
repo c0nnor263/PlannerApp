@@ -5,7 +5,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <import type="android.view.View" />
 
         <variable
@@ -34,7 +33,6 @@
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:animateLayoutChanges="true"
-            android:orientation="horizontal"
             android:paddingVertical="3dp">
 
             <com.google.android.material.checkbox.MaterialCheckBox
@@ -54,6 +52,7 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/total_check"
+                style="@style/Widget.MaterialComponents.TextView"
                 setTotal="@{task.totalChecked}"
                 android:layout_width="32dp"
                 android:layout_height="wrap_content"
@@ -81,8 +80,8 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/title"
-                    setTextInputEditTextTaskChecked="@{task.checked}"
-                    setTextInputEditTextTaskTotal="@{task.totalChecked}"
+                    setTextTaskChecked="@{task.checked}"
+                    setTextTaskTotal="@{task.totalChecked}"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"

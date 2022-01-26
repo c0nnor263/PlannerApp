@@ -6,9 +6,9 @@
     app:startDestination="@id/mainFragment">
     <fragment
         android:id="@+id/mainFragment"
+        tools:layout="@layout/fragment_main"
         android:name="com.conboi.plannerapp.ui.main.MainFragment"
-        android:label="Daily tasks"
-        tools:layout="@layout/fragment_main" >
+        android:label="mainFragment">
         <action
             android:id="@+id/action_mainFragment_to_searchFragment"
             app:destination="@id/searchFragment" />
@@ -37,6 +37,7 @@
         android:label="Edit task"
         tools:layout="@layout/fragment_task_details">
         <argument
+            android:defaultValue="0"
             android:name="idTask"
             app:argType="integer" />
     </fragment>
@@ -58,7 +59,11 @@
         android:id="@+id/profileFragment"
         android:name="com.conboi.plannerapp.ui.profile.ProfileFragment"
         android:label="ProfileFragment"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_profileFragment_to_subscribeFragment"
+            app:destination="@id/subscribeFragment" />
+    </fragment>
     <fragment
         android:id="@+id/friendDetailsFragment"
         android:name="com.conboi.plannerapp.ui.friends.FriendDetailsFragment"
@@ -68,4 +73,9 @@
             android:name="friend"
             app:argType="com.conboi.plannerapp.model.FriendType" />
     </fragment>
+    <fragment
+        android:id="@+id/subscribeFragment"
+        tools:layout="@layout/fragment_subscribe"
+        android:name="com.conboi.plannerapp.ui.profile.SubscribeFragment"
+        android:label="SubscribeFragment" />
 </navigation>

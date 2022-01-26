@@ -1,7 +1,10 @@
 package com.conboi.plannerapp.adapter
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.CountDownTimer
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,24 +14,33 @@ import androidx.recyclerview.widget.*
 import com.conboi.plannerapp.R
 import com.conboi.plannerapp.databinding.ListTaskBinding
 import com.conboi.plannerapp.model.TaskType
+import com.conboi.plannerapp.utils.GLOBAL_START_DATE
 import com.conboi.plannerapp.utils.parentTask
-import com.conboi.plannerapp.utils.setTextInputCheckedTotal
+import com.conboi.plannerapp.utils.setCheckedTotal
 import com.conboi.plannerapp.utils.setTotal
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+
 class TaskAdapter @ExperimentalCoroutinesApi constructor(
-    private val listener: OnTaskClickListener
+    private val listener: OnTaskClickListener,
 ) : ListAdapter<TaskType, TaskAdapter.ViewHolder>(
     AsyncDifferConfig.Builder(TaskDiffCallback()).build()
 ) {
+    private var premium = false
+    private var middleListTime = GLOBAL_START_DATE
 
     inner class ViewHolder(var binding: ListTaskBinding) :
         RecyclerView.ViewHolder(binding.root) {
         var titleTimer: CountDownTimer? = null
         var bufferTask: TaskType? = null
+        private val oldColors: ColorStateList = binding.title.textColors
 
         init {
+            initClickListener()
+        }
+
+        private fun initClickListener() {
             binding.apply {
                 openTask.setOnClickListener {
                     val position = bindingAdapterPosition
@@ -80,7 +92,8 @@ class TaskAdapter @ExperimentalCoroutinesApi constructor(
                                 title = title.text.toString()
                             ),
                             isChecked = checkTask.isChecked,
-                            isHold = false
+                            isHold = false,
+                            task.lastOvercheck
                         )
                     } else {
                         listener.onCheckBoxEvent(
@@ -88,7 +101,8 @@ class TaskAdapter @ExperimentalCoroutinesApi constructor(
                                 title = title.text.toString()
                             ),
                             isChecked = true,
-                            isHold = true
+                            isHold = true,
+                            task.lastOvercheck
                         )
                     }
                 } else {
@@ -100,7 +114,8 @@ class TaskAdapter @ExperimentalCoroutinesApi constructor(
                                 title = title.text.toString()
                             ),
                             isChecked = false,
-                            isHold = false
+                            isHold = false,
+                            task.lastOvercheck
                         )
                     } else {
                         listener.onCheckBoxEvent(
@@ -108,7 +123,8 @@ class TaskAdapter @ExperimentalCoroutinesApi constructor(
                                 title = title.text.toString()
                             ),
                             isChecked = false,
-                            isHold = true
+                            isHold = true,
+                            task.lastOvercheck
                         )
                     }
                 }
@@ -118,7 +134,7 @@ class TaskAdapter @ExperimentalCoroutinesApi constructor(
 
         }
 
-        fun bind(task: TaskType) = with(binding) {
+        fun bind(task: TaskType, isPremium: Boolean) = with(binding) {
             bufferTask = task
             setTask(task)
             executePendingBindings()
@@ -127,22 +143,53 @@ class TaskAdapter @ExperimentalCoroutinesApi constructor(
             openTask.alpha = 0.5f
             savingTitleIndicator.visibility = View.GONE
 
-            title.setOnEditorActionListener { _, actionId, _ ->
-                if (actionId == EditorInfo.IME_ACTION_DONE
-                ) {
-                    titleTimer!!.onFinish()
-                    title.clearFocus()
-                }
-                false
+            if (bufferTask!!.missed) {
+                title.setTextColor(Color.WHITE)
+                totalCheck.setTextColor(Color.WHITE)
+            } else {
+                title.setTextColor(oldColors)
+                totalCheck.setTextColor(oldColors)
             }
-            title.doOnTextChanged { text, _, _, _ ->
-                (savingTitleIndicator.drawable as AnimatedVectorDrawable).stop()
-                titleTimer!!.cancel()
-                titleTimer!!.start()
-                savingTitleIndicator.setImageResource(R.drawable.saving_anim)
-                (savingTitleIndicator.drawable as AnimatedVectorDrawable).start()
-                if (text?.isEmpty() != false) {
-                    subparentListTask.setBackgroundResource(R.color.secondaryDarkColorWater)
+
+            if (isPremium) {
+                title.setOnEditorActionListener { _, actionId, _ ->
+                    if (actionId == EditorInfo.IME_ACTION_DONE
+                    ) {
+                        titleTimer!!.onFinish()
+                        (savingTitleIndicator.drawable as AnimatedVectorDrawable).stop()
+                        savingTitleIndicator.visibility = View.GONE
+                        openTask.visibility = View.VISIBLE
+                        openTask.alpha = 0.5f
+                        title.clearFocus()
+                    }
+                    false
+                }
+                title.doOnTextChanged { text, _, _, _ ->
+                    (savingTitleIndicator.drawable as AnimatedVectorDrawable).stop()
+                    titleTimer!!.cancel()
+                    titleTimer!!.start()
+                    savingTitleIndicator.setImageResource(R.drawable.saving_anim)
+                    (savingTitleIndicator.drawable as AnimatedVectorDrawable).start()
+                    if (text?.isEmpty() != false) {
+                        subparentListTask.setBackgroundResource(R.color.secondaryDarkColorWater)
+                    }
+                }
+
+                title.isFocusable = true
+                openTask.isFocusable = true
+                checkTask.isFocusable = true
+                initClickListener()
+            } else {
+                title.isFocusable = false
+                openTask.isFocusable = false
+                checkTask.isFocusable = false
+                subparentListTask.alpha = 0.5F
+
+                openTask.setOnClickListener { listener.promptPremium() }
+                title.setOnClickListener { listener.promptPremium() }
+                checkTask.setOnClickListener {
+                    listener.promptPremium()
+                    checkTask.isChecked = false
                 }
             }
         }
@@ -159,10 +206,21 @@ class TaskAdapter @ExperimentalCoroutinesApi constructor(
                 )
                 checkTask.isChecked = task.checked
                 totalCheck.setTotal(task.totalChecked)
-                title.setTextInputCheckedTotal(task.checked, task.totalChecked)
+                setCheckedTotal(title as View, task.checked, task.totalChecked)
+
+                if (bufferTask!!.missed) {
+                    title.setTextColor(Color.WHITE)
+                    totalCheck.setTextColor(Color.WHITE)
+                } else {
+                    title.setTextColor(oldColors)
+                    totalCheck.setTextColor(oldColors)
+                }
 
                 if (!title.isFocused) {
                     title.setText(newTitle)
+                    savingTitleIndicator.visibility = View.GONE
+                    openTask.visibility = View.VISIBLE
+                    openTask.alpha = 0.5f
                 }
                 if (titleTimer != null) {
                     titleTimer!!.cancel()
@@ -184,7 +242,17 @@ class TaskAdapter @ExperimentalCoroutinesApi constructor(
     }
 
     override fun onBindViewHolder(vh: TaskAdapter.ViewHolder, position: Int) {
-        vh.bind(getItem(position))
+        val task = getItem(position)
+        if (!premium &&
+            currentList.size > 50 &&
+            task.created >= middleListTime &&
+            middleListTime != GLOBAL_START_DATE
+        ) {
+            vh.bind(task, false)
+        } else {
+            vh.bind(task, true)
+        }
+
         if (vh.titleTimer != null) {
             vh.titleTimer!!.cancel()
         }
@@ -202,8 +270,8 @@ class TaskAdapter @ExperimentalCoroutinesApi constructor(
 
                 override fun onFinish() {
                     (savingTitleIndicator.drawable as AnimatedVectorDrawable).stop()
-                    openTask.visibility = View.VISIBLE
                     savingTitleIndicator.visibility = View.GONE
+                    openTask.visibility = View.VISIBLE
                     openTask.alpha = 0.5f
                     listener.onTitleChanged(
                         vh.bufferTask!!,
@@ -225,11 +293,25 @@ class TaskAdapter @ExperimentalCoroutinesApi constructor(
 
     }
 
+    fun updatePremiumState(state: Boolean) {
+        premium = state
+    }
+
+    fun updateMiddleTime(middleTime: Long) {
+        middleListTime = middleTime
+    }
 
     interface OnTaskClickListener {
         fun onEditTaskCLick(task: TaskType, taskView: View)
-        fun onCheckBoxEvent(task: TaskType, isChecked: Boolean, isHold: Boolean)
+        fun onCheckBoxEvent(
+            task: TaskType,
+            isChecked: Boolean,
+            isHold: Boolean,
+            lastOverchecked: Long
+        )
+
         fun onTitleChanged(task: TaskType, title: String)
+        fun promptPremium()
     }
 
     override fun getItemId(position: Int): Long = position.toLong()
@@ -249,7 +331,6 @@ class TaskDiffCallback : DiffUtil.ItemCallback<TaskType>() {
     override fun getChangePayload(oldItem: TaskType, newItem: TaskType): Any? {
         if (oldItem.title != newItem.title) return newItem.title
         return super.getChangePayload(oldItem, newItem)
-
     }
 }
 

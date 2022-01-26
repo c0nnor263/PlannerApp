@@ -9,7 +9,9 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -35,8 +37,16 @@ object AppModule {
     @Provides
     @Singleton
     fun provideApplicationScope() = CoroutineScope(SupervisorJob())
+
+    @Provides
+    @IoDispatcher
+    fun provideDispatcherIO():CoroutineDispatcher = Dispatchers.IO
 }
 
 @Retention(AnnotationRetention.RUNTIME)
 @Qualifier
 annotation class ApplicationScope
+
+@Retention(AnnotationRetention.BINARY)
+@Qualifier
+annotation class IoDispatcher

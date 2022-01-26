@@ -131,7 +131,6 @@
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/drop_language"
-                    setLanguage="@{viewModel.appLanguage}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clickable="true"

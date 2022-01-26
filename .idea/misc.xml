@@ -44,10 +44,19 @@
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/saving_anim.xml" value="0.151171875" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/saving_done.xml" value="0.151171875" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/splash_gradient.xml" value="0.1" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/font/planner_app_font.xml" value="0.16171875" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/font/plannerapp_font.xml" value="0.16171875" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/font/plannerapp_font_family.xml" value="0.16171875" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/font/plannerapp_font_family_ch.xml" value="0.16171875" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/font/plannerapp_font_family_en.xml" value="0.16171875" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/font/plannerapp_font_family_en_ru.xml" value="0.16171875" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/font/plannerapp_font_family_ru.xml" value="0.16171875" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/font/plannerapp_font_family_zh.xml" value="0.16171875" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/activity_auth.xml" value="0.1" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/activity_main.xml" value="0.18" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/alertdialog_add_deadline_time.xml" value="0.21" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/alertdialog_add_reminder_time.xml" value="0.22" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/alertdialog_downloading_tasks.xml" value="0.17" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/alertdialog_edit_profile.xml" value="0.21" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/alertdialog_enter_amount_of_tasks.xml" value="0.1390625" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/alertdialog_enter_amount_of_tasks_fragment_main.xml" value="0.22" />
@@ -57,6 +66,7 @@
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/alertdialog_loading_tasks.xml" value="0.1390625" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/alertdialog_loading_tasks_fragment_main.xml" value="0.18541666666666667" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/alertdialog_loading_tasks_fragment_water.xml" value="0.18541666666666667" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/custom_intro_layout.xml" value="0.1390625" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/dropmenu_language.xml" value="0.1390625" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/dropmenu_list_priority_item_fragment_edit_task.xml" value="0.18541666666666667" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/dropmenu_priority.xml" value="0.18" />
@@ -71,25 +81,28 @@
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_edit_task_list_priority_item.xml" value="0.18541666666666667" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_fire.xml" value="0.2" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_friend.xml" value="0.18541666666666667" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_friend_details.xml" value="0.2" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_friend_details.xml" value="0.33" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_friends.xml" value="0.2" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_login.xml" value="0.1" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_main.xml" value="0.14772727272727273" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_profile.xml" value="0.25" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_main.xml" value="0.22" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_profile.xml" value="0.22" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_profile_settings.xml" value="0.25" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_search.xml" value="0.25773195876288657" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_settings.xml" value="0.18" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_settings.xml" value="0.2" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_subscribe.xml" value="0.25" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_task_details.xml" value="0.23393316195372751" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_tree.xml" value="0.17777777777777778" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_water.xml" value="0.1" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_water_alertdialog_enter_amount_of_tasks.xml" value="0.1" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_water_alertdialog_loading_tasks.xml" value="0.18541666666666667" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_water_enter_amount_of_tasks.xml" value="0.17777777777777778" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/intro_custom_layout.xml" value="0.1390625" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/layout.xml" value="0.67" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/list_ad.xml" value="0.1390625" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/list_ad_item.xml" value="0.1390625" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/list_friend.xml" value="0.34517766497461927" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/list_friend_task.xml" value="0.5" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/list_global_task.xml" value="0.25" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/list_global_task.xml" value="0.5" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/list_priority_item_edit_task.xml" value="0.18541666666666667" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/list_rv_completed.xml" value="0.33" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/list_rv_completed_item.xml" value="0.18541666666666667" />

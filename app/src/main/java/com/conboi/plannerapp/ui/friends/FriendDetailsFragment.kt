@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.addCallback
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -22,15 +23,19 @@ import com.conboi.plannerapp.R
 import com.conboi.plannerapp.adapter.FriendTasksAdapter
 import com.conboi.plannerapp.databinding.FragmentFriendDetailsBinding
 import com.conboi.plannerapp.model.TaskType
+import com.conboi.plannerapp.ui.main.MainFragment
 import com.conboi.plannerapp.ui.main.SharedViewModel
-import com.conboi.plannerapp.utils.GLOBAL_START_DATE
 import com.conboi.plannerapp.utils.themeColor
 import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import com.google.android.material.transition.MaterialContainerTransform
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.component1
 import kotlin.math.abs
 
 
@@ -42,7 +47,7 @@ class FriendDetailsFragment : Fragment() {
     val sharedViewModel: SharedViewModel by activityViewModels()
     private val navigationArgs: FriendDetailsFragmentArgs by navArgs()
 
-    private val friendDetailsViewModel: FriendDetailsViewModel by viewModels()
+    private val friendViewModel: FriendViewModel by viewModels()
 
     private val db = FirebaseFirestore.getInstance()
 
@@ -77,6 +82,84 @@ class FriendDetailsFragment : Fragment() {
         with(binding) {
             lifecycleOwner = this@FriendDetailsFragment
             viewModel = sharedViewModel
+
+            val friend = navigationArgs.friend
+
+            friendLayout = friend
+            friendPrivateMode.setOnClickListener {
+                friendViewModel.updateFriendPrivateMode(!friendViewModel.friendPrivateMode.value!!)
+                    val auth = FirebaseAuth.getInstance()
+                    db.document("Users/${auth.currentUser!!.uid}/FriendList/${navigationArgs.friend.user_id}")
+                        .update(
+                            hashMapOf<String, Any>(MainFragment.KEY_USER_INDIVIDUAL_PRIVATE to friendViewModel.friendPrivateMode.value!!)
+                        )
+                    db.document("Users/${navigationArgs.friend.user_id}/FriendList/${auth.currentUser!!.uid}")
+                        .update(
+                            hashMapOf<String, Any>(MainFragment.KEY_USER_FRIEND_PRIVATE to friendViewModel.friendPrivateMode.value!!)
+                        )
+            }
+
+            friendViewModel.setBufferFriend(friend)
+            friendViewModel.setFriendPrivateMode(friend.user_individual_private)
+
+            getFriendTasks(
+                friend.user_id,
+                friend.user_name,
+                friend.user_private_mode,
+                friend.user_individual_private,
+                friend.user_friend_private
+            )
+
+            lifecycleScope.launch {
+                delay(100)
+                collapsingToolbar.setContentScrimResource(sharedViewModel.colorPrimaryVariant.value!!)
+                appBarLayout.setBackgroundResource(sharedViewModel.colorPrimaryVariant.value!!)
+            }
+            tvTasksMsg.text =
+                resources.getString(R.string.friends_tasks_private, friend.user_name)
+
+            friendViewModel.friendPrivateMode.observe(this@FriendDetailsFragment.viewLifecycleOwner) { privateModeState ->
+                friendPrivateMode.apply {
+                    if (privateModeState) {
+                        setBackgroundColor(
+                            ContextCompat.getColor(
+                                requireContext(),
+                                R.color.primaryDarkColorTree
+                            )
+                        )
+                        icon = ContextCompat.getDrawable(context, R.drawable.ic_baseline_person_24)
+
+                        tvTasksMsg.visibility = View.VISIBLE
+                        rvFriendTask.visibility = View.INVISIBLE
+
+                    } else {
+                        setBackgroundColor(
+                            ContextCompat.getColor(
+                                requireContext(),
+                                R.color.primaryDarkColorAir
+                            )
+                        )
+                        icon = ContextCompat.getDrawable(
+                            context,
+                            R.drawable.ic_baseline_person_outline_24
+                        )
+
+                        tvTasksMsg.visibility = View.GONE
+                        rvFriendTask.visibility = View.VISIBLE
+                        if (friendViewModel.friendsTasks.value?.isEmpty() == true) {
+                            getFriendTasks(
+                                friend.user_id,
+                                friend.user_name,
+                                friend.user_private_mode,
+                                friend.user_individual_private,
+                                friend.user_friend_private
+                            )
+                        }
+                    }
+                }
+            }
+
+
             toolbar.setNavigationOnClickListener {
                 requireActivity().onBackPressedDispatcher.onBackPressed()
             }
@@ -100,24 +183,19 @@ class FriendDetailsFragment : Fragment() {
                 layoutManager = LinearLayoutManager(context)
                 setHasFixedSize(true)
             }
-            navigationArgs.apply {
-                binding.friend = friend
-                if (friend != friendDetailsViewModel.bufferFriend.value) {
-                    friendDetailsViewModel.setBufferFriend(friend)
-                }
-                getFriendTasks(friend.user_id, friend.user_name, friend.user_private_mode)
-            }
-            lifecycleScope.launch {
-                delay(100)
-                binding.collapsingToolbar.setContentScrimResource(sharedViewModel.colorPrimaryVariant.value!!)
-                binding.appBarLayout.setBackgroundResource(sharedViewModel.colorPrimaryVariant.value!!)
-            }
+
         }
     }
 
-    private fun getFriendTasks(friendId: String, friendName: String, private_mode: Boolean) {
+    private fun getFriendTasks(
+        friendId: String,
+        friendName: String,
+        private_mode: Boolean,
+        individualMode: Boolean,
+        userFriendPrivate: Boolean
+    ) {
         binding.circularLoading.visibility = View.VISIBLE
-        if (!private_mode) {
+        if (!private_mode && !individualMode && !userFriendPrivate) {
             //Getting friend's tasks
             db.document("Users/${friendId}/TaskList/Tasks").get()
                 .addOnCompleteListener { taskCollection ->
@@ -143,14 +221,13 @@ class FriendDetailsFragment : Fragment() {
                                             ?: "Error getting title",
                                         priority = taskDocument.getLong("$task.${TaskType.COLUMN_PRIORITY}")
                                             ?.toInt() ?: 1,
-                                        totalChecked = taskDocument.getLong("$task.${TaskType.COLUMN_TOTAL_CHECKED}")
-                                            ?.toInt() ?: 0,
+
                                         checked = taskDocument.getBoolean("$task.${TaskType.COLUMN_CHECKED}")
                                             ?: false,
-                                        completed = taskDocument.getLong("$task.${TaskType.COLUMN_COMPLETED}")
-                                            ?: GLOBAL_START_DATE,
                                         missed = taskDocument.getBoolean("$task.${TaskType.COLUMN_MISSED}")
                                             ?: false,
+                                        totalChecked = taskDocument.getLong("$task.${TaskType.COLUMN_TOTAL_CHECKED}")
+                                            ?.toInt() ?: 0,
                                     )
                                     lateinitTaskList.add(taskType)
                                 }
@@ -159,7 +236,7 @@ class FriendDetailsFragment : Fragment() {
                                 lateinitTaskList.sortedBy { it.title }
                                     .sortedByDescending { it.priority }
                             val filter = lateinitTaskList.filter { it.checked }
-                            friendDetailsViewModel.setFriendsTasksList(sortedList)
+                            friendViewModel.setFriendsTasksList(sortedList)
                             mAdapterFriendTask.submitList(sortedList)
                             binding.circularLoading.visibility = View.GONE
                             binding.countOfTasks.text = resources.getString(
@@ -192,7 +269,7 @@ class FriendDetailsFragment : Fragment() {
                             resources.getString(R.string.friends_tasks_empty),
                             Toast.LENGTH_SHORT
                         ).show()
-                        mAdapterFriendTask.submitList(friendDetailsViewModel.friendsTasks.value)
+                        mAdapterFriendTask.submitList(friendViewModel.friendsTasks.value)
                     }
                 }
         } else {
@@ -207,12 +284,12 @@ class FriendDetailsFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        friendDetailsViewModel.saveState()
+        friendViewModel.saveState()
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
-        friendDetailsViewModel.retrieveState()
+        friendViewModel.retrieveState()
     }
 
     override fun onDestroyView() {

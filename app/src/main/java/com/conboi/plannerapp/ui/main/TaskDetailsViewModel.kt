@@ -1,13 +1,11 @@
 package com.conboi.plannerapp.ui.main
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.conboi.plannerapp.model.TaskType
 import com.conboi.plannerapp.utils.GLOBAL_START_DATE
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.util.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,6 +39,9 @@ class TaskDetailsViewModel @Inject constructor(
     private var _newMissed = MutableLiveData<Boolean>()
     val newMissed: LiveData<Boolean> = _newMissed
 
+    private var _newLastOvercheck = MutableLiveData<Long>()
+    val newLastOvercheck: LiveData<Long> = _newLastOvercheck
+
     fun setBufferTask(task: TaskType) {
         _bufferTask.value = task
     }
@@ -57,16 +58,11 @@ class TaskDetailsViewModel @Inject constructor(
         _newPriority.value = priority
     }
 
-    fun updateCompletedValue(completed: Long, checked: Boolean) {
-        if (checked) {
-            _newCompleted.value = completed
-        } else {
-            _newCompleted.value = 0
-        }
+    fun updateCompletedValue(completed: Long) {
+        _newCompleted.value = completed
     }
 
     fun updateCheckedValue(checked: Boolean) {
-        updateCompletedValue(System.currentTimeMillis(), checked)
         _newChecked.value = checked
         if (bufferTask.value?.missed == true) {
             if (checked) {
@@ -89,6 +85,8 @@ class TaskDetailsViewModel @Inject constructor(
 
     fun increaseTotalChecked() {
         _newChecked.value = true
+        updateLastOvercheck(System.currentTimeMillis())
+        updateCompletedValue(System.currentTimeMillis())
         newTotalChecked.value.let { totalChecked ->
             _newTotalChecked.value = totalChecked!!.plus(1)
         }
@@ -103,11 +101,20 @@ class TaskDetailsViewModel @Inject constructor(
         } else {
             _newTotalChecked.value = 0
             _newChecked.value = false
+            viewModelScope.launch {
+                delay(200)
+                _newCompleted.value = GLOBAL_START_DATE
+            }
         }
+        _newLastOvercheck.value = GLOBAL_START_DATE
     }
 
     fun updateRepeatModeValue(repeatMode: Int) {
         _newRepeatMode.value = repeatMode
+    }
+
+    fun updateLastOvercheck(lastOvercheck: Long) {
+        _newLastOvercheck.value = lastOvercheck
     }
 
     fun saveState(bufferedTask: TaskType, title: String, desc: String, checked: Boolean) {
@@ -123,6 +130,7 @@ class TaskDetailsViewModel @Inject constructor(
             set(NEW_CHECKED, checked)
             set(NEW_TOTAL_CHECKED, newTotalChecked.value)
             set(NEW_MISSED, newMissed.value)
+            set(NEW_LAST_OVERCHECK, newLastOvercheck.value)
         }
     }
 
@@ -136,10 +144,10 @@ class TaskDetailsViewModel @Inject constructor(
             updateCheckedValue(getLiveData<Boolean>(NEW_CHECKED).value!!)
             updateTotalCheckedValue(getLiveData<Int>(NEW_TOTAL_CHECKED).value!!)
             updateCompletedValue(
-                getLiveData<Long>(NEW_COMPLETED).value!!,
-                newChecked.value!!
+                getLiveData<Long>(NEW_COMPLETED).value!!
             )
             updateMissedValue(getLiveData<Boolean>(NEW_MISSED).value!!)
+            updateLastOvercheck(getLiveData<Long>(NEW_LAST_OVERCHECK).value!!)
 
             return Triple(
                 getLiveData<String>(NEW_TITLE).value!!,
@@ -163,5 +171,6 @@ class TaskDetailsViewModel @Inject constructor(
         private const val NEW_PRIORITY = "newPriority"
         private const val NEW_COMPLETED = "newCompleted"
         private const val NEW_MISSED = "newMissed"
+        private const val NEW_LAST_OVERCHECK = "newLastOvercheck"
     }
 }

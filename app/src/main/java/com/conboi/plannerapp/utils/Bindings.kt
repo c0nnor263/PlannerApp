@@ -1,6 +1,5 @@
 package com.conboi.plannerapp.utils
 
-import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
@@ -16,7 +15,6 @@ import com.conboi.plannerapp.R
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
-import com.google.firebase.auth.FirebaseUser
 import java.text.DateFormat
 import java.util.*
 
@@ -186,12 +184,13 @@ fun ConstraintLayout.parentTask(
         }
     }
     if (title.isBlank()) {
+        alpha = 1.0F
         setBackgroundResource(R.color.secondaryDarkColorWater)
     } else {
         alpha = if (checked) {
             if (total > 1) {
                 setPriorityColor(priority)
-                0.8F
+                1.0F
             } else {
                 setBackgroundResource(0)
                 0.5F
@@ -203,6 +202,7 @@ fun ConstraintLayout.parentTask(
     }
     background?.alpha = 200
     if (missed) {
+        alpha = 1.0F
         setBackgroundResource(R.color.secondaryDarkColorFire)
     }
 }
@@ -226,38 +226,47 @@ fun MaterialAutoCompleteTextView.setRepeatMode(repeatMode: Int) {
     setAdapter(adapter)
 }
 
-@BindingAdapter("setLanguage")
-fun MaterialAutoCompleteTextView.setLanguage(language: String) {
-    val items = resources.getStringArray(R.array.languages)
-    when (language) {
-        "en" -> {
-            setText(items[0])
-        }
-        "ru" -> {
-            setText(items[1])
-        }
-        "zh" -> {
-            setText(items[2])
-        }
-    }
-    val adapter = ArrayAdapter(context, R.layout.dropmenu_language, items)
-    setAdapter(adapter)
-}
 
-@BindingAdapter("setTextInputEditTextTaskChecked", "setTextInputEditTextTaskTotal")
-fun TextInputEditText.setTextInputCheckedTotal(checked: Boolean, total: Int) {
-    if (checked) {
-        if (total > 1) {
-            paint.isStrikeThruText = false
-            isEnabled = true
-        } else {
-            paint.isStrikeThruText = true
-            isEnabled = false
-        }
+@BindingAdapter("setTextTaskChecked", "setTextTaskTotal")
+fun setCheckedTotal(view:View,checked: Boolean, total: Int) {
+    view.apply {
+        when(view){
+            is TextInputEditText ->{
+                view.apply {
+                    if (checked) {
+                        if (total > 1) {
+                            paint.isStrikeThruText = false
+                            isEnabled = true
+                        } else {
+                            paint.isStrikeThruText = true
+                            isEnabled = false
+                        }
 
-    } else {
-        paint.isStrikeThruText = false
-        isEnabled = true
+                    } else {
+                        paint.isStrikeThruText = false
+                        isEnabled = true
+
+                    }
+                }
+            }
+            is MaterialTextView ->{
+                view.apply {
+                    if (checked) {
+                        if (total > 1) {
+                            paint.isStrikeThruText = false
+                            isEnabled = true
+                        } else {
+                            paint.isStrikeThruText = true
+                            isEnabled = false
+                        }
+
+                    } else {
+                        paint.isStrikeThruText = false
+                        isEnabled = true
+                    }
+                }
+            }
+        }
 
     }
 }
@@ -283,6 +292,10 @@ fun ImageView.setFriendRequestStatus(requestCode: Int) {
         2 -> {
             visibility = View.VISIBLE
             setImageResource(R.drawable.ic_baseline_help_24)
+        }
+        3 -> {
+            visibility = View.VISIBLE
+            setImageResource(R.drawable.ic_baseline_cancel_24)
         }
         else -> {
             visibility = View.INVISIBLE

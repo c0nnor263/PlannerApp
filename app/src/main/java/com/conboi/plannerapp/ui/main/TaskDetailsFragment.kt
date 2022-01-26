@@ -1,5 +1,6 @@
 package com.conboi.plannerapp.ui.main
 
+import android.app.AlarmManager
 import android.graphics.Color
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -30,7 +31,6 @@ import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.google.android.material.transition.MaterialContainerTransform
@@ -46,6 +46,7 @@ import javax.inject.Inject
 class TaskDetailsFragment : Fragment() {
     @Inject
     lateinit var alarmMethods: AlarmMethods
+
     @Inject
     lateinit var mainFragment: MainFragment
 
@@ -56,7 +57,7 @@ class TaskDetailsFragment : Fragment() {
     private val sharedViewModel: SharedViewModel by viewModels()
     private val taskDetailsViewModel: TaskDetailsViewModel by viewModels()
 
-    private lateinit var bufferedTask: TaskType
+    private var bufferedTask: TaskType? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,8 +109,9 @@ class TaskDetailsFragment : Fragment() {
                         updateDeadlineValue(selectedItem.deadline)
                         updatePriorityValue(selectedItem.priority)
                         updateRepeatModeValue(selectedItem.repeatMode)
-                        updateCompletedValue(selectedItem.completed, selectedItem.checked)
+                        updateCompletedValue(selectedItem.completed)
                         updateMissedValue(selectedItem.missed)
+                        updateLastOvercheck(selectedItem.lastOvercheck)
                         bufferedTask = selectedItem
                     }
                 newChecked.observe(this@TaskDetailsFragment.viewLifecycleOwner) {
@@ -130,7 +132,9 @@ class TaskDetailsFragment : Fragment() {
                         timeLayout.isEnabled = true
                         deadlineLayout.isEnabled = true
                         priorityLayout.isEnabled = true
-                        tvCompletedTask.visibility = View.GONE
+                        if (newTotalChecked.value!! == 0) {
+                            tvCompletedTask.visibility = View.GONE
+                        }
                         if (bufferTask.value?.missed == true) {
                             deadline.setTextColor(
                                 ContextCompat.getColor(
@@ -190,26 +194,35 @@ class TaskDetailsFragment : Fragment() {
                     }
                 }
                 checkTask.setOnLongClickListener {
-                    (activity as MainActivity).apply {
-                        vb?.vibrate(
-                            VibrationEffect.createOneShot(30, VibrationEffect.DEFAULT_AMPLITUDE)
-                        )
-                        vb?.vibrate(
-                            VibrationEffect.createOneShot(30, VibrationEffect.DEFAULT_AMPLITUDE)
-                        )
-                    }
-                    if (title.text.toString().isNotBlank()) {
-                        updateCheckedValue(true)
-                        increaseTotalChecked()
+                    if (System.currentTimeMillis() - newLastOvercheck.value!! >= AlarmManager.INTERVAL_DAY) {
+                        (activity as MainActivity).apply {
+                            vb?.vibrate(
+                                VibrationEffect.createOneShot(30, VibrationEffect.DEFAULT_AMPLITUDE)
+                            )
+                            vb?.vibrate(
+                                VibrationEffect.createOneShot(30, VibrationEffect.DEFAULT_AMPLITUDE)
+                            )
+                        }
+                        if (title.text.toString().isNotBlank()) {
+                            updateCheckedValue(true)
+                            increaseTotalChecked()
+                        } else {
+                            MaterialAlertDialogBuilder(requireContext())
+                                .setMessage(resources.getString(R.string.cant_check_task))
+                                .setNeutralButton(resources.getString(R.string.ok)) { dialog, _ ->
+                                    dialog.dismiss()
+                                }
+                                .show()
+                            checkTask.isChecked = false
+                            updateCheckedValue(false)
+                        }
                     } else {
                         MaterialAlertDialogBuilder(requireContext())
-                            .setMessage(resources.getString(R.string.cant_check_task))
+                            .setMessage(resources.getString(R.string.cant_overcheck_task))
                             .setNeutralButton(resources.getString(R.string.ok)) { dialog, _ ->
                                 dialog.dismiss()
                             }
                             .show()
-                        checkTask.isChecked = false
-                        updateCheckedValue(false)
                     }
                     true
                 }
@@ -267,7 +280,7 @@ class TaskDetailsFragment : Fragment() {
     }
 
     fun setTimeReminder() {
-        var reminderBinding: AlertdialogAddReminderTimeBinding? =
+        var reminderBinding: AlertdialogAddReminderTimeBinding =
             DataBindingUtil.inflate(
                 layoutInflater,
                 R.layout.alertdialog_add_reminder_time,
@@ -291,88 +304,114 @@ class TaskDetailsFragment : Fragment() {
 
         val addReminderDialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle(resources.getString(R.string.add_reminder))
-            .setView(reminderBinding!!.root)
+            .setView(reminderBinding.root)
             .setCancelable(false)
             .setPositiveButton(resources.getString(R.string.save)) { dialog, _ ->
-                if (taskDetailsViewModel.newTime.value != GLOBAL_START_DATE &&
-                    taskDetailsViewModel.newTime.value != taskDetailsViewModel.bufferTask.value!!.time
+                if (taskDetailsViewModel.newTime.value != GLOBAL_START_DATE
                 ) {
-                    var remainingTime: Long
-                    var minutes = 0L
-                    var hours = 0L
-                    var days = 0L
+                    if (taskDetailsViewModel.newTime.value != taskDetailsViewModel.bufferTask.value!!.time) {
+                        var remainingTime: Long
+                        var minutes = 0L
+                        var hours = 0L
+                        var days = 0L
 
-                    fun updateRemainingTime() {
-                        remainingTime =
-                            setTime.timeInMillis - Calendar.getInstance().timeInMillis
-                        minutes = (remainingTime / (1000 * 60) % 60)
-                        hours = (remainingTime / (1000 * 60 * 60) % 24)
-                        days = TimeUnit.MILLISECONDS.toDays(remainingTime)
-                    }
-                    updateRemainingTime()
-
-                    if ((minutes < 0L || hours < 0L || days < 0L)
-                    ) {
-                        setTime.add(Calendar.DATE, 1)
+                        fun updateRemainingTime() {
+                            remainingTime =
+                                setTime.timeInMillis - Calendar.getInstance().timeInMillis
+                            minutes = (remainingTime / (1000 * 60) % 60)
+                            hours = (remainingTime / (1000 * 60 * 60) % 24)
+                            days = TimeUnit.MILLISECONDS.toDays(remainingTime)
+                        }
                         updateRemainingTime()
-                        taskDetailsViewModel.updateTimeValue(setTime.timeInMillis)
-                    }
-                    when {
-                        days != 0L -> {
-                            Toast.makeText(
-                                context,
-                                getString(
-                                    R.string.reminder_for_day_hour_minute,
-                                    resources.getQuantityString(
-                                        R.plurals.days,
-                                        days.toInt(),
-                                        days
-                                    ),
-                                    resources.getQuantityString(
-                                        R.plurals.hours,
-                                        hours.toInt(),
-                                        hours
-                                    ),
-                                    resources.getQuantityString(
-                                        R.plurals.minutes,
-                                        minutes.toInt(),
-                                        minutes
-                                    )
-                                ),
-                                Toast.LENGTH_SHORT
-                            ).show()
+
+                        if ((minutes < 0L || hours < 0L || days < 0L)
+                        ) {
+                            setTime.add(Calendar.DATE, 1)
+                            updateRemainingTime()
+                            taskDetailsViewModel.updateTimeValue(setTime.timeInMillis)
                         }
-                        hours != 0L -> {
-                            Toast.makeText(
-                                context,
-                                getString(
-                                    R.string.reminder_for_hour_minute,
-                                    resources.getQuantityString(
-                                        R.plurals.hours,
-                                        hours.toInt(),
-                                        hours
-                                    ),
-                                    resources.getQuantityString(
-                                        R.plurals.minutes,
-                                        minutes.toInt(),
-                                        minutes
-                                    )
-                                ),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        hours == 0L -> {
-                            if (minutes == 0L) {
-                                Toast.makeText(
-                                    context,
-                                    getString(R.string.reminder_less_than_minute),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            } else {
+                        when {
+                            days != 0.toLong() -> {
                                 Toast.makeText(
                                     context,
                                     getString(
-                                        R.string.reminder_for_minutes,
+                                        R.string.reminder_for_day_hour_minute,
+                                        resources.getQuantityString(
+                                            R.plurals.days,
+                                            days.toInt(),
+                                            days
+                                        ),
+                                        resources.getQuantityString(
+                                            R.plurals.hours,
+                                            hours.toInt(),
+                                            hours
+                                        ),
+                                        resources.getQuantityString(
+                                            R.plurals.minutes,
+                                            minutes.toInt(),
+                                            minutes
+                                        )
+                                    ),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            hours != 0.toLong() -> {
+                                Toast.makeText(
+                                    context,
+                                    getString(
+                                        R.string.reminder_for_hour_minute,
+                                        resources.getQuantityString(
+                                            R.plurals.hours,
+                                            hours.toInt(),
+                                            hours
+                                        ),
+                                        resources.getQuantityString(
+                                            R.plurals.minutes,
+                                            minutes.toInt(),
+                                            minutes
+                                        )
+                                    ),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            hours == 0.toLong() -> {
+                                if (minutes == 0.toLong()) {
+                                    Toast.makeText(
+                                        context,
+                                        getString(R.string.reminder_less_than_minute),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        getString(
+                                            R.string.reminder_for_minutes,
+                                            resources.getQuantityString(
+                                                R.plurals.minutes,
+                                                minutes.toInt(),
+                                                minutes
+                                            )
+                                        ),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+
+                            else -> {
+                                Toast.makeText(
+                                    context,
+                                    getString(
+                                        R.string.reminder_for_day_hour_minute,
+                                        resources.getQuantityString(
+                                            R.plurals.days,
+                                            days.toInt(),
+                                            days
+                                        ),
+                                        resources.getQuantityString(
+                                            R.plurals.hours,
+                                            hours.toInt(),
+                                            hours
+                                        ),
                                         resources.getQuantityString(
                                             R.plurals.minutes,
                                             minutes.toInt(),
@@ -383,60 +422,32 @@ class TaskDetailsFragment : Fragment() {
                                 ).show()
                             }
                         }
-
-                        else -> {
-                            Toast.makeText(
-                                context,
-                                getString(
-                                    R.string.reminder_for_day_hour_minute,
-                                    resources.getQuantityString(
-                                        R.plurals.days,
-                                        days.toInt(),
-                                        days
-                                    ),
-                                    resources.getQuantityString(
-                                        R.plurals.hours,
-                                        hours.toInt(),
-                                        hours
-                                    ),
-                                    resources.getQuantityString(
-                                        R.plurals.minutes,
-                                        minutes.toInt(),
-                                        minutes
-                                    )
-                                ),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                    binding.time.setText(
-                        DateFormat.getDateTimeInstance(
-                            DateFormat.DEFAULT,
-                            DateFormat.DEFAULT,
-                            resources.configuration.locales[0]
-                        )
-                            .format(
-                                Date(setTime.timeInMillis)
+                        binding.time.setText(
+                            DateFormat.getDateTimeInstance(
+                                DateFormat.DEFAULT,
+                                DateFormat.DEFAULT,
+                                resources.configuration.locales[0]
                             )
-                    )
+                                .format(
+                                    Date(setTime.timeInMillis)
+                                )
+                        )
+                    }
                 } else {
                     binding.time.setText(
                         resources.getString(R.string.set_reminder)
                     )
                 }
-
-                reminderBinding = null
                 dialog.dismiss()
             }
             .setNegativeButton(resources.getString(R.string.cancel))
             { dialog, _ ->
-                reminderBinding = null
                 taskDetailsViewModel.updateRepeatModeValue(taskDetailsViewModel.bufferTask.value!!.repeatMode)
                 dialog.cancel()
             }
             .show()
 
-        reminderBinding?.apply {
+        reminderBinding.apply {
             lifecycleOwner = this@TaskDetailsFragment
             viewModel = taskDetailsViewModel
 
@@ -451,7 +462,7 @@ class TaskDetailsFragment : Fragment() {
                 setTime = openDatePicker(null, reminderBinding, setTime)
             }
 
-            getAndSetRepeatMode(reminderBinding!!)
+            getAndSetRepeatMode(reminderBinding)
 
             removeReminder.setOnClickListener {
                 taskDetailsViewModel.updateTimeValue(GLOBAL_START_DATE)
@@ -464,7 +475,6 @@ class TaskDetailsFragment : Fragment() {
                     Toast.LENGTH_SHORT
                 )
                     .show()
-                reminderBinding = null
                 reminderAddTimeEdittext.setText(resources.getString(R.string.time_word))
                 reminderAddDateEdittext.setText(resources.getString(R.string.date_word))
             }
@@ -473,7 +483,7 @@ class TaskDetailsFragment : Fragment() {
     }
 
     fun setTimeDeadline() {
-        var deadlineBinding: AlertdialogAddDeadlineTimeBinding? =
+        val deadlineBinding: AlertdialogAddDeadlineTimeBinding =
             DataBindingUtil.inflate(
                 layoutInflater,
                 R.layout.alertdialog_add_deadline_time,
@@ -497,86 +507,113 @@ class TaskDetailsFragment : Fragment() {
 
         val addDeadlineDialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle(resources.getString(R.string.add_deadline))
-            .setView(deadlineBinding!!.root)
+            .setView(deadlineBinding.root)
             .setCancelable(false)
             .setPositiveButton(resources.getString(R.string.save)) { dialog, _ ->
                 if (taskDetailsViewModel.newDeadline.value != GLOBAL_START_DATE) {
-                    var remainingTime: Long
-                    var minutes = 0L
-                    var hours = 0L
-                    var days = 0L
+                    if (taskDetailsViewModel.newDeadline.value != taskDetailsViewModel.bufferTask.value!!.deadline) {
+                        var remainingTime: Long
+                        var minutes = 0L
+                        var hours = 0L
+                        var days = 0L
 
-                    fun updateRemainingTime() {
-                        remainingTime =
-                            setTime.timeInMillis - Calendar.getInstance().timeInMillis
-                        minutes = (remainingTime / (1000 * 60) % 60)
-                        hours = (remainingTime / (1000 * 60 * 60) % 24)
-                        days = TimeUnit.MILLISECONDS.toDays(remainingTime)
-                    }
-                    updateRemainingTime()
-
-                    if (minutes < 0L || hours < 0L || days < 0L) {
-                        setTime.add(Calendar.DATE, 1)
+                        fun updateRemainingTime() {
+                            remainingTime =
+                                setTime.timeInMillis - Calendar.getInstance().timeInMillis
+                            minutes = (remainingTime / (1000 * 60) % 60)
+                            hours = (remainingTime / (1000 * 60 * 60) % 24)
+                            days = TimeUnit.MILLISECONDS.toDays(remainingTime)
+                        }
                         updateRemainingTime()
-                        taskDetailsViewModel.updateDeadlineValue(setTime.timeInMillis)
-                    }
 
-                    when {
-                        days != 0L -> {
-                            Toast.makeText(
-                                context,
-                                getString(
-                                    R.string.deadline_for_day_hour_minute,
-                                    resources.getQuantityString(
-                                        R.plurals.days,
-                                        days.toInt(),
-                                        days
-                                    ),
-                                    resources.getQuantityString(
-                                        R.plurals.hours,
-                                        hours.toInt(),
-                                        hours
-                                    ),
-                                    resources.getQuantityString(
-                                        R.plurals.minutes,
-                                        minutes.toInt(),
-                                        minutes
-                                    )
-                                ),
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        if (minutes < 0L || hours < 0L || days < 0L) {
+                            setTime.add(Calendar.DATE, 1)
+                            updateRemainingTime()
+                            taskDetailsViewModel.updateDeadlineValue(setTime.timeInMillis)
                         }
-                        hours != 0L -> {
-                            Toast.makeText(
-                                context,
-                                getString(
-                                    R.string.deadline_for_hour_minute,
-                                    resources.getQuantityString(
-                                        R.plurals.hours,
-                                        hours.toInt(),
-                                        hours
-                                    ),
-                                    resources.getQuantityString(
-                                        R.plurals.minutes,
-                                        minutes.toInt(),
-                                        minutes
-                                    )
-                                ),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        hours == 0L -> {
-                            if (minutes == 0L) {
-                                Toast.makeText(
-                                    context,
-                                    getString(R.string.deadline_less_than_minute),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            } else {
+
+                        when {
+                            days != 0L -> {
                                 Toast.makeText(
                                     context,
                                     getString(
-                                        R.string.deadline_for_minutes,
+                                        R.string.deadline_for_day_hour_minute,
+                                        resources.getQuantityString(
+                                            R.plurals.days,
+                                            days.toInt(),
+                                            days
+                                        ),
+                                        resources.getQuantityString(
+                                            R.plurals.hours,
+                                            hours.toInt(),
+                                            hours
+                                        ),
+                                        resources.getQuantityString(
+                                            R.plurals.minutes,
+                                            minutes.toInt(),
+                                            minutes
+                                        )
+                                    ),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            hours != 0L -> {
+                                Toast.makeText(
+                                    context,
+                                    getString(
+                                        R.string.deadline_for_hour_minute,
+                                        resources.getQuantityString(
+                                            R.plurals.hours,
+                                            hours.toInt(),
+                                            hours
+                                        ),
+                                        resources.getQuantityString(
+                                            R.plurals.minutes,
+                                            minutes.toInt(),
+                                            minutes
+                                        )
+                                    ),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            hours == 0L -> {
+                                if (minutes == 0L) {
+                                    Toast.makeText(
+                                        context,
+                                        getString(R.string.deadline_less_than_minute),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        getString(
+                                            R.string.deadline_for_minutes,
+                                            resources.getQuantityString(
+                                                R.plurals.minutes,
+                                                minutes.toInt(),
+                                                minutes
+                                            )
+                                        ),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+
+                            else -> {
+                                Toast.makeText(
+                                    context,
+                                    getString(
+                                        R.string.deadline_for_day_hour_minute,
+                                        resources.getQuantityString(
+                                            R.plurals.days,
+                                            days.toInt(),
+                                            days
+                                        ),
+                                        resources.getQuantityString(
+                                            R.plurals.hours,
+                                            hours.toInt(),
+                                            hours
+                                        ),
                                         resources.getQuantityString(
                                             R.plurals.minutes,
                                             minutes.toInt(),
@@ -587,60 +624,31 @@ class TaskDetailsFragment : Fragment() {
                                 ).show()
                             }
                         }
-
-                        else -> {
-                            Toast.makeText(
-                                context,
-                                getString(
-                                    R.string.deadline_for_day_hour_minute,
-                                    resources.getQuantityString(
-                                        R.plurals.days,
-                                        days.toInt(),
-                                        days
-                                    ),
-                                    resources.getQuantityString(
-                                        R.plurals.hours,
-                                        hours.toInt(),
-                                        hours
-                                    ),
-                                    resources.getQuantityString(
-                                        R.plurals.minutes,
-                                        minutes.toInt(),
-                                        minutes
-                                    )
-                                ),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                    binding.deadline.setText(
-                        DateFormat.getDateTimeInstance(
-                            DateFormat.DEFAULT,
-                            DateFormat.DEFAULT,
-                            resources.configuration.locales[0]
-                        ).format(
-                            Date(setTime.timeInMillis)
+                        binding.deadline.setText(
+                            DateFormat.getDateTimeInstance(
+                                DateFormat.DEFAULT,
+                                DateFormat.DEFAULT,
+                                resources.configuration.locales[0]
+                            ).format(
+                                Date(setTime.timeInMillis)
+                            )
                         )
-                    )
+                    }
                 } else {
                     binding.deadline.setText(
                         resources.getString(R.string.set_deadline)
                     )
                 }
-
-                deadlineBinding = null
                 dialog.dismiss()
             }
             .setNegativeButton(resources.getString(R.string.cancel))
             { dialog, _ ->
-                deadlineBinding = null
                 taskDetailsViewModel.updateMissedValue(taskDetailsViewModel.bufferTask.value!!.missed)
-                taskDetailsViewModel.updateDeadlineValue(taskDetailsViewModel.bufferTask.value!!.deadline)
                 dialog.cancel()
             }
             .show()
 
-        deadlineBinding?.apply {
+        deadlineBinding.apply {
             lifecycleOwner = this@TaskDetailsFragment
             viewModel = taskDetailsViewModel
 
@@ -658,7 +666,7 @@ class TaskDetailsFragment : Fragment() {
             removeDeadline.setOnClickListener {
                 taskDetailsViewModel.updateDeadlineValue(GLOBAL_START_DATE)
                 taskDetailsViewModel.updateMissedValue(false)
-                binding.time.setText(resources.getString(R.string.set_deadline))
+                binding.deadline.setText(resources.getString(R.string.set_deadline))
                 addDeadlineDialog.cancel()
                 Toast.makeText(
                     context,
@@ -666,31 +674,10 @@ class TaskDetailsFragment : Fragment() {
                     Toast.LENGTH_SHORT
                 )
                     .show()
-                deadlineBinding = null
                 deadlineAddTimeEdittext.setText(resources.getString(R.string.time_word))
                 deadlineAddDateEdittext.setText(resources.getString(R.string.date_word))
             }
         }
-    }
-
-    private fun createWorkReminder(
-        newTime: Long,
-        repeatMode: Int
-    ) {
-        alarmMethods.setReminder(
-            requireContext(),
-            bufferedTask.idTask,
-            repeatMode,
-            newTime
-        )
-    }
-
-    private fun createWorkDeadline(
-        newTime: Long
-    ) {
-        alarmMethods.setDeadline(
-            requireContext(), bufferedTask.idTask, newTime
-        )
     }
 
     private fun getAndSetRepeatMode(reminderBinding: AlertdialogAddReminderTimeBinding) {
@@ -794,102 +781,88 @@ class TaskDetailsFragment : Fragment() {
     private fun isEdited(): Boolean {
         binding.apply {
             taskDetailsViewModel.apply {
-                return title.text.toString() != bufferedTask.title ||
-                        desc.text.toString() != bufferedTask.description ||
-                        checkTask.isChecked != bufferedTask.checked ||
-                        newTime.value != bufferedTask.time ||
-                        newRepeatMode.value != bufferedTask.repeatMode ||
-                        newDeadline.value != bufferedTask.deadline ||
-                        newPriority.value != bufferedTask.priority ||
-                        newCompleted.value != bufferedTask.completed ||
-                        newTotalChecked.value != bufferedTask.totalChecked
+                bufferedTask?.let { task ->
+                    return title.text.toString() != task.title ||
+                            desc.text.toString() != task.description ||
+                            checkTask.isChecked != task.checked ||
+                            newTime.value != task.time ||
+                            newRepeatMode.value != task.repeatMode ||
+                            newDeadline.value != task.deadline ||
+                            newPriority.value != task.priority ||
+                            newCompleted.value != task.completed ||
+                            newTotalChecked.value != task.totalChecked
+                }
             }
         }
+        return false
     }
 
     private fun updateTask() {
         binding.apply {
             taskDetailsViewModel.apply {
                 if (isEdited()) {
-                    if (newTotalChecked.value != bufferedTask.totalChecked) {
-                        val differ: Int
-                        if (newTotalChecked.value!! > bufferedTask.totalChecked) {
-                            differ = if (bufferedTask.totalChecked == 0) {
-                                newTotalChecked.value!! - bufferedTask.totalChecked - 1
-                            } else {
-                                newTotalChecked.value!! - bufferedTask.totalChecked
-                            }
-                            sharedViewModel.incrementTotalCompleted(differ)
+                    bufferedTask?.let {bufferedTask ->
+                        if (newTotalChecked.value != bufferedTask.totalChecked) {
+                            val differ: Int
+                            if (newTotalChecked.value!! > bufferedTask.totalChecked) {
+                                differ = if (bufferedTask.totalChecked == 0) {
+                                    newTotalChecked.value!! - bufferedTask.totalChecked - 1
+                                } else {
+                                    newTotalChecked.value!! - bufferedTask.totalChecked
+                                }
+                                sharedViewModel.incrementTotalCompleted(differ)
 
-                        } else if (newTotalChecked.value!! < bufferedTask.totalChecked) {
-                            differ = if (newTotalChecked.value!! == 0) {
-                                bufferedTask.totalChecked - newTotalChecked.value!! - 1
-                            } else {
-                                bufferedTask.totalChecked - newTotalChecked.value!!
+                            } else if (newTotalChecked.value!! < bufferedTask.totalChecked) {
+                                differ = if (newTotalChecked.value!! == 0) {
+                                    bufferedTask.totalChecked - newTotalChecked.value!! - 1
+                                } else {
+                                    bufferedTask.totalChecked - newTotalChecked.value!!
+                                }
+                                sharedViewModel.decrementTotalCompleted(differ)
                             }
-                            sharedViewModel.decrementTotalCompleted(differ)
                         }
-                    }
-                    if (newTime.value != bufferedTask.time) {
-                        if (newTime.value != GLOBAL_START_DATE) {
-                            createWorkReminder(
-                                newTime.value!!,
-                                newRepeatMode.value!!
-                            )
-                        } else {
-                            alarmMethods.cancelReminder(requireContext(), bufferedTask.idTask)
+                        if (newTime.value != bufferedTask.time) {
+                            if (newTime.value != GLOBAL_START_DATE) {
+                                alarmMethods.setReminder(
+                                    requireContext(),
+                                    bufferedTask.idTask,
+                                    newRepeatMode.value!!,
+                                    newTime.value!!
+                                )
+                            } else {
+                                alarmMethods.cancelReminder(requireContext(), bufferedTask.idTask)
+                            }
                         }
-                    }
-                    if (newDeadline.value != bufferedTask.time) {
-                        if (newDeadline.value != GLOBAL_START_DATE) {
-                            createWorkDeadline(
-                                newDeadline.value!!
-                            )
-                        } else {
-                            alarmMethods.cancelDeadline(requireContext(), bufferedTask.idTask)
+                        if (newDeadline.value != bufferedTask.deadline) {
+                            if (newDeadline.value != GLOBAL_START_DATE) {
+                                alarmMethods.setDeadline(
+                                    requireContext(), bufferedTask.idTask, newDeadline.value!!
+                                )
+                            } else {
+                                alarmMethods.cancelDeadline(requireContext(), bufferedTask.idTask)
+                            }
                         }
-                    } else {
-                        if (bufferTask.value?.missed == true && newChecked.value!!) {
-                            updateDeadlineValue(GLOBAL_START_DATE)
-                        }
-                    }
-                    if (newChecked.value != bufferedTask.checked) {
-                        if (newTime.value != GLOBAL_START_DATE) {
-                            createWorkReminder(
-                                newTime.value!!,
-                                newRepeatMode.value!!
-                            )
-                        } else {
-                            alarmMethods.cancelReminder(requireContext(), bufferedTask.idTask)
-                        }
-                        if (newDeadline.value != GLOBAL_START_DATE) {
-                            createWorkDeadline(
-                                newDeadline.value!!
-                            )
-                        } else {
-                            alarmMethods.cancelDeadline(requireContext(), bufferedTask.idTask)
-                        }
-                    }
-                    sharedViewModel.updateTask(
-                        bufferedTask,
-                        title.text.toString(),
-                        desc.text.toString(),
-                        newTime.value!!,
-                        newRepeatMode.value!!,
-                        newDeadline.value!!,
-                        newPriority.value!!,
-                        checkTask.isChecked,
-                        newTotalChecked.value!!,
-                        newCompleted.value!!,
-                        newMissed.value!!
-                    )
-                    Snackbar.make(
-                        (activity as MainActivity).binding.clSnack,
-                        resources.getString(R.string.saved),
-                        Snackbar.LENGTH_SHORT
-                    )
-                        .show()
 
+                        sharedViewModel.updateTask(
+                            bufferedTask,
+                            title.text.toString(),
+                            desc.text.toString(),
+                            newTime.value!!,
+                            newRepeatMode.value!!,
+                            newDeadline.value!!,
+                            newPriority.value!!,
+                            checkTask.isChecked,
+                            newTotalChecked.value!!,
+                            newCompleted.value!!,
+                            newMissed.value!!,
+                            newLastOvercheck.value!!
+                        )
+                        Toast.makeText(
+                            requireContext(),
+                            resources.getString(R.string.saved),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
         }
@@ -920,7 +893,7 @@ class TaskDetailsFragment : Fragment() {
         super.onSaveInstanceState(outState)
         binding.apply {
             taskDetailsViewModel.saveState(
-                bufferedTask,
+                bufferedTask!!,
                 title.text.toString(),
                 desc.text.toString(),
                 checkTask.isChecked
@@ -942,6 +915,6 @@ class TaskDetailsFragment : Fragment() {
         super.onDestroyView()
         (activity as MainActivity).window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         _binding = null
-        bufferedTask = TaskType()
+        bufferedTask = null
     }
 }

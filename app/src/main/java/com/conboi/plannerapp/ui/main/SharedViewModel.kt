@@ -3,22 +3,23 @@ package com.conboi.plannerapp.ui.main
 import android.content.Context
 import androidx.annotation.ColorRes
 import androidx.lifecycle.*
-import com.conboi.plannerapp.data.PreferencesManager
-import com.conboi.plannerapp.data.SortOrder
-import com.conboi.plannerapp.data.SynchronizationState
-import com.conboi.plannerapp.data.TaskDao
+import com.conboi.plannerapp.data.*
+import com.conboi.plannerapp.di.IoDispatcher
 import com.conboi.plannerapp.model.TaskType
 import com.conboi.plannerapp.utils.GLOBAL_START_DATE
 import com.conboi.plannerapp.utils.MAX_ADD_TASK
 import com.conboi.plannerapp.utils.MAX_TASK_COUNT
+import com.conboi.plannerapp.utils.MIDDLE_COUNT
 import com.conboi.plannerapp.utils.myclass.AlarmMethods
 import com.conboi.plannerapp.utils.myclass.FirebaseUserLiveData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,30 +27,16 @@ class SharedViewModel @Inject constructor(
     private val taskDao: TaskDao,
     private val preferencesManager: PreferencesManager,
     savedState: SavedStateHandle,
-    private val alarmMethods: AlarmMethods
+    private val alarmMethods: AlarmMethods,
+    @IoDispatcher private val dispatcherIO: CoroutineDispatcher
 ) : ViewModel() {
-    private val _colorPrimary = MutableLiveData<Int>()
-    val colorPrimary: LiveData<Int> = _colorPrimary
-
     private val _colorPrimaryVariant = MutableLiveData<Int>()
     val colorPrimaryVariant: LiveData<Int> = _colorPrimaryVariant
 
-    private val _colorSecondary = MutableLiveData<Int>()
-    val colorSecondary: LiveData<Int> = _colorSecondary
-
-    private val _colorSecondaryVariant = MutableLiveData<Int>()
-    val colorSecondaryVariant: LiveData<Int> = _colorSecondaryVariant
-
-    fun updateColorPalette(
-        @ColorRes p: Int,
-        @ColorRes pL: Int,
-        @ColorRes s: Int,
-        @ColorRes sD: Int
+    fun updateColor(
+        @ColorRes pL: Int
     ) {
-        _colorPrimary.value = p
         _colorPrimaryVariant.value = pL
-        _colorSecondary.value = s
-        _colorSecondaryVariant.value = sD
     }
 
 
@@ -61,18 +48,19 @@ class SharedViewModel @Inject constructor(
         }
     }
 
+    val selectedPremiumType = MutableLiveData<Int>()
+
     val preferencesFlow = preferencesManager.preferencesFlow
 
-    //Sizes
-    val maxTasksCount: Int = MAX_TASK_COUNT
-    val maxAddTask: Int = MAX_ADD_TASK
-    val allTasksSize: LiveData<Int> = taskDao.getTasksSize()
-    val allOnlyCompletedTasksSize: LiveData<Int> = taskDao.getTasksOnlyCompletedCount()
-    val allOnlyOverCompletedTasksSize: LiveData<Int> = taskDao.getTasksOvercompletedCount()
-
     //Settings
-    val appLanguage: LiveData<String> =
-        combine(preferencesFlow) { it.first().languageState }.asLiveData()
+    val premiumState: LiveData<Boolean> =
+        combine(preferencesFlow) { it.first().premiumState }.asLiveData()
+
+    val premiumType =
+        combine(preferencesManager.preferencesFlow) { it.first().premiumType }.asLiveData()
+
+    val middleListTime: LiveData<Long> =
+        combine(preferencesFlow) { it.first().middleListTime }.asLiveData()
 
     val privateModeState: LiveData<Boolean> =
         combine(preferencesFlow) { it.first().privateModeState }.asLiveData()
@@ -87,170 +75,142 @@ class SharedViewModel @Inject constructor(
         combine(preferencesFlow) { it.first().notificationsModeState }.asLiveData()
 
     val totalCompleted =
-        combine(preferencesManager.preferencesFlow) { it.first().totalCompleted }.asLiveData()
+        combine(preferencesFlow) { it.first().totalCompleted }.asLiveData()
 
     val syncState = combine(preferencesFlow) {
         it.first().syncState
     }.asLiveData()
 
+    val rateUsCount: LiveData<Int> =
+        combine(preferencesFlow) { it.first().rateUsCount }.asLiveData()
+
+
+    //Sizes
+    val maxTasksCount: Int = MAX_TASK_COUNT
+    val maxAddTask: Int = MAX_ADD_TASK
+    val allTasksSize: LiveData<Int> = taskDao.getTasksSize()
+    val allOnlyCompletedTasksSize: LiveData<Int> = taskDao.getTasksOnlyCompletedCount()
+    val allOnlyOverCompletedTasksSize: LiveData<Int> = taskDao.getTasksOvercompletedCount()
+
     val searchQuery = savedState.getLiveData("searchQuery", "")
 
     @ExperimentalCoroutinesApi
-    private val tasksFlow = combine(
-        searchQuery.asFlow(),
-        preferencesFlow
-    )
-    { searchQuery,
-      filterPreferences ->
-        Pair(
-            searchQuery,
-            filterPreferences
+    private val tasksFlow =
+        combine(
+            searchQuery.asFlow(),
+            preferencesFlow
         )
-    }.flatMapLatest { (searchQuery, filterPreferences) ->
-        taskDao.getSortedTasks(
-            searchQuery,
-            filterPreferences.sortOrder,
-            filterPreferences.hideCompleted,
-            filterPreferences.hideOvercompleted
-        )
-    }
+        { searchQuery,
+          filterPreferences ->
+            Pair(
+                searchQuery,
+                filterPreferences
+            )
+        }.flatMapLatest { (searchQuery, filterPreferences) ->
+            taskDao.getSortedTasks(
+                searchQuery,
+                filterPreferences.sortOrder,
+                filterPreferences.hideCompleted,
+                filterPreferences.hideOvercompleted
+            )
+        }
 
     @ExperimentalCoroutinesApi
     val sortedTasks: LiveData<List<TaskType>> = tasksFlow.asLiveData()
     val allTasks: LiveData<List<TaskType>> = taskDao.getAllTasks().asLiveData()
 
-    fun onTitleChanged(task: TaskType, title: String) = viewModelScope.launch {
-        taskDao.update(task.copy(title = title))
+    fun onTitleChanged(task: TaskType, title: String) = viewModelScope.launch{
+        withContext(dispatcherIO) {
+            taskDao.update(task.copy(title = title))
+        }
     }
 
     fun onTaskCheckedChanged(
         task: TaskType,
         checked: Boolean,
-        increase: Boolean,
-        context: Context
+        increase: Boolean
     ) =
         viewModelScope.launch {
-            if (increase) {
-                if (task.totalChecked == 0) {
-                    taskDao.update(
-                        task.copy(
-                            completed = System.currentTimeMillis(),
-                            checked = true,
-                            totalChecked = 1
-                        )
-                    )
-                    utilsSetNotification(
-                        context,
-                        task.idTask,
-                        task.repeatMode,
-                        task.time,
-                        task.deadline
-                    )
-                } else {
-                    taskDao.update(
-                        task.copy(
-                            completed = System.currentTimeMillis(),
-                            checked = true,
-                            totalChecked = task.totalChecked + 1
-                        )
-                    )
-                    utilsSetNotification(
-                        context,
-                        task.idTask,
-                        task.repeatMode,
-                        task.time,
-                        task.deadline,
-                    )
-                }
-                preferencesManager.incrementTotalCompleted()
-            } else {
-                if (checked) {
-                    if (task.totalChecked > 1) {
+            withContext(dispatcherIO) {
+                if (increase) {
+                    if (task.totalChecked == 0) {
                         taskDao.update(
                             task.copy(
-                                totalChecked = task.totalChecked - 1,
                                 completed = System.currentTimeMillis(),
+                                lastOvercheck = System.currentTimeMillis(),
+                                checked = true,
+                                totalChecked = 1
                             )
                         )
-                        utilsSetNotification(
-                            context,
-                            task.idTask,
-                            task.repeatMode,
-                            task.time,
-                            task.deadline,
-                        )
-                        preferencesManager.decrementTotalCompleted()
                     } else {
                         taskDao.update(
                             task.copy(
                                 completed = System.currentTimeMillis(),
-                                checked = checked,
-                                totalChecked = 1
+                                lastOvercheck = System.currentTimeMillis(),
+                                checked = true,
+                                totalChecked = task.totalChecked + 1
                             )
                         )
-                        utilsSetNotification(
-                            context,
-                            task.idTask,
-                            task.repeatMode,
-                            task.time,
-                            task.deadline
-                        )
-                        preferencesManager.incrementTotalCompleted()
                     }
+                    preferencesManager.incrementTotalCompleted()
                 } else {
-                    taskDao.update(
-                        task.copy(
-                            completed = GLOBAL_START_DATE,
-                            checked = checked,
-                            totalChecked = 0
+                    if (checked) {
+                        if (task.totalChecked > 1) {
+                            taskDao.update(
+                                task.copy(
+                                    lastOvercheck = GLOBAL_START_DATE,
+                                    totalChecked = task.totalChecked - 1
+                                )
+                            )
+                            preferencesManager.decrementTotalCompleted()
+                        } else {
+                            taskDao.update(
+                                task.copy(
+                                    completed = System.currentTimeMillis(),
+                                    lastOvercheck = System.currentTimeMillis(),
+                                    checked = checked,
+                                    totalChecked = 1
+                                )
+                            )
+                            preferencesManager.incrementTotalCompleted()
+                        }
+                    } else {
+                        taskDao.update(
+                            task.copy(
+                                completed = GLOBAL_START_DATE,
+                                lastOvercheck = GLOBAL_START_DATE,
+                                checked = checked,
+                                totalChecked = 0
+                            )
                         )
-                    )
-                    utilsSetNotification(
-                        context,
-                        task.idTask,
-                        task.repeatMode,
-                        task.time,
-                        task.deadline
-                    )
-                    preferencesManager.decrementTotalCompleted()
+                        preferencesManager.decrementTotalCompleted()
+                    }
                 }
             }
         }
 
-    private fun utilsSetNotification(
-        context: Context,
-        idTask: Int,
-        repeatMode: Int,
-        newTime: Long,
-        newDeadline: Long
-    ) {
-        if (newTime != GLOBAL_START_DATE) {
-            alarmMethods.setReminder(
-                context,
-                idTask,
-                repeatMode,
-                newTime
-            )
-        }
-        if (newDeadline != GLOBAL_START_DATE) {
-            alarmMethods.setDeadline(context, idTask, newDeadline)
-        }
-    }
 
     fun onSortOrderSelected(sortOrder: SortOrder) = viewModelScope.launch {
-        preferencesManager.updateSortOrder(sortOrder)
+        withContext(dispatcherIO) {
+            preferencesManager.updateSortOrder(sortOrder)
+        }
     }
 
     fun onHideCompletedClick(hideCompleted: Boolean) = viewModelScope.launch {
-        preferencesManager.updateHideCompleted(hideCompleted)
+        withContext(dispatcherIO) {
+            preferencesManager.updateHideCompleted(hideCompleted)
+        }
     }
 
     fun onHideOvercompletedClick(hideOvercompleted: Boolean) = viewModelScope.launch {
-        preferencesManager.updateHideOvercompleted(hideOvercompleted)
+        withContext(dispatcherIO) {
+            preferencesManager.updateHideOvercompleted(hideOvercompleted)
+        }
     }
 
 
-    fun isListNotFull(): Boolean = allTasks.value!!.size < MAX_TASK_COUNT
+    fun isListNotFull(): Boolean =
+        allTasks.value!!.size < MAX_TASK_COUNT + if (premiumState.value == true) MIDDLE_COUNT else 0
 
     suspend fun getRemindersState(): Boolean = preferencesFlow.first().remindersModeState
 
@@ -274,20 +234,40 @@ class SharedViewModel @Inject constructor(
     //Insert tasks
     fun insertAllTasks(taskList: List<TaskType>) =
         viewModelScope.launch {
-            taskDao.insertAll(taskList)
-        }
-
-    fun insertTask(task: TaskType) =
-        viewModelScope.launch {
-            taskDao.insert(task)
+            withContext(dispatcherIO) {
+                taskDao.insertAll(taskList)
+            }
         }
 
     fun insertAllTasks(task: TaskType, enteredAmount: Int) =
-        viewModelScope.launch {
+        viewModelScope.launch (dispatcherIO){
             repeat(enteredAmount) {
+                if (rateUsCount.value!! <= 15) {
+                    updateRateUs(null)
+                }
                 taskDao.insert(task)
+                isMiddleList(System.currentTimeMillis(), false)
             }
         }
+
+
+    fun insertTask(task: TaskType) =
+        viewModelScope.launch (dispatcherIO){
+            if (rateUsCount.value!! <= 15) {
+                updateRateUs(null)
+            }
+            taskDao.insert(task)
+            isMiddleList(System.currentTimeMillis(), false)
+        }
+
+
+    fun isMiddleList(downloadMiddle: Long, force: Boolean) {
+        if (allTasksSize.value!! == MIDDLE_COUNT || force) {
+            viewModelScope.launch {
+                preferencesManager.updateMiddleListTime(downloadMiddle)
+            }
+        }
+    }
 
 
     //Update tasks
@@ -302,23 +282,27 @@ class SharedViewModel @Inject constructor(
         checked: Boolean,
         totalChecked: Int,
         completed: Long,
-        missed: Boolean
+        missed: Boolean,
+        lastOvercheck: Long
     ) =
         viewModelScope.launch {
-            taskDao.update(
-                task.copy(
-                    title = title,
-                    description = description,
-                    time = time,
-                    repeatMode = repeatMode,
-                    deadline = deadline,
-                    priority = priority,
-                    checked = checked,
-                    totalChecked = totalChecked,
-                    completed = completed,
-                    missed = missed
+            withContext(dispatcherIO) {
+                taskDao.update(
+                    task.copy(
+                        title = title,
+                        description = description,
+                        time = time,
+                        repeatMode = repeatMode,
+                        deadline = deadline,
+                        priority = priority,
+                        checked = checked,
+                        totalChecked = totalChecked,
+                        completed = completed,
+                        missed = missed,
+                        lastOvercheck = lastOvercheck
+                    )
                 )
-            )
+            }
         }
 
 
@@ -329,7 +313,7 @@ class SharedViewModel @Inject constructor(
         }
 
     fun onUndoDeleteClick(task: TaskType, context: Context) =
-        viewModelScope.launch {
+        viewModelScope.launch (dispatcherIO){
             if (task.time != GLOBAL_START_DATE) {
                 if (task.time <= System.currentTimeMillis() && task.repeatMode == 0) {
                     task.time = GLOBAL_START_DATE
@@ -358,7 +342,7 @@ class SharedViewModel @Inject constructor(
         }
 
     fun deleteOnlyCompletedTasks(context: Context) =
-        viewModelScope.launch {
+        viewModelScope.launch (dispatcherIO){
             val listOnlyCompleted = taskDao.getTasksOnlyCompleted().first().toList()
             for (task in listOnlyCompleted) {
                 alarmMethods.cancelReminder(context, task.idTask)
@@ -369,18 +353,22 @@ class SharedViewModel @Inject constructor(
 
     fun deleteOnlyOvercompletedTasks(context: Context) =
         viewModelScope.launch {
-            val listOnlyCompleted = taskDao.getTasksOvercompleted().first().toList()
-            for (task in listOnlyCompleted) {
-                 alarmMethods.cancelReminder(context, task.idTask)
-                 alarmMethods.cancelDeadline(context, task.idTask)
+            withContext(dispatcherIO) {
+                val listOnlyCompleted = taskDao.getTasksOvercompleted().first().toList()
+                for (task in listOnlyCompleted) {
+                    alarmMethods.cancelReminder(context, task.idTask)
+                    alarmMethods.cancelDeadline(context, task.idTask)
+                }
+                taskDao.deleteOnlyOvercompletedTasks()
             }
-            taskDao.deleteOnlyOvercompletedTasks()
         }
 
 
     fun deleteAllTasks(context: Context) = viewModelScope.launch {
-        taskDao.deleteAllTasks()
-        alarmMethods.cancelAllAlarmsType(context, null)
+        withContext(dispatcherIO) {
+            taskDao.deleteAllTasks()
+            alarmMethods.cancelAllAlarmsType(context, null)
+        }
     }
 
 
@@ -403,12 +391,27 @@ class SharedViewModel @Inject constructor(
     fun updateSyncState(sync: SynchronizationState) =
         viewModelScope.launch { preferencesManager.updateSyncState(sync) }
 
-    fun updateLanguageState(locale: String) =
-        viewModelScope.launch { preferencesManager.updateLanguageState(locale) }
+    fun updatePremium(state: Boolean) =
+        viewModelScope.launch {
+            preferencesManager.updatePremium(
+                state
+            )
+        }
+
+    fun updatePremiumType(type: PremiumType) = viewModelScope.launch {
+        preferencesManager.updatePremiumType(type)
+    }
+
+    fun updateRateUs(count: Int?) = viewModelScope.launch { preferencesManager.updateRateUs(count) }
 
     fun signOutDelete() =
         viewModelScope.launch {
-            taskDao.deleteAllTasks()
-            preferencesManager.updateTotalCompleted(0)
+            withContext(dispatcherIO){
+                taskDao.deleteAllTasks()
+                preferencesManager.signOut()
+            }
+
         }
+
+
 }

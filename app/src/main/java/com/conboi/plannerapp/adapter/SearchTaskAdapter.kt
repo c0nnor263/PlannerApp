@@ -1,5 +1,7 @@
 package com.conboi.plannerapp.adapter
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.setPadding
@@ -19,9 +21,11 @@ class SearchTaskAdapter :
 
     inner class ViewHolder(private var binding: ListGlobalTaskBinding) :
         RecyclerView.ViewHolder(binding.root) {
+        val oldColors: ColorStateList = binding.globalTitleTask.textColors
+
         init {
             binding.apply {
-                itemView.setOnClickListener {
+                parentListGlobalTask.setOnClickListener {
                     val position = bindingAdapterPosition
                     if (position != RecyclerView.NO_POSITION) {
                         val task = getItem(position)
@@ -39,11 +43,19 @@ class SearchTaskAdapter :
         }
 
         fun bind(task: TaskType) = with(binding) {
-            subparentListGlobalTask.setPadding(15)
             binding.task = task
-            globalCheckTask.isChecked = task.checked
-            globalCheckTask.isClickable = false
             executePendingBindings()
+
+            subparentListGlobalTask.setPadding(15)
+            globalCheckTask.isChecked = task.checked
+
+            if(task.missed){
+                globalTitleTask.setTextColor(Color.WHITE)
+                totalCheck.setTextColor(Color.WHITE)
+            }else{
+                globalTitleTask.setTextColor(oldColors)
+                totalCheck.setTextColor(oldColors)
+            }
         }
     }
 

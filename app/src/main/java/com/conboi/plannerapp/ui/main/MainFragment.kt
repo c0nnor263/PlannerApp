@@ -1,10 +1,13 @@
 package com.conboi.plannerapp.ui.main
 
+import android.app.AlarmManager
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.*
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import android.os.SystemClock
 import android.os.VibrationEffect
@@ -13,6 +16,7 @@ import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
 import androidx.core.view.doOnPreDraw
+import androidx.core.view.updatePadding
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -23,6 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.conboi.plannerapp.R
 import com.conboi.plannerapp.adapter.TaskAdapter
+import com.conboi.plannerapp.data.PremiumType
 import com.conboi.plannerapp.data.SynchronizationState
 import com.conboi.plannerapp.databinding.FragmentMainBinding
 import com.conboi.plannerapp.model.TaskType
@@ -39,18 +44,23 @@ import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.transition.MaterialElevationScale
 import com.google.android.material.transition.MaterialFadeThrough
 import com.google.android.material.transition.MaterialSharedAxis
+import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.ktx.Firebase
+import com.qonversion.android.sdk.Qonversion
+import com.qonversion.android.sdk.QonversionError
+import com.qonversion.android.sdk.QonversionPermissionsCallback
+import com.qonversion.android.sdk.dto.QPermission
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import java.text.DateFormat
 import javax.inject.Inject
 
 
@@ -70,6 +80,10 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
         const val KEY_USER_FRIEND_ADDING_TIME = "user_friend_adding_time"
         const val KEY_USER_COUNT_COMPLETED_TASKS = "user_count_completed"
         const val KEY_USER_PRIVATE_MODE = "user_private_mode"
+        const val KEY_USER_INDIVIDUAL_PRIVATE = "user_individual_private"
+        const val KEY_USER_FRIEND_PRIVATE = "user_friend_private"
+        const val KEY_USER_PREMIUM_TYPE = "user_premium_type"
+        const val KEY_USER_LAST_SYNC = "user_last_sync"
     }
 
     private var _binding: FragmentMainBinding? = null
@@ -78,11 +92,12 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
     private val sharedViewModel: SharedViewModel by activityViewModels()
 
     private val mAdapter: TaskAdapter = TaskAdapter(this)
-    private lateinit var adView: AdView
+    private var adView: AdView? = null
 
     //Firebase
     private var userInfoReference: DocumentReference? = null
     private var userTaskListReference: DocumentReference? = null
+    private var userBackupTaskListReference: DocumentReference? = null
 
     var connection: Boolean? = null
 
@@ -95,7 +110,6 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
         savedInstanceState: Bundle?
     ): View {
         _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_main, container, false)
-        initUser()
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle(resources.getString(R.string.you_sure_quit))
@@ -110,7 +124,8 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        adView = binding.adView
+        (requireActivity() as MainActivity).checkPermissions()
+        initUser()
         //Animation
         postponeEnterTransition()
         enterTransition = MaterialFadeThrough().apply {
@@ -267,8 +282,8 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
                             )
                         }
                         //Draw icon
-                        if (dX > 50) {
-                            val iconMarginLeft = (dX * 0.1F).coerceAtMost(70f).coerceAtLeast(0f)
+                        if (dX > 10) {
+                            val iconMarginLeft = (dX * 0.1F).coerceAtMost(80f).coerceAtLeast(10f)
                             c.drawBitmap(
                                 icon!!,
                                 iconMarginLeft,
@@ -309,6 +324,7 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
                 if (mAdapter.currentList.isNotEmpty()) {
                     updateFirebaseTotalCompletedTasks()
                 }
+                mAdapter.updatePremiumState(premiumState.value ?: false)
                 mAdapter.submitList(it)
                 (view.parent as? ViewGroup)?.doOnPreDraw {
                     startPostponedEnterTransition()
@@ -322,10 +338,78 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
                     updateFirebaseCloudBackup(it)
                 }
             }
+
+            //LiveData premium state
+            premiumState.observe(this@MainFragment.viewLifecycleOwner) {
+                if (it) {
+                    binding.adView.visibility = View.GONE
+                    val scale = resources.displayMetrics.density
+                    binding.rvTasks.updatePadding(top = (8 * scale + 0.5f).toInt())
+                } else {
+                    binding.adView.visibility = View.VISIBLE
+                    val scale = resources.displayMetrics.density
+                    binding.rvTasks.updatePadding(top = (55 * scale + 0.5f).toInt())
+                    adView = binding.adView
+                    adView?.loadAd(AdRequest.Builder().build())
+                }
+            }
+
+            middleListTime.observe(this@MainFragment.viewLifecycleOwner) {
+                mAdapter.updateMiddleTime(it)
+            }
+
+            var once = false
+            rateUsCount.observe(this@MainFragment.viewLifecycleOwner) {
+                if (it == 15) {
+                    if (!once) {
+                        promptRate()
+                        once = true
+                    }
+                }
+            }
         }
         setHasOptionsMenu(true)
+
     }
 
+    private fun promptRate() {
+        sharedViewModel.updateRateUs(16)
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(resources.getString(R.string.rate_us))
+            .setMessage(resources.getString(R.string.rate_us_message))
+            .setPositiveButton(resources.getString(R.string.rate)) { dialog, _ ->
+                val manager = ReviewManagerFactory.create(requireContext())
+                val request = manager.requestReviewFlow()
+                request.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val reviewInfo = task.result
+                        val flow = manager.launchReviewFlow(activity as MainActivity, reviewInfo)
+                        flow.addOnCompleteListener {
+                            sharedViewModel.updateRateUs(16)
+                            dialog.dismiss()
+                        }
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            task.exception.toString(),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        val uri = Uri.parse("market://details?id=" + requireContext().packageName)
+                        startActivity(Intent(Intent.ACTION_VIEW, uri))
+                        dialog.dismiss()
+                    }
+                }
+            }
+            .setNeutralButton(resources.getString(R.string.not_now)) { dialog, _ ->
+                sharedViewModel.updateRateUs(0)
+                dialog.dismiss()
+            }
+            .setNegativeButton(resources.getString(R.string.never)) { dialog, _ ->
+                sharedViewModel.updateRateUs(16)
+                dialog.cancel()
+            }
+            .show()
+    }
 
     //Firebase
     private fun initUser() {
@@ -343,17 +427,19 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
                 override fun onCancelled(error: DatabaseError) {
                 }
             })
-            val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
+            val sharedPref =
+                requireContext().getSharedPreferences(APP_FILE, Context.MODE_PRIVATE) ?: return
             if (mainActivity.auth.currentUser != null) {
-                mainActivity.auth.currentUser!!.reload()
-                adView = binding.adView
-                adView.loadAd(AdRequest.Builder().build())
+                if (sharedViewModel.totalCompleted.value == 0) {
+                    getTotalPremiumType()
+                }
+                mainActivity.auth.currentUser?.reload()
                 if (!sharedPref.getBoolean(
                         EMAIL_CONFIRM,
                         false
                     )
                 ) {
-                    if (!mainActivity.auth.currentUser!!.isEmailVerified) {
+                    if (mainActivity.auth.currentUser?.isEmailVerified == false) {
                         sharedViewModel.updateSyncState(
                             SynchronizationState.DISABLED_SYNC
                         )
@@ -379,21 +465,13 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
 
                 }
                 userInfoReference =
-                    mainActivity.db.document("Users/${mainActivity.auth.currentUser!!.uid}")
+                    mainActivity.db.document("Users/${mainActivity.auth.currentUser?.uid}")
                 userTaskListReference =
-                    mainActivity.db.document("Users/${mainActivity.auth.currentUser!!.uid}/TaskList/Tasks")
+                    mainActivity.db.document("Users/${mainActivity.auth.currentUser?.uid}/TaskList/Tasks")
+                userBackupTaskListReference =
+                    mainActivity.db.document("Users/${mainActivity.auth.currentUser?.uid}/TaskList/BackupTasks")
                 if (!(sharedPref.getBoolean(IMPORT_CONFIRM, false))) {
-                    //Get total completed
-                    userInfoReference?.get()?.addOnCompleteListener { snapshot ->
-                        if (snapshot.isSuccessful) {
-                            if (snapshot.result.exists()) {
-                                sharedViewModel.updateTotalCompleted(
-                                    snapshot.result.getLong(KEY_USER_COUNT_COMPLETED_TASKS)
-                                        ?.toInt() ?: 0
-                                )
-                            }
-                        }
-                    }
+                    getTotalPremiumType()
                     (activity as MainActivity).binding.bottomFloatingButton.isEnabled = false
                     (activity as MainActivity).binding.bottomAppBar.isEnabled = false
                     importFirebaseTasks(sharedPref)
@@ -402,83 +480,180 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
         }
     }
 
-    private fun importFirebaseTasks(sharedPref: SharedPreferences) {
-        //Get tasks
-        userTaskListReference?.get()
-            ?.addOnCompleteListener { taskCollection ->
-                if (taskCollection.isSuccessful) {
-                    if (taskCollection.result.exists()) {
-                        MaterialAlertDialogBuilder(requireContext())
-                            .setTitle(resources.getString(R.string.warning))
-                            .setMessage(
-                                resources.getString(R.string.backup_tasks_message)
-                            )
-                            .setPositiveButton(resources.getString(R.string.confirm)) { dialog, _ ->
-                                downloadFirebaseTaskList(sharedPref)
-                                dialog.dismiss()
+    private fun getTotalPremiumType() {
+        //Get total completed and premium
+        userInfoReference?.get()?.addOnCompleteListener { snapshot ->
+            if (snapshot.isSuccessful) {
+                sharedViewModel.updateTotalCompleted(
+                    snapshot.result.getLong(KEY_USER_COUNT_COMPLETED_TASKS)
+                        ?.toInt() ?: 0
+                )
+                if (sharedViewModel.premiumState.value == false) {
+                    sharedViewModel.updatePremiumType(
+                        when (snapshot.result.getString(KEY_USER_PREMIUM_TYPE)) {
+                            PremiumType.MONTH.name -> {
+                                PremiumType.MONTH
                             }
-                            .setNegativeButton(resources.getString(R.string.deny)) { dialog, _ ->
-                                (activity as MainActivity).binding.bottomFloatingButton.isEnabled =
-                                    true
-                                (activity as MainActivity).binding.bottomAppBar.isEnabled = true
-                                with(sharedPref.edit()) {
-                                    putBoolean(IMPORT_CONFIRM, true)
-                                    apply()
-                                }
-                                dialog.dismiss()
+                            PremiumType.SIX_MONTH.name -> {
+                                PremiumType.SIX_MONTH
                             }
-                            .setCancelable(false)
-                            .show()
-                    } else {
-                        (activity as MainActivity).binding.bottomFloatingButton.isEnabled = true
-                        (activity as MainActivity).binding.bottomAppBar.isEnabled = true
-                        with(sharedPref.edit()) {
-                            putBoolean(IMPORT_CONFIRM, true)
-                            apply()
+                            PremiumType.YEAR.name -> {
+                                PremiumType.YEAR
+                            }
+                            else -> {
+                                return@addOnCompleteListener
+                            }
                         }
-                    }
-                } else {
-                    Toast.makeText(
-                        context,
-                        taskCollection.exception!!.message.toString(),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    MaterialAlertDialogBuilder(requireContext())
-                        .setTitle(resources.getString(R.string.error_checking_tasks))
-                        .setMessage(
-                            resources.getString(R.string.check_your_internet)
-                        )
-                        .setPositiveButton(resources.getString(R.string.try_word)) { dialog, _ ->
-                            importFirebaseTasks(sharedPref)
-                            dialog.dismiss()
-                        }
-                        .setNegativeButton(resources.getString(R.string.cancel)) { dialog, _ ->
-                            dialog.cancel()
-                        }
-                        .setCancelable(false)
-                        .show()
+                    )
                 }
             }
+        }
     }
 
-    private fun downloadFirebaseTaskList(sharedPref: SharedPreferences) {
-        runBlocking {
-            //Set loading AlertDialog
-            val loadingView: View = LayoutInflater.from(context)
-                .inflate(
-                    R.layout.alertdialog_loading_tasks,
-                    view as ViewGroup?,
-                    false
-                )
-            val loadingTasksAlertDialog = MaterialAlertDialogBuilder(requireContext())
-                .setCancelable(false)
-                .setTitle(resources.getString(R.string.loading))
-                .setView(loadingView)
+    private fun importFirebaseTasks(sharedPref: SharedPreferences) {
+        Qonversion.checkPermissions(object : QonversionPermissionsCallback {
+            override fun onSuccess(permissions: Map<String, QPermission>) {
+                val premiumPermission = permissions[MainActivity.PREMIUM_PERMISSION]
+                promptSync(premiumPermission != null && premiumPermission.isActive(), sharedPref)
+            }
 
-            val loadingDialog = loadingTasksAlertDialog.create()
-            loadingDialog.show()
+            override fun onError(error: QonversionError) {
+                Toast.makeText(requireContext(), error.additionalMessage, Toast.LENGTH_SHORT).show()
+                (activity as MainActivity).binding.bottomFloatingButton.isEnabled = true
+                (activity as MainActivity).binding.bottomAppBar.isEnabled = true
+            }
+        })
+
+    }
+
+    fun promptSync(premium: Boolean, sharedPref: SharedPreferences) {
+        lifecycleScope.launch {
+            val isBackupDownloaded = sharedPref.getBoolean(
+                IMPORT_DOWNLOADED, false
+            )
+            userInfoReference?.get()?.addOnCompleteListener {
+                if (it.isSuccessful) {
+                    val lastSyncTime = it.result.getLong(KEY_USER_LAST_SYNC) ?: GLOBAL_START_DATE
+                    val lastSyncString =
+                        DateFormat.getDateTimeInstance(
+                            DateFormat.DEFAULT,
+                            DateFormat.DEFAULT,
+                            resources.configuration.locales[0]
+                        ).format(lastSyncTime)
+                    //Get tasks
+                    userBackupTaskListReference?.get()
+                        ?.addOnCompleteListener { taskCollection ->
+                            if (taskCollection.isSuccessful) {
+                                if (taskCollection.result.exists() && !isBackupDownloaded) {
+                                    val alertDialog = MaterialAlertDialogBuilder(requireContext())
+                                        .setTitle(resources.getString(R.string.warning))
+                                        .setCancelable(false)
+
+                                    if (premium) {
+                                        alertDialog.setMessage(
+                                            resources.getString(
+                                                R.string.backup_tasks_message,
+                                                lastSyncString
+                                            )
+                                        )
+                                        alertDialog.setPositiveButton(resources.getString(R.string.confirm)) { dialog, _ ->
+                                            downloadFirebaseList(sharedPref)
+                                            dialog.dismiss()
+                                        }
+                                        alertDialog.setNegativeButton(resources.getString(R.string.deny)) { dialog, _ ->
+                                            (activity as MainActivity).binding.bottomFloatingButton.isEnabled =
+                                                true
+                                            (activity as MainActivity).binding.bottomAppBar.isEnabled =
+                                                true
+                                            with(sharedPref.edit()) {
+                                                putBoolean(IMPORT_CONFIRM, true)
+                                                apply()
+                                            }
+                                            dialog.dismiss()
+                                        }
+                                    } else {
+                                        alertDialog.setMessage(
+                                            resources.getString(
+                                                R.string.backup_tasks_message_no_prem,
+                                                lastSyncString
+                                            )
+                                        )
+                                        alertDialog.setPositiveButton(resources.getString(R.string.subscribe)) { dialog, _ ->
+                                            (activity as MainActivity).binding.bottomFloatingButton.isEnabled =
+                                                true
+                                            (activity as MainActivity).binding.bottomAppBar.isEnabled =
+                                                true
+                                            findNavController().navigate(R.id.subscribeFragment)
+                                            dialog.dismiss()
+                                        }
+                                        alertDialog.setNeutralButton(resources.getString(R.string.later)) { dialog, _ ->
+                                            (activity as MainActivity).binding.bottomFloatingButton.isEnabled =
+                                                true
+                                            (activity as MainActivity).binding.bottomAppBar.isEnabled =
+                                                true
+                                            dialog.dismiss()
+                                        }
+                                        alertDialog.setNegativeButton(resources.getString(R.string.dont_show)) { dialog, _ ->
+                                            (activity as MainActivity).binding.bottomFloatingButton.isEnabled =
+                                                true
+                                            (activity as MainActivity).binding.bottomAppBar.isEnabled =
+                                                true
+                                            with(sharedPref.edit()) {
+                                                putBoolean(IMPORT_CONFIRM, true)
+                                                apply()
+                                            }
+                                            dialog.dismiss()
+                                        }
+                                    }
+                                    alertDialog.show()
+                                } else {
+                                    (activity as MainActivity).binding.bottomFloatingButton.isEnabled =
+                                        true
+                                    (activity as MainActivity).binding.bottomAppBar.isEnabled = true
+                                    with(sharedPref.edit()) {
+                                        putBoolean(IMPORT_CONFIRM, true)
+                                        apply()
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    taskCollection.exception?.message.toString(),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                MaterialAlertDialogBuilder(requireContext())
+                                    .setTitle(resources.getString(R.string.error_checking_tasks))
+                                    .setMessage(
+                                        resources.getString(R.string.check_your_internet)
+                                    )
+                                    .setPositiveButton(resources.getString(R.string.try_word)) { dialog, _ ->
+                                        importFirebaseTasks(sharedPref)
+                                        dialog.dismiss()
+                                    }
+                                    .setNegativeButton(resources.getString(R.string.cancel)) { dialog, _ ->
+                                        dialog.cancel()
+                                    }
+                                    .setCancelable(false)
+                                    .show()
+                            }
+                        }
+                }else{
+                    (activity as MainActivity).binding.bottomFloatingButton.isEnabled = true
+                    (activity as MainActivity).binding.bottomAppBar.isEnabled = true
+                }
+            }
+        }
+    }
+
+    private fun downloadFirebaseList(sharedPref: SharedPreferences) {
+        runBlocking {
+            val loadingDialog = LoadingAlertFragment()
+            loadingDialog.show(
+                childFragmentManager, LoadingAlertFragment.TAG
+            )
+
             //Download tasks
-            userTaskListReference
+            userBackupTaskListReference
                 ?.get()
                 ?.addOnCompleteListener { taskCollection ->
                     if (taskCollection.isSuccessful) {
@@ -487,83 +662,101 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
                         val mapFromTasks: MutableMap<String, Any>? = taskCollection.result.data
                         val downloadGotTasks: MutableList<TaskType> = ArrayList()
 
-                        //Get map value from key task
-                        for ((key) in mapFromTasks!!) {
-                            currentTasksList.add(key)
-                        }
-                        for (task in currentTasksList) {
-                            val idTask =
-                                if (mAdapter.currentList.isNotEmpty()) {
-                                    mAdapter.currentList[mAdapter.currentList.lastIndex].idTask + currentTasksList.indexOf(
+                        if (mapFromTasks != null) {
+                            //Get map value from key task
+                            for ((key) in mapFromTasks) {
+                                currentTasksList.add(key)
+                            }
+                            for (task in currentTasksList) {
+                                val taskType = TaskType(
+                                    idTask = (taskDocument.getLong(
+                                        "$task.${TaskType.COLUMN_ID}"
+                                    )?.toInt()
+                                        ?: mAdapter.currentList.last().idTask) + 100 + currentTasksList.indexOf(
                                         task
-                                    )
-                                } else {
-                                    currentTasksList.indexOf(task) + 1
-                                }
-                            val taskType = TaskType(
-                                idTask = idTask,
-                                title = taskDocument.getString("$task.${TaskType.COLUMN_TITLE}")
-                                    ?: "Error getting title",
-                                description = taskDocument.getString("$task.${TaskType.COLUMN_DESCRIPTION}")
-                                    ?: "Error getting description",
-                                time = taskDocument.getLong("$task.${TaskType.COLUMN_TIME}")
-                                    ?: GLOBAL_START_DATE,
-                                deadline = taskDocument.getLong("$task.${TaskType.COLUMN_DEADLINE}")
-                                    ?: GLOBAL_START_DATE,
-                                repeatMode = taskDocument.getLong("$task.${TaskType.COLUMN_REPEAT_MODE}")
-                                    ?.toInt() ?: 0,
-                                priority = taskDocument.getLong("$task.${TaskType.COLUMN_PRIORITY}")
-                                    ?.toInt() ?: 1,
-                                checked = taskDocument.getBoolean("$task.${TaskType.COLUMN_CHECKED}")
-                                    ?: false,
-                                totalChecked = taskDocument.getLong("$task.${TaskType.COLUMN_TOTAL_CHECKED}")
-                                    ?.toInt() ?: 0,
-                                created = taskDocument.getLong("$task.${TaskType.COLUMN_CREATED}")
-                                    ?: System.currentTimeMillis(),
-                                completed = taskDocument.getLong("$task.${TaskType.COLUMN_COMPLETED}")
-                                    ?: GLOBAL_START_DATE,
-                                missed = taskDocument.getBoolean("$task.${TaskType.COLUMN_MISSED}")
-                                    ?: false
-                            )
-                            if (taskType.time != GLOBAL_START_DATE) {
-                                if (taskType.time - System.currentTimeMillis() <= System.currentTimeMillis() && taskType.repeatMode == 0) {
-                                    taskType.time = GLOBAL_START_DATE
-                                } else {
-                                    alarmMethods.setReminder(
-                                        requireContext(),
-                                        taskType.idTask,
-                                        taskType.repeatMode,
-                                        taskType.time
-                                    )
-                                }
-                            }
-                            if (taskType.deadline != GLOBAL_START_DATE) {
-                                if (taskType.deadline <= System.currentTimeMillis()) {
-                                    taskType.missed = true
-                                } else {
-                                    alarmMethods.setDeadline(
-                                        requireContext(),
-                                        taskType.idTask,
-                                        taskType.deadline
-                                    )
-                                }
+                                    ),
+                                    title = taskDocument.getString("$task.${TaskType.COLUMN_TITLE}")
+                                        ?: "Error getting title",
+                                    description = taskDocument.getString("$task.${TaskType.COLUMN_DESCRIPTION}")
+                                        ?: "Error getting description",
+                                    priority = taskDocument.getLong("$task.${TaskType.COLUMN_PRIORITY}")
+                                        ?.toInt() ?: 1,
 
+                                    time = taskDocument.getLong("$task.${TaskType.COLUMN_TIME}")
+                                        ?: GLOBAL_START_DATE,
+                                    deadline = taskDocument.getLong("$task.${TaskType.COLUMN_DEADLINE}")
+                                        ?: GLOBAL_START_DATE,
+                                    lastOvercheck = taskDocument.getLong("$task.${TaskType.COLUMN_LAST_OVERCHECK}")
+                                        ?: GLOBAL_START_DATE,
+                                    created = (taskDocument.getLong("$task.${TaskType.COLUMN_CREATED}")
+                                        ?: System.currentTimeMillis()) + currentTasksList.indexOf(
+                                        task
+                                    ),
+                                    completed = taskDocument.getLong("$task.${TaskType.COLUMN_COMPLETED}")
+                                        ?: GLOBAL_START_DATE,
+
+                                    repeatMode = taskDocument.getLong("$task.${TaskType.COLUMN_REPEAT_MODE}")
+                                        ?.toInt() ?: 0,
+                                    missed = taskDocument.getBoolean("$task.${TaskType.COLUMN_MISSED}")
+                                        ?: false,
+                                    checked = taskDocument.getBoolean("$task.${TaskType.COLUMN_CHECKED}")
+                                        ?: false,
+                                    totalChecked = taskDocument.getLong("$task.${TaskType.COLUMN_TOTAL_CHECKED}")
+                                        ?.toInt() ?: 0
+                                )
+                                if (taskType.time != GLOBAL_START_DATE) {
+                                    if (taskType.time <= System.currentTimeMillis() && taskType.repeatMode == 0) {
+                                        taskType.time = GLOBAL_START_DATE
+                                    } else {
+                                        alarmMethods.setReminder(
+                                            requireContext(),
+                                            taskType.idTask,
+                                            taskType.repeatMode,
+                                            taskType.time
+                                        )
+                                    }
+                                }
+                                if (taskType.deadline != GLOBAL_START_DATE) {
+                                    if (taskType.deadline <= System.currentTimeMillis()) {
+                                        taskType.missed = true
+                                    } else {
+                                        alarmMethods.setDeadline(
+                                            requireContext(),
+                                            taskType.idTask,
+                                            taskType.deadline
+                                        )
+                                    }
+
+                                }
+                                downloadGotTasks.add(taskType)
                             }
-                            downloadGotTasks.add(taskType)
                         }
+                        val appList = mAdapter.currentList
+                        downloadGotTasks.addAll(if (appList.isNotEmpty()) appList else arrayListOf())
+                        downloadGotTasks.sortBy { it.created }
+
+                        sharedViewModel.isMiddleList(
+                            if (downloadGotTasks.size >= 50) downloadGotTasks[49].created else GLOBAL_START_DATE,
+                            true
+                        )
                         sharedViewModel.insertAllTasks(downloadGotTasks)
+                        sharedViewModel.updateSyncState(SynchronizationState.COMPLETE_SYNC)
+
                         (activity as MainActivity).binding.bottomFloatingButton.isEnabled = true
                         (activity as MainActivity).binding.bottomAppBar.isEnabled = true
                         with(sharedPref.edit()) {
                             putBoolean(IMPORT_CONFIRM, true)
+                            putBoolean(IMPORT_DOWNLOADED, true)
                             apply()
                         }
-                        loadingDialog.cancel()
+                        cancel(null)
+                        loadingDialog.dismiss()
                     } else {
-                        loadingDialog.cancel()
+                        cancel(null)
+                        loadingDialog.dismiss()
                         Toast.makeText(
                             context,
-                            taskCollection.exception!!.message.toString(),
+                            taskCollection.exception?.message.toString(),
                             Toast.LENGTH_SHORT
                         ).show()
                         MaterialAlertDialogBuilder(requireContext())
@@ -572,7 +765,7 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
                                 resources.getString(R.string.check_your_internet)
                             )
                             .setPositiveButton(resources.getString(R.string.try_word)) { dialog, _ ->
-                                downloadFirebaseTaskList(sharedPref)
+                                downloadFirebaseList(sharedPref)
                                 dialog.dismiss()
                             }
                             .setNegativeButton(resources.getString(R.string.cancel)) { dialog, _ ->
@@ -585,33 +778,70 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
         }
     }
 
+
     fun updateFirebaseCloudBackup(currentList: List<TaskType>) {
-        if (Firebase.auth.currentUser!!.isEmailVerified) {
-            userTaskListReference?.get()
-                ?.addOnCompleteListener { userTaskList ->
+        if (Firebase.auth.currentUser?.isEmailVerified == true) {
+            sharedViewModel.updateSyncState(
+                SynchronizationState.PENDING_SYNC
+            )
+            userTaskListReference?.set(
+                currentList.associateBy(
+                    { (it.idTask + it.created).toString() },
+                    { it })
+            )?.addOnCompleteListener {
+                if (it.isSuccessful) {
                     sharedViewModel.updateSyncState(
-                        SynchronizationState.PENDING_SYNC
+                        SynchronizationState.COMPLETE_SYNC
                     )
-                    if (userTaskList.isSuccessful) {
-                        userTaskListReference!!.set(
-                            currentList.associateBy({ it.idTask.toString() }, { it })
-                        )
-                            .addOnSuccessListener {
+                } else {
+                    sharedViewModel.updateSyncState(
+                        SynchronizationState.ERROR_SYNC
+                    )
+                }
+            }
+            userInfoReference?.get()?.addOnCompleteListener { userInfo ->
+                if (userInfo.isSuccessful) {
+                    val lastSync = userInfo.result.getLong(KEY_USER_LAST_SYNC) ?: GLOBAL_START_DATE
+
+                    if (System.currentTimeMillis() - lastSync >= AlarmManager.INTERVAL_DAY * 3) {
+                        userInfoReference?.update(KEY_USER_LAST_SYNC, System.currentTimeMillis())
+                        userBackupTaskListReference?.set(
+                            currentList.associateBy(
+                                { (it.idTask + it.created).toString() },
+                                { it })
+                        )?.addOnCompleteListener {
+                            if (it.isSuccessful) {
                                 sharedViewModel.updateSyncState(
                                     SynchronizationState.COMPLETE_SYNC
                                 )
-                            }
-                            .addOnFailureListener {
+                            } else {
                                 sharedViewModel.updateSyncState(
                                     SynchronizationState.ERROR_SYNC
                                 )
                             }
-                    } else {
-                        sharedViewModel.updateSyncState(
-                            SynchronizationState.ERROR_SYNC
-                        )
+                        }
+                    } else if (System.currentTimeMillis() - lastSync >= AlarmManager.INTERVAL_DAY) {
+                        userInfoReference?.update(KEY_USER_LAST_SYNC, System.currentTimeMillis())
+                        userBackupTaskListReference?.set(
+                            currentList.associateBy(
+                                { (it.idTask + it.created).toString() },
+                                { it }), SetOptions.merge()
+                        )?.addOnCompleteListener {
+                            if (it.isSuccessful) {
+                                sharedViewModel.updateSyncState(
+                                    SynchronizationState.COMPLETE_SYNC
+                                )
+                            } else {
+                                sharedViewModel.updateSyncState(
+                                    SynchronizationState.ERROR_SYNC
+                                )
+                            }
+                        }
                     }
                 }
+            }
+
+
         } else {
             sharedViewModel.updateSyncState(
                 SynchronizationState.DISABLED_SYNC
@@ -623,7 +853,9 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
         if (mAdapter.currentList.isNotEmpty()) {
             val userInfo: MutableMap<String, Any> = HashMap()
             lifecycleScope.launch {
-                userInfo[KEY_USER_COUNT_COMPLETED_TASKS] = sharedViewModel.getTotalCompleted()
+                val totalCompleted = sharedViewModel.getTotalCompleted()
+                userInfo[KEY_USER_COUNT_COMPLETED_TASKS] =
+                    if (totalCompleted != 0) totalCompleted else return@launch
                 userInfoReference?.update(userInfo)
             }
         }
@@ -639,33 +871,45 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
 
 
     //Adapter listener
-    override fun onCheckBoxEvent(task: TaskType, isChecked: Boolean, isHold: Boolean) {
+    override fun onCheckBoxEvent(
+        task: TaskType,
+        isChecked: Boolean,
+        isHold: Boolean,
+        lastOverchecked: Long
+    ) {
         if (task.title.isNotBlank()) {
             if (!isHold) {
                 lifecycleScope.launch {
                     sharedViewModel.onTaskCheckedChanged(
                         task,
                         isChecked,
-                        increase = false,
-                        requireContext()
+                        increase = false
                     )
                 }
             } else {
-                (activity as MainActivity).apply {
-                    vb?.vibrate(
-                        VibrationEffect.createOneShot(30, VibrationEffect.DEFAULT_AMPLITUDE)
-                    )
-                    vb?.vibrate(
-                        VibrationEffect.createOneShot(30, VibrationEffect.DEFAULT_AMPLITUDE)
-                    )
-                }
-                lifecycleScope.launch {
-                    sharedViewModel.onTaskCheckedChanged(
-                        task,
-                        isChecked,
-                        increase = true,
-                        requireContext()
-                    )
+                if (System.currentTimeMillis() - lastOverchecked >= AlarmManager.INTERVAL_DAY) {
+                    (activity as MainActivity).apply {
+                        vb?.vibrate(
+                            VibrationEffect.createOneShot(30, VibrationEffect.DEFAULT_AMPLITUDE)
+                        )
+                        vb?.vibrate(
+                            VibrationEffect.createOneShot(30, VibrationEffect.DEFAULT_AMPLITUDE)
+                        )
+                    }
+                    lifecycleScope.launch {
+                        sharedViewModel.onTaskCheckedChanged(
+                            task,
+                            isChecked,
+                            increase = true
+                        )
+                    }
+                } else {
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setMessage(resources.getString(R.string.cant_overcheck_task))
+                        .setNeutralButton(resources.getString(R.string.ok)) { dialog, _ ->
+                            dialog.dismiss()
+                        }
+                        .show()
                 }
             }
         } else {
@@ -699,10 +943,31 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
         findNavController().navigate(directions, extras)
     }
 
+    override fun promptPremium() {
+        Toast.makeText(
+            requireContext(),
+            resources.getString(R.string.have_no_premium),
+            Toast.LENGTH_SHORT
+        ).show()
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(resources.getString(R.string.subscribe))
+            .setMessage(resources.getString(R.string.you_subscribe_tasks))
+            .setPositiveButton(resources.getString(R.string.subscribe)) { dialog, _ ->
+                findNavController().navigate(R.id.subscribeFragment)
+                dialog.dismiss()
+            }
+            .setNegativeButton(resources.getString(R.string.not_now)) { dialog, _ ->
+
+                dialog.cancel()
+            }
+            .show()
+
+    }
+
 
     //WaterFragment
     private fun addingTask() {
-        if (SystemClock.elapsedRealtime() - mLastClickTime < 250) {
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 300) {
             return
         }
         mLastClickTime = SystemClock.elapsedRealtime()
@@ -713,6 +978,7 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
         } else {
             showingDialogMaximumTasks()
         }
+
     }
 
     private fun addingMultipleTasks() {
@@ -731,12 +997,15 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
             .setView(viewInflated)
             .setTitle(resources.getString(R.string.enter_amount_title))
             .setPositiveButton(R.string.add_task) { _, _ ->
+                val maxTasks = sharedViewModel.maxTasksCount +
+                        if (sharedViewModel.premiumState.value == true) 50 else 0
                 if (enterAmount.text?.isNotEmpty() == true) {
                     var enteredCount = enterAmount.text.toString().toInt()
                     if (sharedViewModel.isListNotFull()) {
                         if (enteredCount in 1..sharedViewModel.maxAddTask) {
-                            if (enteredCount.plus(countOfTasks) > sharedViewModel.maxTasksCount) {
-                                enteredCount = sharedViewModel.maxTasksCount - countOfTasks
+                            if (enteredCount.plus(countOfTasks) > maxTasks
+                            ) {
+                                enteredCount = maxTasks - countOfTasks
                             }
                             sharedViewModel.insertAllTasks(
                                 TaskType(),
@@ -853,7 +1122,7 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
 
 
     override fun onPause() {
-        adView.pause()
+        adView?.pause()
         super.onPause()
 
     }
@@ -861,16 +1130,12 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
     override fun onResume() {
         super.onResume()
         if (adView != null) {
-            adView.resume()
+            adView?.resume()
         }
     }
 
     override fun onDestroy() {
-        try {
-            adView.destroy()
-        } catch (e: Exception) {
-
-        }
+        adView?.destroy()
         super.onDestroy()
     }
 
@@ -878,6 +1143,7 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskAdapter.OnTask
         super.onDestroyView()
         hideKeyboard(requireActivity())
         binding.rvTasks.adapter = null
+        adView = null
         _binding = null
     }
 }

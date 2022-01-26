@@ -5,8 +5,10 @@ import android.app.NotificationManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +16,7 @@ import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.core.view.updatePadding
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
@@ -22,17 +25,26 @@ import androidx.navigation.fragment.findNavController
 import com.conboi.plannerapp.R
 import com.conboi.plannerapp.databinding.AlertdialogEditProfileBinding
 import com.conboi.plannerapp.databinding.FragmentProfileBinding
+import com.conboi.plannerapp.ui.IntroActivity
 import com.conboi.plannerapp.ui.MainActivity
+import com.conboi.plannerapp.ui.main.LoadingAlertFragment
+import com.conboi.plannerapp.ui.main.MainFragment
 import com.conboi.plannerapp.ui.main.SharedViewModel
 import com.conboi.plannerapp.utils.*
 import com.conboi.plannerapp.utils.myclass.AlarmMethods
+import com.firebase.ui.auth.AuthUI
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.transition.MaterialFadeThrough
+import com.google.android.material.transition.MaterialSharedAxis
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.google.firebase.ktx.Firebase
+import com.qonversion.android.sdk.Qonversion
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -51,6 +63,7 @@ class ProfileFragment : BaseTabFragment() {
 
     private val sharedViewModel: SharedViewModel by activityViewModels()
 
+    private var adView: AdView? = null
     val auth = Firebase.auth
 
     override fun onCreateView(
@@ -59,6 +72,7 @@ class ProfileFragment : BaseTabFragment() {
     ): View {
         _binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_profile, container, false)
+        (requireActivity() as MainActivity).checkPermissions()
         return binding.root
     }
 
@@ -82,6 +96,7 @@ class ProfileFragment : BaseTabFragment() {
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             findNavController().navigate(R.id.mainFragment)
         }
+
         (activity as MainActivity).binding.bottomFloatingButton.apply {
             setOnClickListener { editProfile(user) }
             setOnLongClickListener(null)
@@ -93,6 +108,28 @@ class ProfileFragment : BaseTabFragment() {
             if (!user.isEmailVerified) {
                 userConfirmEmail.setTextColor(Color.RED)
                 userConfirmEmail.visibility = View.VISIBLE
+            }
+            lifecycleScope.launch {
+                delay(100)
+                btnSignOut.supportBackgroundTintList = ContextCompat.getColorStateList(
+                    requireContext(),
+                    sharedViewModel.colorPrimaryVariant.value!!
+                )
+            }
+            btnSignOut.setOnClickListener {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(resources.getString(R.string.warning))
+                    .setMessage(resources.getString(R.string.you_sign_out))
+                    .setPositiveButton(resources.getString(R.string.submit)) { dialog, _ ->
+                        signOut()
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton(resources.getString(R.string.cancel)) { dialog, _ ->
+                        dialog.cancel()
+                    }
+                    .show()
+
+
             }
             userId.setOnClickListener {
                 val clipboard =
@@ -109,28 +146,6 @@ class ProfileFragment : BaseTabFragment() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
-            lifecycleScope.launch {
-                delay(100)
-                btnSignOut.supportBackgroundTintList = ContextCompat.getColorStateList(
-                    requireContext(),
-                    sharedViewModel.colorPrimaryVariant.value!!
-                )
-            }
-            btnSignOut.setOnClickListener {
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(resources.getString(R.string.warning))
-                    .setMessage(resources.getString(R.string.you_sign_out))
-                    .setPositiveButton(resources.getString(R.string.submit)) { dialog, _ ->
-                        signOut(true)
-                        dialog.dismiss()
-                    }
-                    .setNegativeButton(resources.getString(R.string.cancel)) { dialog, _ ->
-                        dialog.cancel()
-                    }
-                    .show()
-
-
-            }
             userConfirmEmail.setOnClickListener {
                 if (!user.isEmailVerified) {
                     auth.useAppLanguage()
@@ -144,21 +159,65 @@ class ProfileFragment : BaseTabFragment() {
                         } else {
                             Toast.makeText(
                                 requireContext(),
-                                resources.getString(R.string.cannot_sent_email_confirm),
+                                resources.getString(R.string.error_send_email_confirm),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
                     }
                 }
             }
+            upgradeSubscription.setOnClickListener {
+                if (user.isEmailVerified) {
+                    findNavController().currentDestination?.apply {
+                        exitTransition = MaterialSharedAxis(MaterialSharedAxis.X, true).apply {
+                            duration =
+                                resources.getInteger(R.integer.reply_motion_duration_large).toLong()
+                        }
+                        reenterTransition = MaterialSharedAxis(MaterialSharedAxis.X, false).apply {
+                            duration =
+                                resources.getInteger(R.integer.reply_motion_duration_large).toLong()
+                        }
+                    }
+                    findNavController().navigate(ProfileFragmentDirections.actionProfileFragmentToSubscribeFragment())
+                } else {
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(resources.getString(R.string.warning))
+                        .setMessage(resources.getString(R.string.email_not_confirmed))
+                        .setNeutralButton(resources.getString(R.string.ok)) { dialog, _ ->
+                            dialog.dismiss()
+                        }
+                }
+            }
+            tutorial.setOnClickListener {
+                val intent = Intent(requireContext(), IntroActivity::class.java)
+                startActivity(intent)
+            }
+            privacyPolicy.movementMethod = LinkMovementMethod.getInstance()
         }
 
+        sharedViewModel.premiumState.observe(this.viewLifecycleOwner) {
+            if (it) {
+                binding.adView.visibility = View.GONE
+                binding.upgradeSubscription.toSuccess()
+                binding.parentScrollview.updatePadding(top = 0)
+
+                adView?.destroy()
+                adView = null
+            } else {
+                binding.adView.visibility = View.VISIBLE
+                binding.upgradeSubscription.toStandard()
+                val scale = resources.displayMetrics.density
+                binding.parentScrollview.updatePadding(top = (55 * scale + 0.5f).toInt())
+
+                adView = binding.adView
+                adView?.loadAd(AdRequest.Builder().build())
+            }
+        }
     }
 
     private fun editProfile(user: FirebaseUser) {
-        var _editProfileBinding: AlertdialogEditProfileBinding? =
+        val editProfileBinding: AlertdialogEditProfileBinding =
             AlertdialogEditProfileBinding.inflate(layoutInflater)
-        val editProfileBinding = _editProfileBinding!!
         editProfileBinding.apply {
             newName.addTextChangedListener {
                 if (it?.toString()?.isNotBlank() == true) {
@@ -180,7 +239,23 @@ class ProfileFragment : BaseTabFragment() {
                     editProfileBinding.currentPasswordLayout.error = null
                 }
             }
-
+            resetPassword.setOnClickListener {
+                auth.sendPasswordResetEmail(user.email.toString()).addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        Toast.makeText(
+                            requireContext(),
+                            resources.getString(R.string.password_reset_sent),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            resources.getString(R.string.password_reset_error),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
         }
         val profileDialog = MaterialAlertDialogBuilder(requireContext())
             .setView(editProfileBinding.root)
@@ -189,166 +264,228 @@ class ProfileFragment : BaseTabFragment() {
             .setPositiveButton(resources.getString(R.string.save), null)
             .setNegativeButton(resources.getString(R.string.cancel), null)
             .create()
-        run positiveButton@{
-            profileDialog.setOnShowListener { dialog ->
-                val positiveButton = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
-                val negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
 
-                positiveButton.setOnClickListener {
-                    val newName = editProfileBinding.newName.text.toString()
-                    val newEmail = editProfileBinding.newEmail.text.toString().trim()
-                    val newPassword = editProfileBinding.newPassword.text.toString()
-                    val currentPassword = editProfileBinding.currentPassword.text.toString()
+        profileDialog.setOnShowListener { dialog ->
+            val positiveButton = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
+            val negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
 
-                    if (newName.isNotBlank() || newEmail.isNotBlank() || newPassword.isNotBlank()) {
-                        if (newName.isNotBlank()) {
-                            if (newName != user.displayName.toString()) {
-                                user.updateProfile(userProfileChangeRequest {
-                                    displayName = newName
-                                }).addOnCompleteListener {
-                                    if (it.isSuccessful) {
-                                        Toast.makeText(
-                                            requireContext(),
-                                            resources.getString(R.string.name_updated),
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                        user.reload()
-                                        binding.bindUser = user
-                                        _editProfileBinding = null
-                                        dialog.dismiss()
-                                        return@addOnCompleteListener
-                                    } else {
-                                        Toast.makeText(
-                                            requireContext(),
-                                            resources.getString(R.string.error_name_update),
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
-                            } else {
-                                editProfileBinding.newNameLayout.error =
-                                    resources.getString(R.string.same_new_old_name)
-                            }
-                        }
-                        if (currentPassword.isNotBlank()) {
-                            user.reauthenticate(
-                                EmailAuthProvider.getCredential(
-                                    user.email.toString(),
-                                    currentPassword
-                                )
-                            ).addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    if (newEmail.isNotBlank()) {
-                                        if (newEmail != user.email.toString()) {
-                                            user.verifyBeforeUpdateEmail(newEmail)
-                                                .addOnCompleteListener {
-                                                    if (it.isSuccessful) {
-                                                        Toast.makeText(
-                                                            requireContext(),
-                                                            resources.getString(R.string.check_new_email),
-                                                            Toast.LENGTH_SHORT
-                                                        ).show()
-                                                        _editProfileBinding = null
-                                                        signOut(false)
-                                                        dialog.dismiss()
-                                                    } else {
-                                                        Toast.makeText(
-                                                            requireContext(),
-                                                            resources.getString(R.string.error_check_new_email),
-                                                            Toast.LENGTH_SHORT
-                                                        ).show()
-                                                    }
-                                                }
-                                        } else {
-                                            editProfileBinding.newEmailLayout.error =
-                                                resources.getString(R.string.same_new_old_email)
-                                        }
-                                    }
-                                    if (newPassword.isNotBlank()) {
-                                        if (newPassword != currentPassword) {
-                                            user.updatePassword(newPassword)
-                                                .addOnCompleteListener {
-                                                    if (it.isSuccessful) {
-                                                        Toast.makeText(
-                                                            requireContext(),
-                                                            resources.getString(R.string.successfully_change_password),
-                                                            Toast.LENGTH_SHORT
-                                                        ).show()
-                                                        signOut(false)
-                                                        _editProfileBinding = null
-                                                        dialog.dismiss()
-                                                    } else {
-                                                        Toast.makeText(
-                                                            requireContext(),
-                                                            resources.getString(R.string.error_check_new_password),
-                                                            Toast.LENGTH_SHORT
-                                                        ).show()
-                                                    }
-                                                }
-                                        } else {
-                                            editProfileBinding.newPasswordLayout.error =
-                                                resources.getString(R.string.same_new_old_password)
-                                        }
-                                    }
+            positiveButton.setOnClickListener {
+                val newName = editProfileBinding.newName.text.toString()
+                val newEmail = editProfileBinding.newEmail.text.toString().trim()
+                val newPassword = editProfileBinding.newPassword.text.toString()
+                val currentPassword = editProfileBinding.currentPassword.text.toString()
+
+                if (newName.isNotBlank() || newEmail.isNotBlank() || newPassword.isNotBlank()) {
+                    if (newName.isNotBlank()) {
+                        if (newName != user.displayName.toString()) {
+                            user.updateProfile(userProfileChangeRequest {
+                                displayName = newName
+                            }).addOnCompleteListener {
+                                if (it.isSuccessful) {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        resources.getString(R.string.nickname_updated),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    user.reload()
+                                    binding.bindUser = user
+                                    dialog.dismiss()
+                                    return@addOnCompleteListener
                                 } else {
-                                    editProfileBinding.currentPasswordLayout.error =
-                                        resources.getString(
-                                            R.string.unsuccessful_sign_in_current_password
-                                        )
-                                    editProfileBinding.currentPassword.text = null
+                                    Toast.makeText(
+                                        requireContext(),
+                                        resources.getString(R.string.error_nickname_update),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             }
                         } else {
-                            if (newName.isBlank() || newEmail.isNotBlank() || newPassword.isNotBlank()) {
+                            editProfileBinding.newNameLayout.error =
+                                resources.getString(R.string.same_current_new_name)
+                        }
+                    }
+                    if (currentPassword.isNotBlank()) {
+                        user.reauthenticate(
+                            EmailAuthProvider.getCredential(
+                                user.email.toString(),
+                                currentPassword
+                            )
+                        ).addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                if (newEmail.isNotBlank()) {
+                                    if (newEmail != user.email.toString()) {
+                                        user.verifyBeforeUpdateEmail(newEmail)
+                                            .addOnCompleteListener {
+                                                if (it.isSuccessful) {
+                                                    Toast.makeText(
+                                                        requireContext(),
+                                                        resources.getString(R.string.check_new_email),
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                    signOut()
+                                                    dialog.dismiss()
+                                                } else {
+                                                    Toast.makeText(
+                                                        requireContext(),
+                                                        resources.getString(R.string.error_check_new_email),
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            }
+                                    } else {
+                                        editProfileBinding.newEmailLayout.error =
+                                            resources.getString(R.string.same_current_new_email)
+                                    }
+                                }
+                                if (newPassword.isNotBlank()) {
+                                    if (newPassword != currentPassword) {
+                                        user.updatePassword(newPassword)
+                                            .addOnCompleteListener {
+                                                if (it.isSuccessful) {
+                                                    Toast.makeText(
+                                                        requireContext(),
+                                                        resources.getString(R.string.successfully_change_password),
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                    signOut()
+                                                    dialog.dismiss()
+                                                } else {
+                                                    Toast.makeText(
+                                                        requireContext(),
+                                                        resources.getString(R.string.error_check_new_password),
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            }
+                                    } else {
+                                        editProfileBinding.newPasswordLayout.error =
+                                            resources.getString(R.string.same_current_new_password)
+                                    }
+                                }
+                            } else {
                                 editProfileBinding.currentPasswordLayout.error =
-                                    resources.getString(R.string.alert_enter_current_password)
+                                    resources.getString(
+                                        R.string.password_is_invalid
+                                    )
+                                editProfileBinding.currentPassword.text = null
                             }
-
                         }
                     } else {
-                        Toast.makeText(
-                            requireContext(),
-                            resources.getString(R.string.specify_fields),
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        if (newName.isBlank() || newEmail.isNotBlank() || newPassword.isNotBlank()) {
+                            editProfileBinding.currentPasswordLayout.error =
+                                resources.getString(R.string.alert_enter_current_password)
+                        }
+
                     }
-                    user.reload()
-                    binding.bindUser = user
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.specify_fields),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
-                negativeButton.setOnClickListener {
-                    _editProfileBinding = null
-                    dialog.cancel()
-                }
+                user.reload()
+                binding.bindUser = user
+            }
+            negativeButton.setOnClickListener {
+                dialog.cancel()
             }
         }
         profileDialog.show()
-
     }
 
-    private fun signOut(navigateToLogin: Boolean) {
-        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
-        auth.signOut()
-        sharedViewModel.signOutDelete()
+    private fun signOut() {
+        val loadingDialog = LoadingAlertFragment()
+        loadingDialog.show(
+            childFragmentManager, LoadingAlertFragment.TAG
+        )
+        val activity = requireActivity() as MainActivity
+        val currentList = sharedViewModel.allTasks.value
+        if (currentList == null) {
+            successOut()
+            loadingDialog.dismiss()
+            return
+        }
+
+        activity.db.document("Users/${activity.auth.currentUser?.uid}/TaskList/BackupTasks").set(
+            currentList.associateBy(
+                { (it.idTask + it.created).toString() },
+                { it })
+        ).addOnCompleteListener {backupList ->
+            if (backupList.isSuccessful) {
+                activity.db.document("Users/${activity.auth.currentUser?.uid}")
+                    .update(MainFragment.KEY_USER_LAST_SYNC, System.currentTimeMillis()).addOnCompleteListener {lastSync ->
+                        if(lastSync.isSuccessful){
+                            successOut()
+                            loadingDialog.dismiss()
+                        }
+                    }
+
+            } else {
+                Toast.makeText(activity, backupList.exception.toString(), Toast.LENGTH_SHORT).show()
+                loadingDialog.dismiss()
+            }
+        }
+    }
+
+    private fun successOut() {
+        val sharedPref = activity?.getSharedPreferences(APP_FILE, Context.MODE_PRIVATE) ?: return
         ContextCompat.getSystemService(requireContext(), NotificationManager::class.java)
             ?.cancelAll()
+        AuthUI.getInstance().signOut(requireContext())
+        Qonversion.logout()
+        sharedViewModel.signOutDelete()
         alarmMethods.cancelAllAlarmsType(requireContext(), null)
-        with(sharedPref.edit()) {
-            putBoolean(IMPORT_CONFIRM, false)
-            putBoolean(EMAIL_CONFIRM, false)
-            apply()
-        }
-        if (navigateToLogin) {
-            findNavController().popBackStackAllInstances(
-                findNavController().currentBackStackEntry?.destination?.id!!,
-                true
+        sharedPref.edit().clear().apply()
+    }
+
+
+    @SuppressLint("RestrictedApi")
+    private fun MaterialButton.toSuccess() {
+        binding.upgradeSubscription.text = resources.getString(R.string.max)
+        lifecycleScope.launch {
+            delay(100)
+            binding.upgradeSubscription.supportBackgroundTintList = ContextCompat.getColorStateList(
+                requireContext(),
+                R.color.primaryColorTree
             )
-            findNavController().navigate(R.id.loginFragment)
         }
+    }
+
+    @SuppressLint("RestrictedApi")
+    private fun MaterialButton.toStandard() {
+        binding.upgradeSubscription.text = resources.getString(R.string.upgrade)
+        lifecycleScope.launch {
+            delay(100)
+            binding.upgradeSubscription.supportBackgroundTintList = ContextCompat.getColorStateList(
+                requireContext(),
+                R.color.primaryColorFire
+            )
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (Firebase.auth.currentUser != null) {
+            Firebase.auth.currentUser!!.reload()
+        }
+        adView?.resume()
+    }
+
+    override fun onPause() {
+        adView?.pause()
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        adView?.destroy()
+        super.onDestroy()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         hideKeyboard(requireActivity())
+        adView = null
         _binding = null
     }
 }

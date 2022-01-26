@@ -97,5 +97,4 @@ class BottomNavigationFragment : BottomSheetDialogFragment() {
         _binding = null
     }
 
-
 }

@@ -18,6 +18,7 @@
         <!-- Customize your theme here. -->
         <item name="bottomSheetDialogTheme">@style/mBottomSheetDialogDayNight</item>
         <item name="materialAlertDialogTheme">@style/mMaterialAlertDialog.Rounded</item>
+        <item name="android:fontFamily">@font/plannerapp_font_family_en_ru</item>
 
     </style>
 

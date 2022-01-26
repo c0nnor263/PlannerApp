@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="friend"
             type="com.conboi.plannerapp.model.FriendType" />
@@ -14,7 +13,7 @@
         android:id="@+id/parent_list_friend"
         style="@style/Widget.Material3.CardView.Elevated"
         android:layout_width="match_parent"
-        android:layout_height="175dp"
+        android:layout_height="185dp"
         android:layout_marginHorizontal="8dp"
         android:layout_marginVertical="8dp"
         android:background="?attr/selectableItemBackground"
@@ -24,9 +23,9 @@
         app:cardElevation="@dimen/cardview_default_elevation">
 
         <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Material3.CardView.Elevated"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.Material3.CardView.Elevated"
             android:layout_gravity="center_horizontal"
             android:elevation="@dimen/cardview_default_elevation"
             app:cardCornerRadius="@dimen/material_corner_radius">
@@ -34,15 +33,16 @@
             <ImageView
                 android:id="@+id/friend_avatar"
                 loadProfileImage="@{friend.user_photo_url}"
-                android:layout_width="135dp"
-                android:layout_height="135dp"
+                android:layout_width="145dp"
+                android:layout_height="145dp"
                 android:layout_gravity="center"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/profile_photo"
                 android:padding="8dp"
                 android:scaleType="centerCrop"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@drawable/splash_gradient" />
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/request_status"
@@ -56,6 +56,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:shapeAppearanceOverlay="@style/mCircleImageView"
+                tools:src="@drawable/ic_baseline_pending_24"
                 tools:visibility="visible" />
 
             <com.google.android.material.textview.MaterialTextView
@@ -64,7 +65,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|end"
                 android:layout_margin="8dp"
-                android:text="@{Integer.toString(friend.user_count_completed)}"
+                android:text="@{friend.user_count_completed >= 1000 ? @string/max_total_check(999):Integer.toString(friend.user_count_completed)}"
                 android:textSize="14sp"
                 tools:text="25" />
         </com.google.android.material.card.MaterialCardView>
@@ -74,8 +75,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center_horizontal"
-            android:layout_margin="12dp"
+            android:layout_margin="14dp"
             android:ellipsize="end"
+            android:maxLines="1"
+            android:gravity="bottom"
             android:text="@{friend.user_name}"
             android:textSize="14sp"
             tools:text="@string/add_task" />

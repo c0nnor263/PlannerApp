@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
-        <shape>
+        <shape android:tint="?colorBackgroundFloating"
+            android:tintMode="multiply">
             <gradient
-                android:startColor="@color/primaryColorWater"
+                android:startColor="@color/primaryLightColorTree"
                 android:centerColor="@color/primaryLightColorFire"
-                android:endColor="@color/primaryLightColorTree"
+                android:endColor="@color/secondaryDarkColorWater"
                 android:type="linear"
                 android:angle="45"/>
         </shape>

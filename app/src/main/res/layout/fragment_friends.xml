@@ -7,7 +7,7 @@
         paddingTopSystemWindowInsets="@{true}"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/fire_background">
+        android:background="@drawable/friends_fragment_bg">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/parent_friends"
@@ -44,7 +44,7 @@
 
             <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
                 android:id="@+id/swiperefresh"
-                android:layout_marginTop="50dp"
+                android:paddingTop="50dp"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 

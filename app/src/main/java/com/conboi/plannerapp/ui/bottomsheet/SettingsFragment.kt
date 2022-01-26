@@ -6,10 +6,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
+import androidx.preference.PreferenceManager
 import com.conboi.plannerapp.R
 import com.conboi.plannerapp.databinding.FragmentSettingsBinding
 import com.conboi.plannerapp.ui.MainActivity
@@ -18,6 +20,10 @@ import com.conboi.plannerapp.utils.*
 import com.conboi.plannerapp.utils.myclass.AlarmMethods
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.play.core.splitinstall.SplitInstallManagerFactory
+import com.google.android.play.core.splitinstall.SplitInstallRequest
+import com.google.android.play.core.splitinstall.SplitInstallStateUpdatedListener
+import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.util.*
@@ -26,7 +32,8 @@ import javax.inject.Inject
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class SettingsFragment : BottomSheetDialogFragment() {
-    @Inject lateinit var alarmMethods:AlarmMethods
+    @Inject
+    lateinit var alarmMethods: AlarmMethods
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
 
@@ -38,15 +45,7 @@ class SettingsFragment : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_settings, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         binding.apply {
-            lifecycleOwner = this@SettingsFragment
-            viewModel = sharedViewModel
-            settingsFragment = this@SettingsFragment
             toolbar.setNavigationOnClickListener {
                 dismiss()
             }
@@ -62,10 +61,109 @@ class SettingsFragment : BottomSheetDialogFragment() {
             notifications.setOnClickListener {
                 sharedViewModel.updateNotificationsModeState(!sharedViewModel.notificationsModeState.value!!)
             }
+        }
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.apply {
+            lifecycleOwner = this@SettingsFragment
+            viewModel = sharedViewModel
+            settingsFragment = this@SettingsFragment
 
             val sharedPref =
-                activity?.getSharedPreferences(ALARMS_FILE, Context.MODE_PRIVATE) ?: return
-            if (sharedPref.getBoolean(ALARMS_FILE_INITIALIZED, false)) {
+                activity?.getSharedPreferences(ALARM_FILE, Context.MODE_PRIVATE) ?: return
+            val activityPref =
+                PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
+
+            val alarmFileInitialized = sharedPref.getBoolean(ALARM_FILE_INITIALIZED, false)
+            val setLanguage = activityPref.getString(LANGUAGE, Locale.getDefault().language)
+            var bufferLanguage = Locale.getDefault()
+
+            dropLanguage.apply {
+                setOnItemClickListener { _, _, position, _ ->
+                    when (position) {
+                        0 -> {
+                            if ("en" != setLanguage) {
+                                bufferLanguage = Locale("en", "EN")
+                                saveLanguage.setBackgroundColor(
+                                    ContextCompat.getColor(
+                                        requireContext(),
+                                        R.color.primaryDarkColorTree
+                                    )
+                                )
+                                saveLanguage.isEnabled = true
+                            } else {
+                                saveLanguage.setBackgroundColor(
+                                    ContextCompat.getColor(
+                                        requireContext(),
+                                        R.color.primaryDarkColorAir
+                                    )
+                                )
+                                saveLanguage.isEnabled = false
+                            }
+                        }
+                        1 -> {
+                            if ("ru" != setLanguage) {
+                                bufferLanguage = Locale("ru", "RU")
+                                saveLanguage.setBackgroundColor(
+                                    ContextCompat.getColor(
+                                        requireContext(),
+                                        R.color.primaryDarkColorTree
+                                    )
+                                )
+                                saveLanguage.isEnabled = true
+                            } else {
+                                saveLanguage.setBackgroundColor(
+                                    ContextCompat.getColor(
+                                        requireContext(),
+                                        R.color.primaryDarkColorAir
+                                    )
+                                )
+                                saveLanguage.isEnabled = false
+                            }
+                        }
+                        2 -> {
+                            if ("uk" != setLanguage) {
+                                bufferLanguage = Locale("uk", "UA")
+                                saveLanguage.setBackgroundColor(
+                                    ContextCompat.getColor(
+                                        requireContext(),
+                                        R.color.primaryDarkColorTree
+                                    )
+                                )
+                                saveLanguage.isEnabled = true
+                            } else {
+                                saveLanguage.setBackgroundColor(
+                                    ContextCompat.getColor(
+                                        requireContext(),
+                                        R.color.primaryDarkColorAir
+                                    )
+                                )
+                                saveLanguage.isEnabled = false
+                            }
+                        }
+                    }
+                }
+                val items = resources.getStringArray(R.array.languages)
+                when (setLanguage) {
+                    "en" -> {
+                        setText(items[0])
+                    }
+                    "ru" -> {
+                        setText(items[1])
+                    }
+                    "uk" -> {
+                        setText(items[2])
+                    }
+                }
+                val adapter = ArrayAdapter(context, R.layout.dropmenu_language, items)
+                setAdapter(adapter)
+            }
+
+
+            if (alarmFileInitialized && sharedPref.all.isNotEmpty()) {
                 removeReminders.isEnabled = true
                 removeReminders.alpha = 1.0F
                 removeReminders.setOnClickListener { removeAllReminders() }
@@ -82,76 +180,9 @@ class SettingsFragment : BottomSheetDialogFragment() {
                 deleteTasks.alpha = 0.5F
             }
 
-            var bufferLanguage = Locale.getDefault()
-            dropLanguage.setOnItemClickListener { _, _, position, _ ->
-                when (position) {
-                    0 -> {
-                        if ("en" != sharedViewModel.appLanguage.value!!) {
-                            bufferLanguage = Locale("en", "EN")
-                            saveLanguage.setBackgroundColor(
-                                ContextCompat.getColor(
-                                    requireContext(),
-                                    R.color.primaryDarkColorTree
-                                )
-                            )
-                            saveLanguage.isEnabled = true
-                        } else {
-                            saveLanguage.setBackgroundColor(
-                                ContextCompat.getColor(
-                                    requireContext(),
-                                    R.color.primaryDarkColorAir
-                                )
-                            )
-                            saveLanguage.isEnabled = false
-                        }
-                    }
-                    1 -> {
-                        if ("ru" != sharedViewModel.appLanguage.value!!) {
-                            bufferLanguage = Locale("ru", "RU")
-                            saveLanguage.setBackgroundColor(
-                                ContextCompat.getColor(
-                                    requireContext(),
-                                    R.color.primaryDarkColorTree
-                                )
-                            )
-                            saveLanguage.isEnabled = true
-                        } else {
-                            saveLanguage.setBackgroundColor(
-                                ContextCompat.getColor(
-                                    requireContext(),
-                                    R.color.primaryDarkColorAir
-                                )
-                            )
-                            saveLanguage.isEnabled = false
-                        }
-                    }
-                    2 -> {
-                        if ("zh" != sharedViewModel.appLanguage.value!!) {
-                            bufferLanguage = Locale("zh", "CH")
-                            saveLanguage.setBackgroundColor(
-                                ContextCompat.getColor(
-                                    requireContext(),
-                                    R.color.primaryDarkColorTree
-                                )
-                            )
-                            saveLanguage.isEnabled = true
-                        } else {
-                            saveLanguage.setBackgroundColor(
-                                ContextCompat.getColor(
-                                    requireContext(),
-                                    R.color.primaryDarkColorAir
-                                )
-                            )
-                            saveLanguage.isEnabled = false
-                        }
-                    }
-                }
-            }
+
             saveLanguage.setOnClickListener {
-                sharedViewModel.updateLanguageState(bufferLanguage.language)
-                updateLocale(requireContext(), bufferLanguage)
-                (activity as MainActivity).invalidateOptionsMenu()
-                dismiss()
+
                 saveLanguage.setBackgroundColor(
                     ContextCompat.getColor(
                         requireContext(),
@@ -159,6 +190,32 @@ class SettingsFragment : BottomSheetDialogFragment() {
                     )
                 )
                 saveLanguage.isEnabled = false
+
+                val splitInstallManager = SplitInstallManagerFactory.create(requireContext())
+                val listener = SplitInstallStateUpdatedListener { state ->
+                    when (state.status()) {
+                        SplitInstallSessionStatus.INSTALLED -> {
+                            activityPref.edit().putString(LANGUAGE, bufferLanguage.language)
+                                .apply()
+                            dismiss()
+                            (requireActivity() as MainActivity).recreate()
+                        }
+                        SplitInstallSessionStatus.FAILED -> {
+                            Toast.makeText(
+                                requireContext(),
+                                state.errorCode().toString(),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+                val request = SplitInstallRequest.newBuilder()
+                    .addLanguage(Locale.forLanguageTag(bufferLanguage.language))
+                    .build()
+                splitInstallManager.registerListener(listener)
+                splitInstallManager.startInstall(request).addOnCompleteListener {
+                    splitInstallManager.unregisterListener(listener)
+                }
             }
             sharedViewModel.privateModeState.observe(this@SettingsFragment) { privateModeState ->
                 privateMode.apply {

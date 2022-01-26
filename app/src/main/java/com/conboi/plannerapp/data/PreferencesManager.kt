@@ -4,22 +4,26 @@ import android.content.Context
 import android.util.Log
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import com.conboi.plannerapp.utils.GLOBAL_START_DATE
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
-import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
 enum class SortOrder { BY_TITLE, BY_DATE, BY_COMPLETE, BY_OVERCOMPLETED }
 enum class SynchronizationState { PENDING_SYNC, COMPLETE_SYNC, ERROR_SYNC, DISABLED_SYNC }
+enum class PremiumType { STANDARD, MONTH, SIX_MONTH, YEAR }
 
 val Context.dataStore by preferencesDataStore("user_preferences")
 
 data class FilterPreferences(
-    val languageState: String,
+    val premiumState: Boolean,
+    val premiumType: PremiumType,
+    val middleListTime: Long,
+    val rateUsCount: Int,
     val syncState: SynchronizationState,
     val sortOrder: SortOrder,
     val hideCompleted: Boolean,
@@ -44,8 +48,15 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
             }
         }
         .map { preferences ->
-            val languageState =
-                preferences[PreferencesKeys.LANGUAGE_STATE] ?: Locale.getDefault().language
+            val premiumState = preferences[PreferencesKeys.PREMIUM_STATE] ?: false
+
+            val premiumType = PremiumType.valueOf(
+                preferences[PreferencesKeys.PREMIUM_TYPE] ?: PremiumType.STANDARD.name
+            )
+
+            val middleListTime = preferences[PreferencesKeys.MIDDLE_LIST_TIME] ?: GLOBAL_START_DATE
+
+            val rateUsCount = preferences[PreferencesKeys.RATE_US_COUNT] ?: 0
 
             val syncState = SynchronizationState.valueOf(
                 preferences[PreferencesKeys.SYNC_STATE] ?: SynchronizationState.DISABLED_SYNC.name
@@ -68,7 +79,10 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
             val notificationsModeState = preferences[PreferencesKeys.NOTIFICATIONS_MODE] ?: true
 
             FilterPreferences(
-                languageState,
+                premiumState,
+                premiumType,
+                middleListTime,
+                rateUsCount,
                 syncState,
                 sortOrder,
                 hideCompleted,
@@ -81,10 +95,16 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
             )
         }
 
-    //Language
-    suspend fun updateLanguageState(language: String) {
+    //Last premium state
+    suspend fun updatePremium(state: Boolean) {
         dataStore.edit { preferences ->
-            preferences[PreferencesKeys.LANGUAGE_STATE] = language
+            preferences[PreferencesKeys.PREMIUM_STATE] = state
+        }
+    }
+
+    suspend fun updatePremiumType(type: PremiumType) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PREMIUM_TYPE] = type.name
         }
     }
 
@@ -176,8 +196,35 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
         }
     }
 
+
+    suspend fun updateRateUs(count: Int?) {
+        dataStore.edit { preferences ->
+            if (count != null) {
+                preferences[PreferencesKeys.RATE_US_COUNT] = count
+            } else {
+                preferences[PreferencesKeys.RATE_US_COUNT] =
+                    preferencesFlow.first().rateUsCount.plus(1)
+            }
+        }
+    }
+
+    suspend fun updateMiddleListTime(time: Long) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.MIDDLE_LIST_TIME] = time
+        }
+    }
+
+    suspend fun signOut() {
+        dataStore.edit { preferences ->
+            preferences.clear()
+        }
+    }
+
+
     object PreferencesKeys {
-        val LANGUAGE_STATE = stringPreferencesKey("LANGUAGE_STATE")
+        val PREMIUM_STATE = booleanPreferencesKey("PREMIUM_STATE")
+        val PREMIUM_TYPE = stringPreferencesKey("PREMIUM_TYPE")
+        val MIDDLE_LIST_TIME = longPreferencesKey("MIDDLE_LIST_TIME")
         val SYNC_STATE = stringPreferencesKey("SYNC_STATE")
         val SORT_ORDER = stringPreferencesKey("SORT_ORDER")
         val HIDE_COMPLETED = booleanPreferencesKey("HIDE_COMPLETED")
@@ -187,5 +234,6 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
         val VIBRATION_MODE = booleanPreferencesKey("VIBRATION_MODE")
         val REMINDERS_MODE = booleanPreferencesKey("REMINDERS_MODE")
         val NOTIFICATIONS_MODE = booleanPreferencesKey("NOTIFICATIONS_MODE")
+        val RATE_US_COUNT = intPreferencesKey("RATE_US_COUNT")
     }
 }
