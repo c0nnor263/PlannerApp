@@ -5,15 +5,15 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <import type="android.view.View" />
 
         <variable
             name="task"
-            type="com.conboi.plannerapp.model.TaskType" />
+            type="com.conboi.plannerapp.data.model.TaskType" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/parent_list_task"
         android:layout_width="match_parent"
         android:layout_height="55dp"
         android:layout_marginHorizontal="4dp"
@@ -24,26 +24,26 @@
         app:strokeColor="@android:color/transparent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/subparent_list_task"
-            parentChecked="@{task.checked}"
-            parentMissed="@{task.missed}"
-            parentPriority="@{task.priority}"
-            parentTitle="@{task.title}"
-            parentTotal="@{task.totalChecked}"
+            android:id="@+id/cl_subparent"
+            clChecked="@{task.checked}"
+            clMissed="@{task.missed}"
+            clPriority="@{task.priority}"
+            clTitle="@{task.title}"
+            clTotal="@{task.totalChecked}"
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:animateLayoutChanges="true"
             android:paddingVertical="3dp">
 
             <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/check_task"
+                android:id="@+id/check_box"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical|end"
                 android:button="@null"
                 android:checked="@{task.checked}"
                 android:drawableEnd="?android:attr/listChoiceIndicatorMultiple"
-                android:paddingHorizontal="10dp"
+                android:paddingHorizontal="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -51,35 +51,38 @@
                 tools:checked="true" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/total_check"
+                android:id="@+id/tv_total_check"
                 style="@style/Widget.MaterialComponents.TextView"
-                setTotal="@{task.totalChecked}"
+                mTvSetTotal="@{task.totalChecked}"
                 android:layout_width="32dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="38dp"
+                android:layout_marginStart="-12dp"
                 android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="@+id/title_layout"
-                app:layout_constraintStart_toStartOf="@+id/check_task"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/check_box"
                 tools:text="99+" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/title_layout"
+                android:id="@+id/til_title"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="265dp"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
+                android:layout_marginStart="-8dp"
+                android:layout_marginEnd="36dp"
                 app:boxBackgroundColor="#FFF"
                 app:boxStrokeColor="#FFF"
                 app:boxStrokeWidth="0dp"
                 app:boxStrokeWidthFocused="0dp"
                 app:endIconMode="none"
                 app:hintEnabled="false"
-                app:layout_constraintBottom_toBottomOf="@+id/check_task"
-                app:layout_constraintStart_toEndOf="@+id/check_task"
-                app:layout_constraintTop_toTopOf="@+id/check_task">
+                app:layout_constraintBottom_toBottomOf="@+id/check_box"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/check_box"
+                app:layout_constraintTop_toTopOf="@+id/check_box">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/title"
+                    android:id="@+id/tiet_title"
                     setTextTaskChecked="@{task.checked}"
                     setTextTaskTotal="@{task.totalChecked}"
                     android:layout_width="match_parent"
@@ -95,7 +98,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <ImageButton
-                android:id="@+id/open_task"
+                android:id="@+id/iv_btn_open_task"
                 android:layout_width="48dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
@@ -106,21 +109,21 @@
                 android:minWidth="0dp"
                 android:minHeight="0dp"
                 android:src="@drawable/ic_baseline_edit_24"
-                app:layout_constraintBottom_toBottomOf="@+id/title_layout"
+                app:layout_constraintBottom_toBottomOf="@+id/til_title"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/title_layout" />
+                app:layout_constraintTop_toTopOf="@+id/til_title" />
 
             <ImageView
-                android:id="@+id/saving_title_indicator"
+                android:id="@+id/iv_saving_title_indicator"
                 android:layout_width="24dp"
                 android:layout_height="match_parent"
                 android:layout_margin="12dp"
                 android:contentDescription="@string/saving_title_indicator"
                 android:src="@drawable/saving_anim"
                 android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@+id/title_layout"
+                app:layout_constraintBottom_toBottomOf="@+id/til_title"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/title_layout"
+                app:layout_constraintTop_toTopOf="@+id/til_title"
                 tools:visibility="visible" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

@@ -13,34 +13,30 @@ import android.media.AudioManager
 import android.os.*
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewTreeObserver.*
+import android.view.WindowInsets
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.MenuProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
-import com.android.billingclient.api.*
 import com.conboi.plannerapp.R
-import com.conboi.plannerapp.data.PreferencesManager
-import com.conboi.plannerapp.data.PremiumType
-import com.conboi.plannerapp.data.SynchronizationState
-import com.conboi.plannerapp.data.dataStore
 import com.conboi.plannerapp.databinding.ActivityMainBinding
 import com.conboi.plannerapp.ui.bottomsheet.BottomNavigationFragment
-import com.conboi.plannerapp.ui.main.MainFragment
-import com.conboi.plannerapp.ui.main.SharedViewModel
 import com.conboi.plannerapp.utils.*
-import com.conboi.plannerapp.utils.myclass.FirebaseUserLiveData
+import com.conboi.plannerapp.utils.shared.firebase.FirebaseUserLiveData
 import com.google.android.gms.ads.MobileAds
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -48,798 +44,104 @@ import com.google.android.play.core.splitcompat.SplitCompat
 import com.google.firebase.FirebaseApp
 import com.google.firebase.appcheck.FirebaseAppCheck
 import com.google.firebase.appcheck.safetynet.SafetyNetAppCheckProviderFactory
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.DocumentChange
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
-import com.google.firebase.ktx.Firebase
-import com.qonversion.android.sdk.*
+import com.qonversion.android.sdk.Qonversion
+import com.qonversion.android.sdk.QonversionError
+import com.qonversion.android.sdk.QonversionPermissionsCallback
 import com.qonversion.android.sdk.dto.QPermission
-import com.qonversion.android.sdk.dto.products.QProduct
 import com.qonversion.android.sdk.dto.products.QProductRenewState
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import java.util.*
 
-
-const val MAIN_TAG = 0
-const val FRIENDS_TAG = 1
-const val PROFILE_TAG = 2
-const val SETTINGS_TAG = 3
-const val OTHER_COLOR = 3
-
-@ExperimentalCoroutinesApi
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(),
-    NavController.OnDestinationChangedListener {
-    companion object AppSku {
-        const val MONTH_PRODUCT = "max_month_subscription"
-        const val SIX_MONTH_PRODUCT = "max_6month_subscription"
-        const val YEAR_PRODUCT = "max_year_subscription"
-
-        const val PREMIUM_PERMISSION = "premium_plannerApp"
-    }
-
-    private lateinit var navController: NavController
-    private val sharedViewModel: SharedViewModel by viewModels()
+class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedListener {
     lateinit var binding: ActivityMainBinding
 
-    private var mLastClickTime: Long = 0
-    var vb: Vibrator? = null
-    val auth: FirebaseAuth = Firebase.auth
-    val db: FirebaseFirestore = FirebaseFirestore.getInstance()
-    var bufferPremiumType: String? = ""
+    private lateinit var navController: NavController
+
+    private val viewModel: MainActivityViewModel by viewModels()
+
+    private var appVibrator: Vibrator? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        FirebaseApp.initializeApp(this)
-        val firebaseAppCheck = FirebaseAppCheck.getInstance()
-        firebaseAppCheck.installAppCheckProviderFactory(
-            SafetyNetAppCheckProviderFactory.getInstance()
-        )
-        //Init user
-        lifecycleScope.launch {
-            Firebase.auth.currentUser?.apply {
-                FirebaseFirestore.getInstance()
-                    .collection("Users/${auth.currentUser!!.uid}/FriendList")
-                    .addSnapshotListener { snapshots, e ->
-                        if (e != null) {
-                            return@addSnapshotListener
-                        }
-                        for (dc in snapshots!!.documentChanges) {
-                            if (dc.type == DocumentChange.Type.ADDED &&
-                                dc.document.getLong(MainFragment.KEY_USER_REQUEST)
-                                    ?.toInt() == 2
-                            ) {
-                                if (dc.document.getBoolean("isShown") != true) {
-                                    FirebaseFirestore.getInstance()
-                                        .document(
-                                            "Users/${auth.currentUser!!.uid}/FriendList/${
-                                                dc.document.getString(
-                                                    MainFragment.KEY_USER_ID
-                                                )
-                                            }"
-                                        ).set(hashMapOf("isShown" to true), SetOptions.merge())
-                                    getSystemService(NotificationManager::class.java).sendNewFriendNotification(
-                                        this@MainActivity,
-                                        resources.getString(
-                                            R.string.notification_new_friend,
-                                            dc.document[MainFragment.KEY_USER_NAME]
-                                        ),
-                                        dc.document[MainFragment.KEY_USER_ID].toString()
-                                            .filter { it.isDigit() }
-                                            .toInt() + snapshots.documents.size
-                                    )
-                                } else {
-                                    return@addSnapshotListener
-                                }
-                            }
-                        }
-                    }
-                val userInfo: MutableMap<String, Any> = HashMap()
-                userInfo[MainFragment.KEY_USER_ID] = uid
-                userInfo[MainFragment.KEY_USER_EMAIL] = email.toString()
-                userInfo[MainFragment.KEY_USER_NAME] = displayName ?: email.toString()
-                userInfo[MainFragment.KEY_USER_PHOTO_URL] = photoUrl.toString()
-                userInfo[MainFragment.KEY_USER_EMAIL_CONFIRM] = isEmailVerified
-                userInfo[MainFragment.KEY_USER_PRIVATE_MODE] =
-                    dataStore.data.first()[PreferencesManager.PreferencesKeys.PRIVATE_MODE]
-                        ?: false
-                db.document("Users/${auth.currentUser!!.uid}").set(userInfo, SetOptions.merge())
-            }
-
-            bufferPremiumType =
-                dataStore.data.first()[PreferencesManager.PreferencesKeys.PREMIUM_TYPE]
-        }
-
-        val splashScreen = installSplashScreen()
-        splashScreen.setOnExitAnimationListener { splashScreenView ->
-            val slideUp = ObjectAnimator.ofFloat(
+        installSplashScreen().setOnExitAnimationListener { splashScreenView ->
+            ObjectAnimator.ofFloat(
                 splashScreenView.view,
                 View.TRANSLATION_Y,
                 0f,
                 splashScreenView.view.height.toFloat()
-            )
-            slideUp.interpolator = AccelerateDecelerateInterpolator()
-            slideUp.duration = resources.getInteger(R.integer.reply_motion_duration_medium).toLong()
-            slideUp.doOnEnd {
-                splashScreenView.remove()
+            ).apply {
+                interpolator = AccelerateDecelerateInterpolator()
+                duration = resources.getInteger(R.integer.reply_motion_duration_medium).toLong()
+                doOnEnd {
+                    splashScreenView.remove()
+                }
+                start()
             }
-            slideUp.start()
         }
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        initApp()
-    }
-
-    private fun initApp() {
-        Handler(Looper.getMainLooper()).post {
-            MobileAds.initialize(this)
-            createChannels()
-        }
-
         //Init UI
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.navigation_host) as NavHostFragment
-        val navController = navHostFragment.navController
+        navController = navHostFragment.navController
         navController.addOnDestinationChangedListener(this)
-
-
-
-
         setSupportActionBar(binding.bottomAppBar)
+
         binding.bottomAppBar.setNavigationOnClickListener {
-            if (SystemClock.elapsedRealtime() - mLastClickTime < 500) {
-                return@setNavigationOnClickListener
-            }
-            mLastClickTime = SystemClock.elapsedRealtime()
-            val bottomNavDrawerFragment = BottomNavigationFragment()
-            bottomNavDrawerFragment.show(supportFragmentManager, bottomNavDrawerFragment.tag)
+            bottomAppBarNavigate()
         }
         setBottomAppBarForMain()
 
-
-        //Observers
-        sharedViewModel.apply {
-            allOnlyCompletedTasksSize.observe(this@MainActivity) {
-                if (it > 0) {
-                    if (navController.currentDestination?.id == R.id.mainFragment) {
-                        binding.bottomAppBarCountOfCompleted.visibility = View.VISIBLE
-                    }
-                    binding.bottomAppBarCountOfCompleted.text =
-                        resources.getString(R.string.count_of_completed, it)
-                } else {
-                    binding.bottomAppBarCountOfCompleted.visibility = View.GONE
-                }
-            }
-            syncState.observe(this@MainActivity) { syncState ->
-                when (syncState) {
-
-                    SynchronizationState.COMPLETE_SYNC -> {
-                        binding.bottomAppBarSyncStatus.setImageResource(R.drawable.ic_baseline_check_24)
-                    }
-                    SynchronizationState.PENDING_SYNC -> {
-                        binding.bottomAppBarSyncStatus.setImageResource(R.drawable.ic_baseline_sync_24)
-                    }
-                    SynchronizationState.ERROR_SYNC -> {
-                        binding.bottomAppBarSyncStatus.setImageResource(R.drawable.ic_baseline_sync_problem_24)
-                    }
-                    else -> {
-                        binding.bottomAppBarSyncStatus.setImageResource(R.drawable.ic_baseline_sync_disabled_24)
-                    }
-                }
-            }
-            vibrationModeState.observe(this@MainActivity) {
-                val am = getSystemService(AudioManager::class.java)
-                vb = if (it) {
-                    if (am.ringerMode != AudioManager.RINGER_MODE_SILENT) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as Vibrator?
-                        } else {
-                            getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?
-                        }
-                    } else {
-                        null
-                    }
-                } else {
-                    null
-                }
-            }
-            allTasksSize.observe(this@MainActivity) {
-                binding.bottomAppBarCountOfTasks.text =
-                    resources.getString(
-                        R.string.count_of_tasks,
-                        it,
-                        maxTasksCount + if (premiumState.value == true) MIDDLE_COUNT else 0
-                    )
-            }
-            authenticationState.observe(this@MainActivity) { authenticationState ->
-                if (authenticationState == FirebaseUserLiveData.AuthenticationState.UNAUTHENTICATED) {
-                    navController.popBackStack()
-                    navController.navigate(R.id.loginFragment)
-                }
-            }
-        }
+        initApp()
     }
-
-    private fun createChannels() {
-        createChannel(
-            getString(R.string.reminder_notification_channel_id),
-            getString(R.string.reminder_notification_channel_name)
-        )
-        createChannel(
-            getString(R.string.deadline_notification_channel_id),
-            getString(R.string.deadline_notification_channel_name)
-        )
-        createChannel(
-            getString(R.string.friends_notification_channel_id),
-            getString(R.string.friends_notification_channel_name)
-        )
-    }
-
-    fun checkPermissions() {
-        Qonversion.syncPurchases()
-        Qonversion.checkPermissions(object : QonversionPermissionsCallback {
-            override fun onSuccess(permissions: Map<String, QPermission>) {
-                val premiumPermission = permissions[PREMIUM_PERMISSION]
-
-                if (premiumPermission != null && premiumPermission.isActive()) {
-                    sharedViewModel.updatePremium(true)
-                    binding.bottomAppBarCountOfTasks.text =
-                        resources.getString(
-                            R.string.count_of_tasks,
-                            sharedViewModel.allTasksSize.value!!,
-                            sharedViewModel.maxTasksCount + MIDDLE_COUNT
-                        )
-                    sharedViewModel.updateSyncState(SynchronizationState.COMPLETE_SYNC)
-                    when (premiumPermission.renewState) {
-                        QProductRenewState.NonRenewable,
-                        QProductRenewState.WillRenew -> {
-                            lifecycleScope.launch {
-                                val premiumType =
-                                    dataStore.data.first()[PreferencesManager.PreferencesKeys.PREMIUM_TYPE]
-                                val sharedPref =
-                                    getSharedPreferences(APP_FILE, Context.MODE_PRIVATE)
-                                if (sharedPref.getBoolean(RESUBSCRIBE_ALERT, false)) {
-                                    sharedPref.edit()
-                                        .putBoolean(RESUBSCRIBE_ALERT, true)
-                                        .apply()
-                                    bufferPremiumType = premiumType
-                                }
-                            }
-                            // WillRenew is the state of an auto-renewable subscription
-                            // NonRenewable is the state of consumable/non-consumable IAPs that could unlock lifetime access
-                        }
-                        QProductRenewState.BillingIssue -> {
-                            Toast.makeText(
-                                this@MainActivity,
-                                resources.getString(R.string.update_payment),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                        QProductRenewState.Canceled -> {
-                            val sharedPref =
-                                getSharedPreferences(APP_FILE, Context.MODE_PRIVATE) ?: return
-                            if (!sharedPref.getBoolean(RESUBSCRIBE_ALERT, false)
-                            ) {
-                                lifecycleScope.launch {
-                                    val premiumType =
-                                        dataStore.data.first()[PreferencesManager.PreferencesKeys.PREMIUM_TYPE]
-
-                                    if (premiumType!! == bufferPremiumType) {
-                                        MaterialAlertDialogBuilder(this@MainActivity)
-                                            .setTitle(resources.getString(R.string.subscription_is_active))
-                                            .setMessage(
-                                                resources.getString(
-                                                    R.string.you_have_active_subscription,
-                                                    if (premiumType != PremiumType.STANDARD.name) {
-                                                        when (premiumType) {
-                                                            PremiumType.MONTH.name -> {
-                                                                "\"${resources.getString(R.string.month_subscription)}\""
-                                                            }
-                                                            PremiumType.SIX_MONTH.name -> {
-                                                                "\"${resources.getString(R.string.six_month_subscription)}\""
-                                                            }
-                                                            PremiumType.YEAR.name -> {
-                                                                "\"${resources.getString(R.string.year_subscription)}\""
-                                                            }
-                                                            else -> {}
-                                                        }
-                                                    } else {
-                                                        ""
-                                                    }
-                                                )
-                                            )
-                                            .setPositiveButton(resources.getString(R.string.subscribe)) { dialog, _ ->
-                                                val findNavController =
-                                                    (supportFragmentManager.findFragmentById(R.id.navigation_host) as NavHostFragment).findNavController()
-                                                findNavController.navigate(R.id.subscribeFragment)
-                                                dialog.dismiss()
-                                            }
-                                            .setNegativeButton(resources.getString(R.string.not_now)) { dialog, _ ->
-                                                dialog.cancel()
-                                            }
-                                            .setCancelable(false)
-                                            .show()
-                                        sharedPref.edit()
-                                            .putBoolean(RESUBSCRIBE_ALERT, true)
-                                            .apply()
-                                        bufferPremiumType = premiumType
-                                    } else {
-                                        bufferPremiumType = premiumType
-                                    }
-                                }
-
-                            }
-
-                            // The user has turned off auto-renewal for the subscription, but the subscription has not expired yet.
-                            // Prompt the user to resubscribe with a special offer.
-                        }
-                        QProductRenewState.Unknown -> {
-                        }
-                    }
-                } else {
-                    binding.bottomAppBarCountOfTasks.text =
-                        resources.getString(
-                            R.string.count_of_tasks,
-                            sharedViewModel.allTasksSize.value,
-                            sharedViewModel.maxTasksCount
-                        )
-                    sharedViewModel.updatePremium(false)
-                    sharedViewModel.updatePremiumType(PremiumType.STANDARD)
-                    sharedViewModel.updateSyncState(SynchronizationState.DISABLED_SYNC)
-                }
-            }
-
-            override fun onError(error: QonversionError) {
-                Toast.makeText(this@MainActivity, error.additionalMessage, Toast.LENGTH_SHORT)
-                    .show()
-            }
-
-        })
-    }
-
 
     override fun onDestinationChanged(
         controller: NavController,
         destination: NavDestination,
         arguments: Bundle?
     ) {
-        var delay: Long = 0
-        if (arguments?.getBoolean(NOTIFY_INTENT) == true) {
-            delay = 500
-        }
-        Handler(Looper.getMainLooper()).postDelayed({
-            when (destination.id) {
-                R.id.mainFragment -> {
-                    setBottomAppBarForMain()
-                }
-                R.id.taskDetailsFragment -> {
-                    setBottomAppBarForTaskDetails()
-                }
-                R.id.searchFragment -> {
-                    setBottomAppBarForSearch()
-                }
-                R.id.friendsFragment -> {
-                    setBottomAppBarForFriends()
-                }
-                R.id.friendDetailsFragment -> {
-                    setBottomAppBarForFriendDetails()
-                }
-                R.id.profileFragment -> {
-                    setBottomAppBarForProfile()
-                }
-                R.id.subscribeFragment -> {
-                    setBottomAppBarForSubscribe()
-                }
-            }
-            delay = 0
-        }, delay)
-    }
-
-
-    private fun setColor(codeColor: Int) {
-        when (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
-            Configuration.UI_MODE_NIGHT_NO -> {
-                lifecycleScope.launch { settingColorLightTheme(codeColor) }
-            }
-            Configuration.UI_MODE_NIGHT_YES -> {
-                lifecycleScope.launch { settingColorNightTheme(codeColor) }
-            }
-        }
-    }
-
-    private fun settingColorNightTheme(code: Int) {
-        val bottomAppBarColor: Int
-        val bottomFloatingButtonColor: Int
-        when (code) {
-            MAIN_TAG -> {
-                sharedViewModel.updateColor(
-                    R.color.secondaryDarkColorWater
-                )
-                bottomAppBarColor = getColor(R.color.primaryDarkColorWater)
-                bottomFloatingButtonColor = getColor(R.color.secondaryDarkColorWater)
-            }
-            FRIENDS_TAG -> {
-                sharedViewModel.updateColor(
-                    R.color.secondaryDarkColorFire,
-
-                    )
-                bottomAppBarColor = getColor(R.color.primaryDarkColorFire)
-                bottomFloatingButtonColor = getColor(R.color.secondaryDarkColorFire)
-            }
-            PROFILE_TAG -> {
-                sharedViewModel.updateColor(
-                    R.color.secondaryDarkColorTree,
-
-                    )
-                bottomAppBarColor = getColor(R.color.primaryDarkColorTree)
-                bottomFloatingButtonColor = getColor(R.color.secondaryDarkColorTree)
-            }
-            OTHER_COLOR or SETTINGS_TAG -> {
-                sharedViewModel.updateColor(
-
-                    R.color.secondaryDarkColorAir,
-
-                    )
-                bottomAppBarColor = getColor(R.color.primaryDarkColorAir)
-                bottomFloatingButtonColor = getColor(R.color.secondaryDarkColorAir)
-            }
-            else -> {
-                sharedViewModel.updateColor(
-
-                    R.color.primaryLightColorWater,
-
-                    )
-                bottomAppBarColor = getColor(R.color.primaryDarkColorWater)
-                bottomFloatingButtonColor = getColor(R.color.secondaryDarkColorWater)
-            }
-        }
-
-        ValueAnimator.ofObject(
-            ArgbEvaluator(),
-            binding.bottomAppBar.backgroundTint?.defaultColor,
-            bottomAppBarColor
-        ).apply {
-            duration =
-                resources.getInteger(R.integer.color_animation_duration_large).toLong()
-            addUpdateListener { animator ->
-                binding.bottomAppBar.background?.setTint(
-                    animator.animatedValue as Int
-                )
-            }
-            start()
-        }
-
-        ValueAnimator.ofObject(
-            ArgbEvaluator(),
-            binding.bottomAppBar.backgroundTint?.defaultColor,
-            bottomFloatingButtonColor
-        ).apply {
-            duration =
-                resources.getInteger(R.integer.color_animation_duration_large).toLong()
-            addUpdateListener { animator ->
-                binding.bottomFloatingButton.background?.setTint(
-                    animator.animatedValue as Int
-                )
-            }
-            start()
-        }
-    }
-
-    private fun settingColorLightTheme(code: Int) {
-        val bottomAppBarColor: Int
-        val bottomFloatingButtonColor: Int
-        when (code) {
-            MAIN_TAG -> {
-                sharedViewModel.updateColor(
-
-                    R.color.primaryLightColorWater,
-
-                    )
-                bottomAppBarColor = getColor(R.color.primaryColorWater)
-                bottomFloatingButtonColor = getColor(R.color.secondaryColorWater)
-            }
-            FRIENDS_TAG -> {
-                sharedViewModel.updateColor(
-                    R.color.primaryLightColorFire,
-
-                    )
-                bottomAppBarColor = getColor(R.color.primaryColorFire)
-                bottomFloatingButtonColor = getColor(R.color.secondaryColorFire)
-            }
-            PROFILE_TAG -> {
-                sharedViewModel.updateColor(
-                    R.color.primaryLightColorTree,
-
-                    )
-                bottomAppBarColor = getColor(R.color.primaryColorTree)
-                bottomFloatingButtonColor = getColor(R.color.secondaryColorTree)
-            }
-            OTHER_COLOR or SETTINGS_TAG -> {
-                sharedViewModel.updateColor(
-                    R.color.primaryLightColorAir,
-
-                    )
-                bottomAppBarColor = getColor(R.color.primaryColorAir)
-                bottomFloatingButtonColor = getColor(R.color.secondaryColorAir)
-            }
-            else -> {
-                sharedViewModel.updateColor(
-                    R.color.primaryLightColorWater,
-                )
-                bottomAppBarColor = getColor(R.color.primaryColorWater)
-                bottomFloatingButtonColor = getColor(R.color.secondaryColorWater)
-            }
-        }
-
-        ValueAnimator.ofObject(
-            ArgbEvaluator(),
-            binding.bottomAppBar.backgroundTint?.defaultColor,
-            bottomAppBarColor
-        ).apply {
-            duration =
-                resources.getInteger(R.integer.color_animation_duration_large).toLong()
-            addUpdateListener { animator ->
-                binding.bottomAppBar.background?.setTint(
-                    animator.animatedValue as Int
-                )
-            }
-            start()
-        }
-
-        ValueAnimator.ofObject(
-            ArgbEvaluator(),
-            binding.bottomAppBar.backgroundTint?.defaultColor,
-            bottomFloatingButtonColor
-        ).apply {
-            duration =
-                resources.getInteger(R.integer.color_animation_duration_large).toLong()
-            addUpdateListener { animator ->
-                binding.bottomFloatingButton.background?.setTint(
-                    animator.animatedValue as Int
-                )
-            }
-            start()
-        }
-    }
-
-
-    private fun createChannel(channelId: String, channelName: String) {
-        val notificationChannel = NotificationChannel(
-            channelId,
-            channelName,
-            NotificationManager.IMPORTANCE_HIGH
-        ).apply {
-            setShowBadge(true)
-        }
-        notificationChannel.enableLights(true)
-        notificationChannel.lightColor = Color.RED
-        notificationChannel.enableVibration(true)
-        getSystemService(NotificationManager::class.java).createNotificationChannel(
-            notificationChannel
+        appNavigation(
+            destination = destination,
+            notifyIntent = arguments?.getBoolean(NOTIFY_INTENT) == true
         )
     }
 
-
-    private fun setBottomAppBarForMain() {
-        binding.apply {
-            bottomAppBarCountOfTasks.visibility = View.VISIBLE
-            bottomAppBarCountOfCompleted.visibility = View.VISIBLE
-            bottomAppBarSyncStatus.visibility = View.VISIBLE
-
-            bottomFloatingButton.hide()
-            bottomFloatingButton.setImageDrawable(
-                ContextCompat.getDrawable(
-                    bottomFloatingButton.context,
-                    R.drawable.add_anim
-                )
-            )
-            bottomFloatingButton.show()
-            bottomAppBar.fabAlignmentMode =
-                BottomAppBar.FAB_ALIGNMENT_MODE_CENTER
-            bottomAppBar.performShow()
-            setColor(MAIN_TAG)
-        }
-    }
-
-    private fun setBottomAppBarForTaskDetails() {
-        binding.apply {
-            bottomFloatingButton.hide()
-            bottomFloatingButton.setImageDrawable(
-                ContextCompat.getDrawable(
-                    bottomFloatingButton.context,
-                    R.drawable.ic_baseline_check_24
-                )
-            )
-            bottomFloatingButton.show()
-
-            bottomAppBar.performHide()
-            bottomAppBar.setFabAlignmentModeAndReplaceMenu(
-                BottomAppBar.FAB_ALIGNMENT_MODE_END,
-                R.menu.bottom_app_bar_empty_menu
-            )
-            setColor(MAIN_TAG)
-        }
-    }
-
-    private fun setBottomAppBarForSearch() {
-        binding.bottomFloatingButton.hide()
-        binding.bottomAppBar.performHide()
-        setColor(OTHER_COLOR)
-    }
-
-    private fun setBottomAppBarForFriends() {
-        binding.apply {
-            bottomAppBarCountOfTasks.visibility = View.GONE
-            bottomAppBarCountOfCompleted.visibility = View.GONE
-            bottomAppBarSyncStatus.visibility = View.GONE
-
-            bottomFloatingButton.hide()
-            bottomFloatingButton.setImageDrawable(
-                ContextCompat.getDrawable(
-                    bottomFloatingButton.context,
-                    R.drawable.ic_baseline_person_search_24
-                )
-            )
-            bottomFloatingButton.show()
-
-            bottomAppBar.setFabAlignmentModeAndReplaceMenu(
-                BottomAppBar.FAB_ALIGNMENT_MODE_END,
-                R.menu.bottom_app_bar_empty_menu
-            )
-            bottomAppBar.performShow()
-            setColor(FRIENDS_TAG)
-        }
-    }
-
-    private fun setBottomAppBarForFriendDetails() {
-        binding.bottomFloatingButton.hide()
-        binding.bottomAppBar.performHide()
-        setColor(FRIENDS_TAG)
-    }
-
-    private fun setBottomAppBarForProfile() {
-        binding.apply {
-            bottomAppBarCountOfTasks.visibility = View.GONE
-            bottomAppBarCountOfCompleted.visibility = View.GONE
-            bottomAppBarSyncStatus.visibility = View.GONE
-
-            bottomFloatingButton.hide()
-            bottomFloatingButton.setImageDrawable(
-                ContextCompat.getDrawable(
-                    bottomFloatingButton.context,
-                    R.drawable.ic_baseline_edit_24
-                )
-            )
-            bottomFloatingButton.show()
-
-            bottomAppBar.setFabAlignmentModeAndReplaceMenu(
-                BottomAppBar.FAB_ALIGNMENT_MODE_END,
-                R.menu.bottom_app_bar_empty_menu
-            )
-            bottomAppBar.performShow()
-            setColor(PROFILE_TAG)
-        }
-    }
-
-    private fun setBottomAppBarForSubscribe() {
-        binding.apply {
-            bottomAppBarCountOfTasks.visibility = View.GONE
-            bottomAppBarCountOfCompleted.visibility = View.GONE
-            bottomAppBarSyncStatus.visibility = View.GONE
-
-            bottomFloatingButton.hide()
-            bottomFloatingButton.setImageDrawable(
-                ContextCompat.getDrawable(
-                    bottomFloatingButton.context,
-                    R.drawable.ic_baseline_check_24
-                )
-            )
-            bottomFloatingButton.show()
-
-            bottomAppBar.setFabAlignmentModeAndReplaceMenu(
-                BottomAppBar.FAB_ALIGNMENT_MODE_END,
-                R.menu.bottom_app_bar_empty_menu
-            )
-            bottomAppBar.performHide()
-
-            setColor(FRIENDS_TAG)
-        }
-    }
-
-
-    private fun restoreResumeInstanceState() {
-        var delay: Long = 0
-        if (intent?.getBooleanExtra(NOTIFY_INTENT, false) == true) {
-            delay = 500
-        }
-        Handler(Looper.getMainLooper()).postDelayed({
-            when ((supportFragmentManager.findFragmentById(R.id.navigation_host) as NavHostFragment).navController.currentDestination?.id) {
-                R.id.mainFragment -> {
-                    setBottomAppBarForMain()
-                }
-                R.id.taskDetailsFragment -> {
-                    setBottomAppBarForTaskDetails()
-                }
-                R.id.searchFragment -> {
-                    setBottomAppBarForSearch()
-                }
-                R.id.friendsFragment -> {
-                    setBottomAppBarForFriends()
-                }
-                R.id.friendDetailsFragment -> {
-                    setBottomAppBarForFriendDetails()
-                }
-                R.id.profileFragment -> {
-                    setBottomAppBarForProfile()
-                }
-                R.id.subscribeFragment -> {
-                    setBottomAppBarForSubscribe()
-                }
-            }
-            delay = 0
-        }, delay)
-    }
-
-
-    //Decide if you need to hide
-    private fun isHideInput(v: View?, ev: MotionEvent): Boolean {
-        if (v != null && v is EditText) {
-            val l = intArrayOf(0, 0)
-            v.getLocationInWindow(l)
-            val left = l[0]
-            val top = l[1]
-            val bottom = top + v.getHeight()
-            val right = left + v.getWidth()
-            return !(ev.x > left && ev.x < right && ev.y > top && ev.y < bottom)
-        }
-        return false
-    }
-
-    //Hide soft keyboard
-    private fun hideSoftInput(token: IBinder?) {
-        if (token != null) {
-            val manager: InputMethodManager =
-                getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-            manager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS)
-        }
-    }
-
-    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        if (ev.action == MotionEvent.ACTION_DOWN) {
+    override fun dispatchTouchEvent(motionEvent: MotionEvent): Boolean {
+        if (motionEvent.action == MotionEvent.ACTION_DOWN) {
             val view = currentFocus
-            if (isHideInput(view, ev)) {
-                hideSoftInput(view!!.windowToken)
-                view.clearFocus()
+            if (isHideInput(view, motionEvent)) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    window.insetsController?.hide(WindowInsets.Type.ime())
+                } else {
+                    hideSoftInput(view?.windowToken)
+                }
+                view?.clearFocus()
             }
         }
-        return super.dispatchTouchEvent(ev)
+        return super.dispatchTouchEvent(motionEvent)
     }
-
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        restoreResumeInstanceState()
+        navController =
+            (supportFragmentManager.findFragmentById(R.id.navigation_host) as NavHostFragment).navController
+        appNavigation(
+            notifyIntent = intent?.getBooleanExtra(NOTIFY_INTENT, false) == true
+        )
     }
 
     override fun onResume() {
         super.onResume()
-        if (Firebase.auth.currentUser != null) {
-            Firebase.auth.currentUser!!.reload()
+        if (viewModel.user != null) {
+            viewModel.reloadUser()
+            checkPermissions()
         }
-        restoreResumeInstanceState()
-        Qonversion.products(callback = object : QonversionProductsCallback {
-            override fun onSuccess(products: Map<String, QProduct>) {
-                checkPermissions()
-            }
-
-            override fun onError(error: QonversionError) {
-            }
-        })
+        appNavigation(
+            notifyIntent = intent?.getBooleanExtra(NOTIFY_INTENT, false) == true
+        )
     }
 
     override fun attachBaseContext(base: Context) {
@@ -860,15 +162,538 @@ class MainActivity : AppCompatActivity(),
         SplitCompat.install(this)
     }
 
-
-    override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp() || super.onSupportNavigateUp()
-    }
+    override fun onSupportNavigateUp(): Boolean =
+        navController.navigateUp() || super.onSupportNavigateUp()
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        (supportFragmentManager.findFragmentById(R.id.navigation_host) as NavHostFragment).navController.handleDeepLink(
-            intent
+        val navHostFragment =
+            (supportFragmentManager.findFragmentById(R.id.navigation_host) as NavHostFragment)
+        navController = navHostFragment.navController
+        navController.handleDeepLink(intent)
+    }
+
+
+    private fun initApp() {
+        MobileAds.initialize(this)
+        FirebaseApp.initializeApp(this)
+        val firebaseAppCheck = FirebaseAppCheck.getInstance()
+        firebaseAppCheck.installAppCheckProviderFactory(
+            SafetyNetAppCheckProviderFactory.getInstance()
         )
+
+        createChannel(
+            getString(R.string.reminder_notification_channel_id),
+            getString(R.string.reminder_notification_channel_name)
+        )
+        createChannel(
+            getString(R.string.deadline_notification_channel_id),
+            getString(R.string.deadline_notification_channel_name)
+        )
+        createChannel(
+            getString(R.string.friends_notification_channel_id),
+            getString(R.string.friends_notification_channel_name)
+        )
+
+        viewModel.checkNewFriends { result, error ->
+            if (error == null) {
+                result?.let {
+                    for (newFriend in it) {
+                        getSystemService(NotificationManager::class.java).sendNewFriendNotification(
+                            this,
+                            resources.getString(
+                                R.string.notification_new_friend,
+                                newFriend.user_name
+                            ),
+                            newFriend.user_id.toInt()
+                        )
+                    }
+                }
+            }
+        }
+
+        //Observers
+        viewModel.completedTaskSize.observe(this) {
+            if (it > 0) {
+                if (navController.currentDestination?.id == R.id.mainFragment) {
+                    binding.tvCountCompleted.visibility = View.VISIBLE
+                }
+                binding.tvCountCompleted.text =
+                    resources.getString(R.string.count_of_completed, it)
+            } else {
+                binding.tvCountCompleted.visibility = View.GONE
+            }
+        }
+
+        viewModel.syncState.observe(this) { syncState ->
+            binding.ivSyncStatus.setImageResource(
+                when (syncState) {
+                    SynchronizationState.COMPLETE_SYNC -> R.drawable.ic_baseline_check_24
+                    SynchronizationState.PENDING_SYNC -> R.drawable.ic_baseline_sync_24
+                    SynchronizationState.ERROR_SYNC -> R.drawable.ic_baseline_sync_problem_24
+                    else -> R.drawable.ic_baseline_sync_disabled_24
+                }
+            )
+        }
+
+        viewModel.taskSize.observe(this) {
+            binding.tvCountTasks.text =
+                resources.getString(
+                    R.string.count_of_tasks,
+                    it,
+                    MAX_TASK_COUNT + if (viewModel.premiumState.value == true) MIDDLE_COUNT else 0
+                )
+        }
+
+        viewModel.vibrationState.observe(this) {
+            appVibrator =
+                if (it) {
+                    val am = getSystemService(AudioManager::class.java)
+                    if (am.ringerMode != AudioManager.RINGER_MODE_SILENT) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager?)?.defaultVibrator
+                        } else {
+                            @Suppress("DEPRECATION")
+                            getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?
+                        }
+                    } else {
+                        null
+                    }
+                } else {
+                    null
+                }
+        }
+        // PrivateMode
+        viewModel.privateState.observe(this) {
+            viewModel.updateServerPrivateMode(it)
+        }
+
+        viewModel.authState.observe(this) {
+            when (it) {
+                FirebaseUserLiveData.AuthenticationState.UNAUTHENTICATED -> {
+                    viewModel.saveLastUserID()
+                    navController.popBackStack()
+                    if (navController.currentDestination?.id != R.id.loginFragment) {
+                        navController.navigate(R.id.loginFragment)
+                    }
+                }
+                FirebaseUserLiveData.AuthenticationState.AUTHENTICATED -> viewModel.initUser()
+                null -> {}
+            }
+        }
+
+    }
+
+    private var lastClickTime: Long = 0
+    private fun bottomAppBarNavigate() {
+        if (SystemClock.elapsedRealtime() - lastClickTime < 500) return
+        lastClickTime = SystemClock.elapsedRealtime()
+        val bottomNavDrawerFragment = BottomNavigationFragment()
+        bottomNavDrawerFragment.show(supportFragmentManager, bottomNavDrawerFragment.tag)
+    }
+
+    private fun createChannel(channelId: String, channelName: String) {
+        val notificationChannel = NotificationChannel(
+            channelId,
+            channelName,
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            setShowBadge(true)
+            enableLights(true)
+            lightColor = Color.RED
+            enableVibration(true)
+        }
+
+        getSystemService(NotificationManager::class.java).createNotificationChannel(
+            notificationChannel
+        )
+    }
+
+    private fun appNavigation(
+        destination: NavDestination? =
+            (supportFragmentManager.findFragmentById(R.id.navigation_host) as NavHostFragment).navController.currentDestination,
+        notifyIntent: Boolean
+    ) {
+        var delay: Long = 0
+        if (notifyIntent) {
+            delay = 500
+        }
+        Handler(Looper.getMainLooper()).postDelayed({
+            when (destination?.id) {
+                R.id.mainFragment -> {
+                    setBottomAppBarForMain()
+                }
+                R.id.taskDetailsFragment -> {
+                    setBottomAppBarForTaskDetails()
+                }
+                R.id.searchFragment -> {
+                    setBottomAppBarForSearch()
+                }
+                R.id.friendsFragment -> {
+                    setBottomAppBarForFriends()
+                }
+                R.id.friendDetailsFragment -> {
+                    setBottomAppBarForFriendDetails()
+                }
+                R.id.profileFragment -> {
+                    setBottomAppBarForProfile()
+                }
+                R.id.subscribeFragment -> {
+                    setBottomAppBarForSubscribe()
+                }
+            }
+            delay = 0
+        }, delay)
+    }
+
+    fun checkPermissions() {
+        Qonversion.checkPermissions(object : QonversionPermissionsCallback {
+            override fun onSuccess(permissions: Map<String, QPermission>) {
+                val premiumPermission = permissions[PREMIUM_PERMISSION]
+
+                if (premiumPermission != null && premiumPermission.isActive()) {
+                    viewModel.setPremiumUI()
+
+                    binding.tvCountTasks.text =
+                        resources.getString(
+                            R.string.count_of_tasks,
+                            viewModel.taskSize.value,
+                            MAX_TASK_COUNT + MIDDLE_COUNT
+                        )
+
+                    lifecycleScope.launch {
+                        val resubscribeAlert = viewModel.getResubscribeAlert()
+                        val premiumType = viewModel.getPremiumType()
+
+                        when (premiumPermission.renewState) {
+                            QProductRenewState.NonRenewable,
+                            QProductRenewState.WillRenew -> {
+                                if (resubscribeAlert) {
+                                    viewModel.updateResubscribeAlert(true)
+                                }
+                            }
+                            QProductRenewState.BillingIssue -> {
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    resources.getString(R.string.update_payment),
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                            QProductRenewState.Canceled -> {
+                                if (!resubscribeAlert) {
+                                    val premiumTypeMessage =
+                                        when (premiumType.name) {
+                                            PremiumType.STANDARD.name -> return@launch
+                                            PremiumType.MONTH.name -> "\"${resources.getString(R.string.month_subscription)}\""
+                                            PremiumType.SIX_MONTH.name -> "\"${resources.getString(R.string.six_month_subscription)}\""
+                                            PremiumType.YEAR.name -> "\"${resources.getString(R.string.year_subscription)}\""
+                                            else -> return@launch
+                                        }
+
+                                    val messageString = resources.getString(
+                                        R.string.you_have_active_subscription,
+                                        premiumTypeMessage
+                                    )
+
+                                    subscriptionStillActiveDialog(messageString)
+                                    viewModel.updateResubscribeAlert(true)
+                                }
+                            }
+                            QProductRenewState.Unknown -> {}
+                        }
+                    }
+                } else setNonPremiumUI()
+            }
+
+            override fun onError(error: QonversionError) {
+                showErrorToast(this@MainActivity, Exception(error.additionalMessage))
+            }
+        })
+    }
+
+    // Set UI for specific fragment
+    private fun setBottomAppBarForMain() = with(binding) {
+        checkPermissions()
+        showSyncTotalContent()
+
+        updateFabMainWithDrawable(R.drawable.add_anim)
+        bottomAppBar.fabAlignmentMode = BottomAppBar.FAB_ALIGNMENT_MODE_CENTER
+        showFabAndAppBar()
+
+        setColor(MAIN_TAG)
+    }
+
+    private fun setBottomAppBarForTaskDetails() = with(binding) {
+        updateFabMainWithDrawable(R.drawable.ic_baseline_check_24)
+
+        hideBottomAppBar()
+        bottomAppBar.setFabAlignmentModeAndReplaceMenu(
+            BottomAppBar.FAB_ALIGNMENT_MODE_END,
+            R.menu.bottom_app_bar_empty_menu
+        )
+        setColor(MAIN_TAG)
+    }
+
+    private fun setBottomAppBarForSearch() {
+        hideFabAndAppBar()
+        binding.bottomAppBar.visibility = View.GONE
+        setColor(OTHER_COLOR)
+    }
+
+    private fun setBottomAppBarForFriends() = with(binding) {
+        checkPermissions()
+        hideSyncTotalContent()
+
+        updateFabMainWithDrawable(R.drawable.ic_baseline_person_search_24)
+        bottomAppBar.setFabAlignmentModeAndReplaceMenu(
+            BottomAppBar.FAB_ALIGNMENT_MODE_END,
+            R.menu.bottom_app_bar_empty_menu
+        )
+        showFabAndAppBar()
+
+        setColor(FRIENDS_TAG)
+    }
+
+    private fun setBottomAppBarForFriendDetails() {
+        hideFabAndAppBar()
+        setColor(FRIENDS_TAG)
+    }
+
+    private fun setBottomAppBarForProfile() = with(binding) {
+        checkPermissions()
+        hideSyncTotalContent()
+
+        updateFabMainWithDrawable(R.drawable.ic_baseline_edit_24)
+        bottomAppBar.setFabAlignmentModeAndReplaceMenu(
+            BottomAppBar.FAB_ALIGNMENT_MODE_END,
+            R.menu.bottom_app_bar_empty_menu
+        )
+        showFabAndAppBar()
+        setColor(PROFILE_TAG)
+    }
+
+    private fun setBottomAppBarForSubscribe() = with(binding) {
+        checkPermissions()
+        hideSyncTotalContent()
+
+        updateFabMainWithDrawable(R.drawable.ic_baseline_check_24)
+
+        bottomAppBar.setFabAlignmentModeAndReplaceMenu(
+            BottomAppBar.FAB_ALIGNMENT_MODE_END,
+            R.menu.bottom_app_bar_empty_menu
+        )
+        hideBottomAppBar()
+
+        setColor(FRIENDS_TAG)
+    }
+
+
+    // Theme color
+    private fun setColor(codeColor: Int) {
+        when (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+            Configuration.UI_MODE_NIGHT_NO -> {
+                lifecycleScope.launch { settingColorLightTheme(codeColor) }
+            }
+            Configuration.UI_MODE_NIGHT_YES -> {
+                lifecycleScope.launch { settingColorNightTheme(codeColor) }
+            }
+        }
+    }
+
+    private fun settingColorNightTheme(code: Int) {
+        @ColorRes val bottomAppBarColor: Int
+        @ColorRes val fabMainColor: Int
+        when (code) {
+            MAIN_TAG -> {
+                fabMainColor = getColor(R.color.secondaryDarkColorWater)
+                bottomAppBarColor = getColor(R.color.primaryDarkColorWater)
+            }
+            FRIENDS_TAG -> {
+                fabMainColor = getColor(R.color.secondaryDarkColorFire)
+                bottomAppBarColor = getColor(R.color.primaryDarkColorFire)
+            }
+            PROFILE_TAG -> {
+                fabMainColor = getColor(R.color.secondaryDarkColorTree)
+                bottomAppBarColor = getColor(R.color.secondaryDarkColorTree)
+            }
+            OTHER_COLOR or SETTINGS_TAG -> {
+                fabMainColor = getColor(R.color.secondaryDarkColorAir)
+                bottomAppBarColor = getColor(R.color.secondaryDarkColorAir)
+            }
+            else -> {
+                fabMainColor = getColor(R.color.secondaryDarkColorWater)
+                bottomAppBarColor = getColor(R.color.primaryDarkColorWater)
+            }
+        }
+        animateColorThemeChanging(bottomAppBarColor, fabMainColor)
+    }
+
+    private fun settingColorLightTheme(code: Int) {
+        @ColorRes val bottomAppBarColor: Int
+        @ColorRes val fabMainColor: Int
+        when (code) {
+            MAIN_TAG -> {
+                fabMainColor = getColor(R.color.secondaryColorWater)
+                bottomAppBarColor = getColor(R.color.primaryColorWater)
+            }
+            FRIENDS_TAG -> {
+                fabMainColor = getColor(R.color.secondaryColorFire)
+                bottomAppBarColor = getColor(R.color.primaryColorFire)
+            }
+            PROFILE_TAG -> {
+                fabMainColor = getColor(R.color.secondaryColorTree)
+                bottomAppBarColor = getColor(R.color.primaryColorTree)
+            }
+            OTHER_COLOR or SETTINGS_TAG -> {
+                fabMainColor = getColor(R.color.secondaryColorAir)
+                bottomAppBarColor = getColor(R.color.primaryColorAir)
+            }
+            else -> {
+                fabMainColor = getColor(R.color.secondaryColorWater)
+                bottomAppBarColor = getColor(R.color.primaryColorWater)
+            }
+        }
+        animateColorThemeChanging(bottomAppBarColor, fabMainColor)
+    }
+
+    private fun animateColorThemeChanging(bottomAppBarColor: Int, fabMainColor: Int) {
+        val defaultColor = binding.bottomAppBar.backgroundTint?.defaultColor
+        ValueAnimator.ofObject(
+            ArgbEvaluator(),
+            defaultColor,
+            bottomAppBarColor
+        ).apply {
+            duration = resources.getInteger(R.integer.color_animation_duration_large).toLong()
+            addUpdateListener { animator ->
+                binding.bottomAppBar.background?.setTint(animator.animatedValue as Int)
+            }
+            start()
+        }
+
+        ValueAnimator.ofObject(
+            ArgbEvaluator(),
+            defaultColor,
+            fabMainColor
+        ).apply {
+            duration =
+                resources.getInteger(R.integer.color_animation_duration_large).toLong()
+            addUpdateListener { animator ->
+                binding.fabMain.background?.setTint(animator.animatedValue as Int)
+            }
+            start()
+        }
+    }
+
+    fun vibrateDefaultAmplitude(times: Int, milliseconds: Long = 25) =
+        repeat(times) {
+            appVibrator?.vibrate(
+                VibrationEffect.createOneShot(
+                    milliseconds,
+                    VibrationEffect.DEFAULT_AMPLITUDE
+                )
+            )
+        }
+
+    //Hide soft keyboard
+    private fun isHideInput(view: View?, motionEvent: MotionEvent): Boolean {
+        if (view != null && view is EditText) {
+            view.getLocationInWindow(intArrayOf(0, 0))
+            val left = 0
+            val top = 0
+            val bottom = top + view.getHeight()
+            val right = left + view.getWidth()
+            return !(motionEvent.x > left && motionEvent.x < right && motionEvent.y > top && motionEvent.y < bottom)
+        }
+        return false
+    }
+
+    private fun hideSoftInput(token: IBinder?) {
+        if (token != null) {
+            val manager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            manager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS)
+        }
+    }
+
+
+    private fun showSyncTotalContent() = with(binding) {
+        tvCountTasks.visibility = View.VISIBLE
+        tvCountCompleted.visibility = View.VISIBLE
+        ivSyncStatus.visibility = View.VISIBLE
+    }
+
+    private fun hideSyncTotalContent() = with(binding) {
+        tvCountTasks.visibility = View.GONE
+        tvCountCompleted.visibility = View.GONE
+        ivSyncStatus.visibility = View.GONE
+    }
+
+
+    // Show and hide app bar and fab
+    private fun updateFabMainWithDrawable(@DrawableRes fabIconId: Int?) {
+        binding.fabMain.hide()
+        fabIconId?.let {
+            binding.fabMain.setImageDrawable(
+                ContextCompat.getDrawable(
+                    binding.fabMain.context,
+                    fabIconId
+                )
+            )
+        }
+        binding.fabMain.show()
+    }
+
+    fun showBottomAppBar() {
+        binding.bottomAppBar.performShow()
+    }
+
+    private fun hideBottomAppBar() {
+        binding.bottomAppBar.performHide()
+    }
+
+    private fun showFabAndAppBar() {
+        binding.fabMain.show()
+        binding.bottomAppBar.performShow()
+    }
+
+    private fun hideFabAndAppBar() {
+        binding.fabMain.hide()
+        binding.bottomAppBar.performHide()
+    }
+
+    // Premium
+    private fun subscriptionStillActiveDialog(messageString: String): AlertDialog =
+        MaterialAlertDialogBuilder(this)
+            .setTitle(resources.getString(R.string.subscription_is_active))
+            .setMessage(messageString)
+            .setPositiveButton(resources.getString(R.string.subscribe)) { dialog, _ ->
+                navController.navigate(R.id.subscribeFragment)
+                dialog.dismiss()
+            }
+            .setNegativeButton(resources.getString(R.string.not_now)) { dialog, _ ->
+                dialog.cancel()
+            }
+            .setCancelable(false)
+            .show()
+
+    private fun setNonPremiumUI() {
+        viewModel.setNonPremiumUI()
+        binding.tvCountTasks.text =
+            resources.getString(
+                R.string.count_of_tasks,
+                viewModel.taskSize.value,
+                MAX_TASK_COUNT
+            )
+    }
+
+    fun loginInitApp() {
+        viewModel.initUser(newSignIn = true)
+    }
+
+    companion object QonversionSku {
+        const val MONTH_PRODUCT = "max_month_subscription"
+        const val SIX_MONTH_PRODUCT = "max_6month_subscription"
+        const val YEAR_PRODUCT = "max_year_subscription"
+
+        const val PREMIUM_PERMISSION = "premium_plannerApp"
     }
 }

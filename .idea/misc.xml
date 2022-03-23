@@ -20,8 +20,10 @@
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/gradient_priority_advisable.xml" value="0.1" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/gradient_priority_default.xml" value="0.18645833333333334" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/gradient_priority_important.xml" value="0.151171875" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/ic_app_icon.xml" value="0.127" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/ic_baseline_account_circle_24.xml" value="0.2015625" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/ic_baseline_add_24.xml" value="0.1" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/ic_baseline_add_alert_24.xml" value="0.127" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/ic_baseline_add_to_photos_24.xml" value="0.1" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/ic_baseline_arrow_drop_down_24.xml" value="0.1" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/ic_baseline_arrow_drop_up_24.xml" value="0.1" />
@@ -32,6 +34,8 @@
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/ic_baseline_highlight_off_24.xml" value="0.1" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/ic_baseline_list_alt_24.xml" value="0.1" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/ic_baseline_more_horiz_24.xml" value="0.151171875" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/ic_baseline_notifications_none_24.xml" value="0.127" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/ic_baseline_save_24.xml" value="0.1" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/ic_baseline_search_24.xml" value="0.151171875" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/ic_baseline_sync_24.xml" value="0.151171875" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/drawable/ic_baseline_vibration_24.xml" value="0.151171875" />
@@ -72,17 +76,25 @@
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/dropmenu_priority.xml" value="0.18" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/dropmenu_repeat_modes.xml" value="0.1390625" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_air.xml" value="0.18541666666666667" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_alert_dialog_deadline.xml" value="0.17604166666666668" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_alert_dialog_reminder.xml" value="0.17604166666666668" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_bottom_actions.xml" value="0.21" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_bottom_navigation.xml" value="0.18" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_bottom_navigation.xml" value="0.25" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_bottom_settings.xml" value="0.2848731884057971" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_bottom_sort.xml" value="0.21" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_deadline_dialog.xml" value="0.17604166666666668" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_deletion.xml" value="0.1390625" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_edit_profile_dialog.xml" value="0.17604166666666668" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_edit_task.xml" value="0.25" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_edit_task_dropmenu_list_priority_item.xml" value="0.1" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_edit_task_list_priority_item.xml" value="0.18541666666666667" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_fire.xml" value="0.2" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_friend.xml" value="0.18541666666666667" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_friend_details.xml" value="0.33" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_friend_details.xml" value="0.25" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_friends.xml" value="0.2" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_inite_friend_dialog.xml" value="0.17604166666666668" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_input_task_amount_dialog.xml" value="0.17604166666666668" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_invite_friend_dialog.xml" value="0.16757246376811594" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_login.xml" value="0.1" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_main.xml" value="0.22" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_profile.xml" value="0.22" />
@@ -90,6 +102,7 @@
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_search.xml" value="0.25773195876288657" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_settings.xml" value="0.2" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_subscribe.xml" value="0.25" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_task_detail.xml" value="0.34739583333333335" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_task_details.xml" value="0.23393316195372751" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_tree.xml" value="0.17777777777777778" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/fragment_water.xml" value="0.1" />
@@ -107,7 +120,7 @@
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/list_rv_completed.xml" value="0.33" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/list_rv_completed_item.xml" value="0.18541666666666667" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/list_search_task.xml" value="0.33" />
-        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/list_task.xml" value="0.25" />
+        <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/list_task.xml" value="0.5" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/layout/search_fragment.xml" value="0.18541666666666667" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/menu/bottom_app_bar_edit_task_menu.xml" value="0.1" />
         <entry key="..\:/PROJECTS/Android/PlannerApp/app/src/main/res/menu/bottom_app_bar_empty_menu.xml" value="0.1" />

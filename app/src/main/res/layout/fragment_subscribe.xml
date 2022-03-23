@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <data>
-
-    </data>
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/splash_gradient">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/splash_gradient"
-        android:padding="16dp"
+        android:layout_height="0dp"
+        android:paddingHorizontal="16dp"
         tools:context=".ui.profile.SubscribeFragment">
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/iv_logo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="80dp"
@@ -26,7 +24,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/choose_your_subscription"
+            android:id="@+id/tv_choose_your_subscription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="36dp"
@@ -34,10 +32,10 @@
             android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView" />
+            app:layout_constraintTop_toBottomOf="@+id/iv_logo" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/benefits"
+            android:id="@+id/tv_benefits"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -45,24 +43,24 @@
             android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/choose_your_subscription"
+            app:layout_constraintTop_toBottomOf="@+id/tv_choose_your_subscription"
             tools:text="Benefits:\n
             Ad\n
             Tasks up\n
             syncBackup\n" />
 
         <RadioGroup
-            android:id="@+id/radioGroup"
+            android:id="@+id/rg_subscription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:gravity="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/benefits">
+            app:layout_constraintTop_toBottomOf="@+id/tv_benefits">
 
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/standard_option_parent"
+                android:id="@+id/m_cv_standard_option"
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
                 android:layout_marginHorizontal="4dp"
@@ -71,7 +69,8 @@
                 android:focusable="true"
                 app:cardCornerRadius="@dimen/material_corner_radius"
                 app:cardElevation="@dimen/cardview_default_elevation"
-                app:strokeColor="@android:color/transparent">
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="8dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -80,7 +79,7 @@
                     android:paddingHorizontal="10dp">
 
                     <RadioButton
-                        android:id="@+id/standard_option_radio"
+                        android:id="@+id/rb_standard_option"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
@@ -92,17 +91,17 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/standard_option_title"
+                        android:id="@+id/tv_standard_option_title"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:gravity="center_vertical"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/standard_option_radio"
+                        app:layout_constraintStart_toEndOf="@+id/rb_standard_option"
                         app:layout_constraintTop_toTopOf="parent"
                         tools:text="@string/subscribe" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/standard_option_price"
+                        android:id="@+id/tv_standard_option_price"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_marginEnd="16dp"
@@ -114,7 +113,7 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/check_mark1"
+                    android:id="@+id/siv_check_mark1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
@@ -127,7 +126,7 @@
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/month_option_parent"
+                android:id="@+id/m_cv_month_option"
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
                 android:layout_marginHorizontal="4dp"
@@ -136,7 +135,8 @@
                 android:focusable="true"
                 app:cardCornerRadius="@dimen/material_corner_radius"
                 app:cardElevation="@dimen/cardview_default_elevation"
-                app:strokeColor="@android:color/transparent">
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="8dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -145,7 +145,7 @@
                     android:paddingHorizontal="10dp">
 
                     <RadioButton
-                        android:id="@+id/month_option_radio"
+                        android:id="@+id/rb_month_option"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
@@ -157,17 +157,17 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/month_option_title"
+                        android:id="@+id/tv_month_option_title"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:gravity="center_vertical"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/month_option_radio"
+                        app:layout_constraintStart_toEndOf="@+id/rb_month_option"
                         app:layout_constraintTop_toTopOf="parent"
                         tools:text="@string/subscribe" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/month_option_price"
+                        android:id="@+id/tv_month_option_price"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_marginEnd="16dp"
@@ -179,7 +179,7 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/check_mark2"
+                    android:id="@+id/siv_check_mark2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
@@ -192,7 +192,7 @@
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/six_month_option_parent"
+                android:id="@+id/m_cv_six_month_option"
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
                 android:layout_marginHorizontal="4dp"
@@ -201,7 +201,8 @@
                 android:focusable="true"
                 app:cardCornerRadius="@dimen/material_corner_radius"
                 app:cardElevation="@dimen/cardview_default_elevation"
-                app:strokeColor="@android:color/transparent">
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="8dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -210,7 +211,7 @@
                     android:paddingHorizontal="10dp">
 
                     <RadioButton
-                        android:id="@+id/six_month_option_radio"
+                        android:id="@+id/rb_six_month_option"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
@@ -222,17 +223,17 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/six_month_option_title"
+                        android:id="@+id/tv_six_month_option_title"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:gravity="center_vertical"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/six_month_option_radio"
+                        app:layout_constraintStart_toEndOf="@+id/rb_six_month_option"
                         app:layout_constraintTop_toTopOf="parent"
                         tools:text="@string/subscribe" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/six_month_option_price"
+                        android:id="@+id/tv_six_month_option_price"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_marginEnd="16dp"
@@ -251,13 +252,13 @@
                         android:textSize="16sp"
                         android:textStyle="bold"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/six_month_option_title"
+                        app:layout_constraintStart_toEndOf="@id/tv_six_month_option_title"
                         app:layout_constraintTop_toTopOf="parent"
                         tools:text="@string/subscribe" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/check_mark3"
+                    android:id="@+id/siv_check_mark3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
@@ -270,7 +271,7 @@
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/year_option_parent"
+                android:id="@+id/m_cv_year_option"
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
                 android:layout_marginHorizontal="4dp"
@@ -279,7 +280,8 @@
                 android:focusable="true"
                 app:cardCornerRadius="@dimen/material_corner_radius"
                 app:cardElevation="@dimen/cardview_default_elevation"
-                app:strokeColor="@android:color/transparent">
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="8dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -288,7 +290,7 @@
                     android:paddingHorizontal="10dp">
 
                     <RadioButton
-                        android:id="@+id/year_option_radio"
+                        android:id="@+id/rb_year_option"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
@@ -300,17 +302,17 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/year_option_title"
+                        android:id="@+id/tv_year_option_title"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:gravity="center_vertical"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/year_option_radio"
+                        app:layout_constraintStart_toEndOf="@+id/rb_year_option"
                         app:layout_constraintTop_toTopOf="parent"
                         tools:text="@string/subscribe" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/year_option_price"
+                        android:id="@+id/tv_year_option_price"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_marginEnd="16dp"
@@ -329,13 +331,13 @@
                         android:textSize="16sp"
                         android:textStyle="bold"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/year_option_title"
+                        app:layout_constraintStart_toEndOf="@id/tv_year_option_title"
                         app:layout_constraintTop_toTopOf="parent"
                         tools:text="@string/subscribe" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/check_mark4"
+                    android:id="@+id/siv_check_mark4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
@@ -350,7 +352,7 @@
         </RadioGroup>
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/restore_purchases"
+            android:id="@+id/tv_restore_purchases"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:layout_gravity="center"
@@ -363,7 +365,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
+            app:layout_constraintTop_toBottomOf="@+id/rg_subscription" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-</layout>
+</ScrollView>

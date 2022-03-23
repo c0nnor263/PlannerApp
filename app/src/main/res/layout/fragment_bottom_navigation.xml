@@ -11,11 +11,10 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+        android:layout_height="wrap_content">
 
         <View
-            android:id="@+id/drag_view"
+            android:id="@+id/v_drag_icon"
             android:layout_width="75dp"
             android:layout_height="10dp"
             android:layout_marginTop="8dp"
@@ -26,8 +25,8 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/profile_name"
-            android:layout_width="wrap_content"
+            android:id="@+id/tv_name"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_marginTop="16dp"
@@ -35,31 +34,33 @@
             android:text="@{user.displayName}"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@+id/profile_avatar"
-            app:layout_constraintTop_toBottomOf="@id/drag_view"
+            app:layout_constraintEnd_toStartOf="@+id/iv_btn_settings"
+            app:layout_constraintStart_toEndOf="@+id/iv_avatar"
+            app:layout_constraintTop_toBottomOf="@id/v_drag_icon"
             tools:text="@string/fui_name_hint" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/profile_email"
-            android:layout_width="wrap_content"
+            android:id="@+id/tv_email"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:ellipsize="end"
             android:text="@{user.email}"
-            app:layout_constraintStart_toStartOf="@+id/profile_name"
-            app:layout_constraintTop_toBottomOf="@+id/profile_name"
+            app:layout_constraintEnd_toEndOf="@+id/tv_name"
+            app:layout_constraintStart_toStartOf="@+id/tv_name"
+            app:layout_constraintTop_toBottomOf="@+id/tv_name"
             tools:text="@string/fui_email_hint" />
 
         <ImageView
-            android:id="@+id/profile_avatar"
-            loadProfileImage="@{user.photoUrl.toString()}"
+            android:id="@+id/iv_avatar"
+            ivLoadProfileImage="@{user.photoUrl.toString()}"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginStart="24dp"
             android:contentDescription="@string/profile_photo"
             android:scaleType="fitXY"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/profile_name" />
+            app:layout_constraintTop_toTopOf="@+id/tv_name" />
 
         <View
             android:id="@+id/divider"
@@ -69,10 +70,10 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_email" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_email" />
 
         <ImageButton
-            android:id="@+id/im_btn_profile_settings"
+            android:id="@+id/iv_btn_settings"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginTop="8dp"
@@ -82,18 +83,18 @@
             android:clickable="true"
             android:contentDescription="@string/settings"
             android:src="@drawable/ic_baseline_settings_24"
-            app:layout_constraintBottom_toBottomOf="@+id/profile_email"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_email"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/profile_name" />
+            app:layout_constraintTop_toTopOf="@+id/tv_name" />
 
         <com.google.android.material.divider.MaterialDivider
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            app:layout_constraintBottom_toTopOf="@+id/app_navigation_view"
+            app:layout_constraintBottom_toTopOf="@+id/nv_navigation_options"
             app:layout_constraintStart_toStartOf="parent" />
 
         <com.google.android.material.navigation.NavigationView
-            android:id="@+id/app_navigation_view"
+            android:id="@+id/nv_navigation_options"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"

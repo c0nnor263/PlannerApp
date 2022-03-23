@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="GifUsage">
+        <ignore path="src/main/res/drawable/intro_adding_multiple_gif.gif" />
+    </issue>
+    <issue id="IconLauncherShape">
+        <ignore path="src/main/res/drawable/ic_launcher_playstore.webp" />
+    </issue>
+</lint>

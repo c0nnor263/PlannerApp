@@ -19,7 +19,7 @@
 
     <fragment
         android:id="@+id/friendsFragment"
-        android:name="com.conboi.plannerapp.ui.friends.FriendsFragment"
+        android:name="com.conboi.plannerapp.ui.friend.FriendsFragment"
         android:label="Friends"
         tools:layout="@layout/fragment_friends" >
         <action
@@ -28,14 +28,14 @@
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.conboi.plannerapp.ui.bottomsheet.SettingsFragment"
+        android:name="com.conboi.plannerapp.ui.bottomsheet.BottomSettingsFragment"
         android:label="Profile"
-        tools:layout="@layout/fragment_settings" />
+        tools:layout="@layout/fragment_bottom_settings" />
     <fragment
         android:id="@+id/taskDetailsFragment"
-        android:name="com.conboi.plannerapp.ui.main.TaskDetailsFragment"
+        android:name="com.conboi.plannerapp.ui.main.task.TaskDetailFragment"
         android:label="Edit task"
-        tools:layout="@layout/fragment_task_details">
+        tools:layout="@layout/fragment_task_detail">
         <argument
             android:defaultValue="0"
             android:name="idTask"
@@ -43,7 +43,7 @@
     </fragment>
     <fragment
         android:id="@+id/searchFragment"
-        android:name="com.conboi.plannerapp.ui.main.SearchFragment"
+        android:name="com.conboi.plannerapp.ui.main.search.SearchFragment"
         android:label="fragment_search"
         tools:layout="@layout/fragment_search" >
         <action
@@ -66,12 +66,12 @@
     </fragment>
     <fragment
         android:id="@+id/friendDetailsFragment"
-        android:name="com.conboi.plannerapp.ui.friends.FriendDetailsFragment"
+        android:name="com.conboi.plannerapp.ui.friend.details.FriendDetailsFragment"
         android:label="FriendFragment"
         tools:layout="@layout/fragment_friend_details">
         <argument
             android:name="friend"
-            app:argType="com.conboi.plannerapp.model.FriendType" />
+            app:argType="com.conboi.plannerapp.data.model.FriendType" />
     </fragment>
     <fragment
         android:id="@+id/subscribeFragment"

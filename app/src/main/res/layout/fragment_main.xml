@@ -35,7 +35,7 @@
                 android:layout_gravity="center"
                 android:clipToPadding="false"
                 android:paddingHorizontal="2dp"
-                android:paddingTop="55dp"
+                android:paddingTop="85dp"
                 android:paddingBottom="?attr/actionBarSize"
                 android:scrollbars="none"
                 android:transitionGroup="true"/>

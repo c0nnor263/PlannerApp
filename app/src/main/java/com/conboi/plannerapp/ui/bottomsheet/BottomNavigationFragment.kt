@@ -6,23 +6,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.conboi.plannerapp.R
 import com.conboi.plannerapp.databinding.FragmentBottomNavigationBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.internal.NavigationMenuView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class BottomNavigationFragment : BottomSheetDialogFragment() {
     private var _binding: FragmentBottomNavigationBinding? = null
     val binding get() = _binding!!
 
-    //Firebase
-    private val auth: FirebaseAuth = Firebase.auth
+    private val viewModel: BottomNavigationViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,65 +34,64 @@ class BottomNavigationFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        NavigationUI.setupWithNavController(binding.appNavigationView, findNavController())
-        binding.apply {
-            lifecycleOwner = this@BottomNavigationFragment
-            user = auth.currentUser
-            if (!auth.currentUser?.isEmailVerified!!) {
-                profileEmail.setTextColor(Color.RED)
-            }
-            appNavigationView.setNavigationItemSelectedListener { menuItem ->
-                val id = menuItem.itemId
-                if (menuItem.isChecked) return@setNavigationItemSelectedListener false
-                when (id) {
-                    R.id.bottom_navigation_menu_main_fragment -> {
-                        if (findNavController().currentDestination?.id == R.id.mainFragment) {
-                            dismiss()
-                            return@setNavigationItemSelectedListener false
-                        }
-                        findNavController().navigate(R.id.mainFragment)
-                        dismiss()
-                    }
-                    R.id.bottom_navigation_menu_friends_fragment -> {
-                        if (findNavController().currentDestination?.id == R.id.friendsFragment) {
-                            dismiss()
-                            return@setNavigationItemSelectedListener false
-                        }
-                        findNavController().navigate(R.id.friendsFragment)
-                        dismiss()
-                    }
-                    R.id.bottom_navigation_menu_profile_fragment -> {
-                        if (findNavController().currentDestination?.id == R.id.profileFragment) {
-                            dismiss()
-                            return@setNavigationItemSelectedListener false
-                        }
-                        findNavController().navigate(R.id.profileFragment)
-                        dismiss()
-                    }
+        binding.lifecycleOwner = this
+        binding.user = viewModel.user
+        NavigationUI.setupWithNavController(binding.nvNavigationOptions, findNavController())
+
+        if (viewModel.isEmailVerified.not()) {
+            binding.tvEmail.setTextColor(Color.RED)
+        }
+
+        val navigationMenuHeader = binding.nvNavigationOptions.getChildAt(0) as NavigationMenuView
+        navigationMenuHeader.isVerticalScrollBarEnabled = false
+
+        binding.nvNavigationOptions.setNavigationItemSelectedListener { menuItem ->
+            if (menuItem.isChecked) return@setNavigationItemSelectedListener false
+            return@setNavigationItemSelectedListener when (menuItem.itemId) {
+                R.id.nav_menu_main_fragment -> {
+                    navigateToFragment(R.id.mainFragment)
                 }
-                true
-            }
-            val navigationMenuHeader = appNavigationView.getChildAt(0) as NavigationMenuView
-            navigationMenuHeader.isVerticalScrollBarEnabled = false
-            imBtnProfileSettings.setOnClickListener {
-                if (findNavController().currentDestination?.id == R.id.settingsFragment) {
-                    dismiss()
-                    return@setOnClickListener
+                R.id.nav_menu_friends_fragment -> {
+                    navigateToFragment(R.id.friendsFragment)
                 }
-                val settingsFragment = SettingsFragment()
-                settingsFragment.show(
-                    requireActivity().supportFragmentManager,
-                    settingsFragment.tag
-                )
-                dismiss()
+                R.id.nav_menu_profile_fragment -> {
+                    navigateToFragment(R.id.profileFragment)
+                }
+                else -> true
             }
         }
-    }
 
+        binding.ivBtnSettings.setOnClickListener {
+            navigateToSettings()
+        }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
+
+    private fun navigateToSettings() {
+        if (findNavController().currentDestination?.id == R.id.settingsFragment) {
+            dismiss()
+            return
+        }
+        val settingsFragment = BottomSettingsFragment()
+        settingsFragment.show(
+            parentFragmentManager,
+            settingsFragment.tag
+        )
+        dismiss()
+    }
+
+    private fun navigateToFragment(fragmentId: Int): Boolean {
+        if (findNavController().currentDestination?.id == fragmentId) {
+            dismiss()
+            return false
+        }
+        findNavController().navigate(fragmentId)
+        dismiss()
+        return true
+    }
 }

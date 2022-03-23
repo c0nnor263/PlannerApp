@@ -43,10 +43,6 @@
 
 
     <!-->MainFragment<-->
-    <string name="max_total_check" translatable="false">%1$d+</string>
-    <string name="count_of_tasks" translatable="false">%1$d/%2$d</string>
-    <string name="count_of_completed" translatable="false">(%1$d)</string>
-
     <string name="enter_amount_title">Введите количество заданий</string>
     <string name="enter_amount_hint">Максимально - %1$d</string>
     <string name="add_task">Добавить задание</string>
@@ -92,7 +88,7 @@
     <string name="check_tasks">Проверить задания</string>
     <string name="deadline_msg">Крайний срок наступил😔</string>
     Осталось 4 часа для выполнения задачи(или не 4😏)
-    <string name="deadline_reminder">Осталось 24 часа для выполнения задачи(или не 24😏)</string>
+    <string name="deadline_reminder">Осталось %1$d часа для выполнения задачи(или не %1$d😏)</string>
     <string name="check_reminders">Проверить напоминания</string>
     <string name="check_deadlines">Проверить крайние сроки</string>
     <string name="you_sure_quit">Уверены, что хотите выйти?</string>
@@ -186,8 +182,7 @@
     <string name="there_are_no_friends_for_showing">Список друзей пуст</string>
     <string name="error_loading_friends">Ошибка загрузки списка друзей</string>
     <string name="there_are_no_more_friends_for_loading">Больше нет друзей для загрузки</string>
-    <string name="cant_get_user_friends">Ошибка: %1$s\n
-Невозможно получить список друзей.\n
+    <string name="cant_get_user_friends">Ошибка: %1$s Невозможно получить список друзей.\n
 Попробуйте позже
     </string>
     <string name="notification_new_friend">%1$s хочет добавить тебя в друзья</string>
@@ -215,8 +210,8 @@
     <string name="edit_profile">Редак. профиль</string>
     <string name="email_not_confirmed">Электронная почта не подтверждена</string>
     <string name="you_confirm_email">Чтобы включить синхронизацию задач, подтвердите свой адрес электронной почты. Хотите перейти на вкладку «Профиль»?</string>
-    <string name="you_sent_email_confirm">Письмо с подтверждением отправлено на Вашу электронную почту</string>
-    <string name="error_send_email_confirm">Ошибка при отправке электронного письма с подтверждением на Вашу электронную почту</string>
+    <string name="you_sent_email_confirm">Письмо с подтверждением отправлено</string>
+    <string name="error_send_email_confirm">Ошибка при отправке письма с подтверждением</string>
     <string name="check_new_email">Проверьте указанную электронную почту</string>
     <string name="error_check_new_email">"Ошибка обновления введенной электронной почты "</string>
     <string name="error_check_new_password">Ошибка обновления введенного пароля</string>
@@ -234,10 +229,10 @@
 
 
     <!--SettingsFragment-->
-    <string name="reminders_state">Напоминания: %1$s</string>
+    <string name="reminder_state">Напоминания: %1$s</string>
     <string name="vibration_state">Вибрация приложения: %1$s</string>
     <string name="private_state">Приватный режим: %1$s</string>
-    <string name="notifications_state">Уведомления: %1$s</string>
+    <string name="notification_state">Уведомления: %1$s</string>
 
     <string name="remove_all_reminders">Все напоминания</string>
     <string name="you_remove_reminders">Вы хотите удалить все напоминания?</string>

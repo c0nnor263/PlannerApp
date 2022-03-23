@@ -4,63 +4,52 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.conboi.plannerapp.data.model.TaskType
 import com.conboi.plannerapp.databinding.ListGlobalTaskBinding
-import com.conboi.plannerapp.model.TaskType
 
 
-class FriendTasksAdapter :
-    ListAdapter<TaskType, FriendTasksAdapter.ViewHolder>(FriendTasksDiffCallBack()) {
+class FriendTaskAdapter(
+    diffCallback: TaskTypeDiffCallback
+) : ListAdapter<TaskType, FriendTaskAdapter.ViewHolder>(
+    AsyncDifferConfig.Builder(diffCallback).build()
+) {
 
     inner class ViewHolder(private var binding: ListGlobalTaskBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        val oldColors: ColorStateList = binding.globalTitleTask.textColors
+        private val defaultColors: ColorStateList = binding.tvTitle.textColors
 
-        fun bind(friendTask: TaskType) = with(binding) {
-            task = friendTask
-            executePendingBindings()
+        fun bind(task: TaskType) = with(binding) {
+            binding.task = task
+            binding.executePendingBindings()
 
-            globalCheckTask.isChecked = friendTask.checked
-            parentListGlobalTask.isClickable = false
-            parentListGlobalTask.isFocusable = false
-            parentListGlobalTask.isFocusableInTouchMode = false
+            checkBox.isChecked = task.checked
+            root.isClickable = false
+            root.isFocusable = false
+            root.isFocusableInTouchMode = false
 
-            if(friendTask.missed){
-                globalTitleTask.setTextColor(Color.WHITE)
-                totalCheck.setTextColor(Color.WHITE)
-            }else{
-                globalTitleTask.setTextColor(oldColors)
-                totalCheck.setTextColor(oldColors)
+            if (task.missed) {
+                tvTitle.setTextColor(Color.WHITE)
+                tvTotalCheck.setTextColor(Color.WHITE)
+            } else {
+                tvTitle.setTextColor(defaultColors)
+                tvTotalCheck.setTextColor(defaultColors)
             }
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(
-            ListGlobalTaskBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false
-            )
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(
+        ListGlobalTaskBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
         )
-    }
+    )
 
     override fun onBindViewHolder(vh: ViewHolder, position: Int) {
-        vh.bind(getItem(position))
+        val task = getItem(position)
+        vh.bind(task)
     }
-
 }
-
-class FriendTasksDiffCallBack : DiffUtil.ItemCallback<TaskType>() {
-    override fun areItemsTheSame(oldItem: TaskType, newItem: TaskType): Boolean {
-        return oldItem.idTask == newItem.idTask
-    }
-
-    override fun areContentsTheSame(oldItem: TaskType, newItem: TaskType): Boolean {
-        return oldItem == newItem
-    }
-
-}
-

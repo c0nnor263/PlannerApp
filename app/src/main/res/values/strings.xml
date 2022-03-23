@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-->System<-->
     <string name="app_name" translatable="false">PlannerApp</string>
@@ -119,7 +119,7 @@
     <string name="sync_status">Sync status</string>
     <string name="reminder_msg">Don\'t forget your task!</string>
     <string name="deadline_msg">Deadline is came for this task😔</string>
-    <string name="deadline_reminder">24 hours left before completing the task(or not 24😏)</string>
+    <string name="deadline_reminder" tools:ignore="PluralsCandidate">%1$d hours left before completing the task(or not %1$d😏)</string>
     <string name="check_tasks">Check tasks</string>
     <string name="check_reminders">Check reminders</string>
     <string name="check_deadlines">Check deadlines</string>
@@ -213,7 +213,7 @@
     <string name="there_are_no_friends_for_showing">There are no friends for showing</string>
     <string name="error_loading_friends">Error loading friends list</string>
     <string name="there_are_no_more_friends_for_loading">There are no more friends for loading</string>
-    <string name="cant_get_user_friends">Error: %1$s \nCan\'t get friends list.\nTry again later</string>
+    <string name="cant_get_user_friends">Error: %1$s Can\'t get friends list.\nTry again later</string>
 
 
     <!--FriendDetailsFragment-->
@@ -242,8 +242,8 @@
     <string name="reset_password">Reset password</string>
     <string name="password_reset_sent">Password reset email is sent</string>
     <string name="password_reset_error">Error by sending password\'s reset</string>
-    <string name="you_sent_email_confirm">Confirmation email is sent to your email</string>
-    <string name="error_send_email_confirm">Error by sending confirmation email  to your email</string>
+    <string name="you_sent_email_confirm">"Confirmation email is sent "</string>
+    <string name="error_send_email_confirm">Error by sending confirmation email</string>
 
     <string name="nickname_updated">Nickname has been updated</string>
     <string name="error_nickname_update">Error by updating the nickname</string>
@@ -256,10 +256,10 @@
 
 
     <!--SettingsFragment-->
-    <string name="reminders_state">Reminders: %1$s</string>
+    <string name="reminder_state">Reminders: %1$s</string>
     <string name="vibration_state">In-app vibration: %1$s</string>
     <string name="private_state">Private mode: %1$s</string>
-    <string name="notifications_state">Notifications: %1$s</string>
+    <string name="notification_state">Notifications: %1$s</string>
 
     <string name="remove_all_reminders">All reminders</string>
     <string name="you_remove_reminders">Do you want to remove all reminders?</string>

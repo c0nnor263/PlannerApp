@@ -11,11 +11,10 @@
 
         <variable
             name="viewModel"
-            type="com.conboi.plannerapp.ui.main.SharedViewModel" />
+            type="com.conboi.plannerapp.ui.profile.ProfileViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/parent_profile"
         paddingTopSystemWindowInsets="@{true}"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -24,7 +23,7 @@
 
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tv_friend_list"
+            android:id="@+id/tv_profile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
@@ -35,7 +34,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/upgrade_subscription"
+            android:id="@+id/m_btn_upgrade"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
@@ -52,7 +51,7 @@
             android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_friend_list" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_profile" />
 
         <com.google.android.gms.ads.AdView
             android:id="@+id/adView"
@@ -67,7 +66,7 @@
             app:layout_constraintTop_toBottomOf="@+id/divider" />
 
         <ScrollView
-            android:id="@+id/parent_scrollview"
+            android:id="@+id/parent_sv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="55dp"
@@ -77,12 +76,12 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:orientation="vertical"
                 android:padding="16dp">
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/user_total_tasks"
+                    android:id="@+id/tv_total_task"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -93,8 +92,8 @@
 
 
                 <ImageView
-                    android:id="@+id/user_avatar"
-                    loadProfileImage="@{bindUser.photoUrl.toString()}"
+                    android:id="@+id/iv_avatar"
+                    ivLoadProfileImage="@{bindUser.photoUrl.toString()}"
                     android:layout_width="140dp"
                     android:layout_height="140dp"
                     android:layout_gravity="center"
@@ -112,33 +111,35 @@
                     android:layout_marginBottom="8dp">
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/user_email"
+                        android:id="@+id/tv_email"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
+                        android:ellipsize="end"
                         android:text="@{bindUser.email}"
                         android:textSize="18sp"
-                        android:ellipsize="end"
                         android:textStyle="bold"
                         tools:text="@string/fui_email_hint" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/user_confirm_email"
+                        android:id="@+id/tv_confirm_email"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="\?"
                         android:textSize="20sp"
                         android:textStyle="bold"
                         android:visibility="gone"
-                        tools:text="@string/fui_email_link_confirm_email_message" />
+                        tools:text="@string/fui_email_link_confirm_email_message"
+                        tools:visibility="visible"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/user_name"
-                    android:ellipsize="end"
+                    android:id="@+id/tv_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:ellipsize="end"
                     android:text="@{bindUser.displayName}"
                     android:textSize="16sp"
                     tools:text="@string/fui_name_hint" />
@@ -147,12 +148,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="70dp"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="72dp"
+                    android:layout_marginTop="64dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_sign_out"
+                        android:id="@+id/m_btn_sign_out"
                         android:layout_width="150dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
@@ -162,7 +163,7 @@
                         android:textStyle="bold" />
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/tutorial"
+                        android:id="@+id/m_btn_tutorial"
                         android:layout_width="125dp"
                         android:layout_height="match_parent"
                         android:layout_marginStart="16dp"
@@ -174,7 +175,7 @@
 
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/user_id_tv"
+                    android:id="@+id/tv_id_text"
                     android:layout_width="wrap_content"
                     android:layout_height="30dp"
                     android:layout_gravity="center"
@@ -184,7 +185,7 @@
                     android:textSize="12sp" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/user_id"
+                    android:id="@+id/tv_id"
                     android:layout_width="wrap_content"
                     android:layout_height="30dp"
                     android:layout_gravity="center"
@@ -198,7 +199,7 @@
                     tools:text="@string/com.crashlytics.android.build_id" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/privacy_policy"
+                    android:id="@+id/tv_privacy_policy"
                     android:layout_width="wrap_content"
                     android:layout_height="30dp"
                     android:layout_gravity="center"
@@ -209,8 +210,6 @@
                     android:text="@string/privacy_policy"
                     android:textSize="12sp"
                     android:textStyle="bold" />
-
-
             </LinearLayout>
         </ScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>

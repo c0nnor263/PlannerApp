@@ -79,7 +79,7 @@
     <string name="sync_status">Статус синхронізації</string>
     <string name="reminder_msg">Не забудьте про своє завдання!</string>
     <string name="deadline_msg">Крайній термін настав 😔</string>
-    <string name="deadline_reminder">Залишилось 24 години для виконання завдання (або не 24😏)</string>
+    <string name="deadline_reminder">Залишилось %1$d години для виконання завдання (або не %1$d😏)</string>
     <string name="check_tasks">Перевірити завдання</string>
     <string name="check_reminders">Перевірити нагадування</string>
     <string name="check_deadlines">Перевірити останні терміни</string>
@@ -120,10 +120,10 @@
     <string name="new_friend">Новий друг</string>
     <string name="enter_user_id">Введіть ID користувача</string>
     <string name="remove_all_reminders">Всі нагадування</string>
-    <string name="notifications_state">Сповіщення: %1$s</string>
+    <string name="notification_state">Сповіщення: %1$s</string>
     <string name="private_state">Приватний режим: %1$s</string>
     <string name="vibration_state">Вібрація додатку: %1$s</string>
-    <string name="reminders_state">Нагадування: %1$s</string>
+    <string name="reminder_state">Нагадування: %1$s</string>
     <string name="reset_password">Скидання пароля</string>
     <string name="enter_id_alert">Введіть ID!</string>
     <string name="friend_is_not_exist">Користувач, якого Ви шукаєте, не існує</string>
@@ -139,8 +139,7 @@
     <string name="there_are_no_friends_for_showing">Список друзів порожній</string>
     <string name="error_loading_friends">Помилка завантаження списку друзів</string>
     <string name="there_are_no_more_friends_for_loading">Більше немає друзів для завантаження</string>
-    <string name="cant_get_user_friends">Помилка: %1$s\n
-        Неможливо отримати список друзів.
+    <string name="cant_get_user_friends">Помилка: %1$s Неможливо отримати список друзів.
         \nПовторіть спробу пізніше.
     </string>
     <string name="profile">Профіль</string>
@@ -161,8 +160,8 @@
     <string name="copied_user_id">Скопійовано ID</string>
     <string name="password_reset_sent">Лист для скидання пароля було надіслано</string>
     <string name="password_reset_error">Помилка надсилання листа для скидання пароля</string>
-    <string name="you_sent_email_confirm">Лист з підтвердженням надіслано на Вашу електронну пошту</string>
-    <string name="error_send_email_confirm">Помилка при надсиланні електронного листа з підтвердженням на Вашу електронну пошту</string>
+    <string name="you_sent_email_confirm">Лист з підтвердженням надіслано</string>
+    <string name="error_send_email_confirm">Помилка при надсиланні листа з підтвердженням</string>
     <string name="password_is_invalid">Невірний пароль</string>
     <string name="error_nickname_update">Помилка при оновленні нікнейму</string>
     <string name="nickname_updated">Нікнейм було оновлено</string>
@@ -192,6 +191,32 @@
     <string name="update_payment">Проблема з оплатою підписки. Оновіть свій спосіб оплати</string>
     <string name="restore_purchases">Відновити покупки</string>
     <string name="processing">Обробка…</string>
+    <plurals name="tasks_been_added">
+        <item quantity="one">%d завдання додано</item>
+        <item quantity="other">%d завдань додано</item>
+        <item quantity="few">%d завдання додані</item>
+        <item quantity="many">%d завдань додано</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">%d день</item>
+        <item quantity="other">%d днів</item>
+        <item quantity="few">%d дня</item>
+        <item quantity="many">%d днів</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d година</item>
+        <item quantity="other">%d годин</item>
+        <item quantity="few">%d години</item>
+        <item quantity="many">%d годин</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d хвилина</item>
+        <item quantity="other">%d хвилин</item>
+        <item quantity="few">%d хвилин</item>
+        <item quantity="many">%d хвилин</item>
+    </plurals>
 
     <string name="backup_tasks_message_no_prem">Схоже, у Вас є резервна копія попередніх завдань та даних облікового запису від %1$s.\n
         \nВідновлення резервної копії – це преміум можливість.\nБажаєте підписатися?

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/delete_only_completed_tasks"
+        android:id="@+id/action_delete_only_completed_tasks"
         android:title="@string/delete_only_completed" />
     <item
-        android:id="@+id/delete_overcompleted_tasks"
+        android:id="@+id/action_delete_overcompleted_tasks"
         android:title="@string/action_delete_overcompleted" />
 </menu>

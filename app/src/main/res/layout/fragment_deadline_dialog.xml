@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="layoutViewModel"
+            type="com.conboi.plannerapp.ui.main.task.TaskDetailViewModel" />
+    </data>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="20dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_time_deadline"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="200dp"
+                android:layout_height="60dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiet_time_deadline"
+                    tietSetTaskTime="@{layoutViewModel.newDeadline}"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:focusable="false"
+                    android:hint="@string/time_word"
+                    android:inputType="textNoSuggestions"
+                    android:text="@string/time_word" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_date_deadline"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="200dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/til_time_deadline">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiet_date_deadline"
+                    tietSetTaskDate="@{layoutViewModel.newDeadline}"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:focusable="false"
+                    android:hint="@string/date_word"
+                    android:inputType="textNoSuggestions"
+                    android:text="@string/date_word" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <ImageButton
+                android:id="@+id/iv_btn_open_timepicker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/time_word"
+                android:src="@drawable/ic_baseline_access_time_24"
+                app:layout_constraintBottom_toBottomOf="@+id/til_time_deadline"
+                app:layout_constraintStart_toEndOf="@+id/til_time_deadline"
+                app:layout_constraintTop_toTopOf="@+id/til_time_deadline" />
+
+            <ImageButton
+                android:id="@+id/iv_btn_open_datepicker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/date_word"
+                android:src="@drawable/ic_baseline_date_range_24"
+                app:layout_constraintBottom_toBottomOf="@+id/til_date_deadline"
+                app:layout_constraintStart_toEndOf="@+id/til_date_deadline"
+                app:layout_constraintTop_toTopOf="@+id/til_date_deadline" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/m_btn_remove_deadline"
+                style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="8dp"
+                android:maxLines="3"
+                android:text="@string/remove_deadline"
+                android:visibility="@{layoutViewModel.newDeadline == 0 ? View.GONE: View.VISIBLE}"
+                app:icon="@drawable/ic_baseline_delete_24"
+                app:layout_constraintEnd_toEndOf="@+id/iv_btn_open_datepicker"
+                app:layout_constraintStart_toStartOf="@+id/til_date_deadline"
+                app:layout_constraintTop_toBottomOf="@+id/til_date_deadline" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+</layout>

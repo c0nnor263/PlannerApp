@@ -26,9 +26,9 @@
 
 -keepattributes Signature
 -keepnames class com.conboi.plannerapp.model.*
--keepclassmembers class com.conboi.plannerapp.model.FriendType {
+-keepclassmembers class com.conboi.plannerapp.data.model.FriendType {
   *;
 }
--keepclassmembers class com.conboi.plannerapp.model.TaskType {
+-keepclassmembers class com.conboi.plannerapp.data.model.TaskType {
   *;
 }

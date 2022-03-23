@@ -1,8 +1,8 @@
 package com.conboi.plannerapp.ui.profile
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Bundle
 import android.text.Html
@@ -14,24 +14,19 @@ import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.view.doOnPreDraw
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.android.billingclient.api.BillingFlowParams
 import com.conboi.plannerapp.R
-import com.conboi.plannerapp.data.PreferencesManager
-import com.conboi.plannerapp.data.PremiumType
+import com.conboi.plannerapp.data.source.remote.repo.FirebaseRepository
 import com.conboi.plannerapp.databinding.FragmentSubscribeBinding
 import com.conboi.plannerapp.ui.MainActivity
-import com.conboi.plannerapp.ui.main.LoadingAlertFragment
-import com.conboi.plannerapp.ui.main.MainFragment
-import com.conboi.plannerapp.ui.main.SharedViewModel
-import com.conboi.plannerapp.utils.APP_FILE
-import com.conboi.plannerapp.utils.IMPORT_CONFIRM
-import com.conboi.plannerapp.utils.RESUBSCRIBE_ALERT
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.transition.MaterialElevationScale
+import com.conboi.plannerapp.utils.PremiumType
+import com.conboi.plannerapp.utils.isAppInternetConnected
+import com.conboi.plannerapp.utils.shared.LoadingDialogFragment
+import com.conboi.plannerapp.utils.showErrorToast
+import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.transition.MaterialSharedAxis
 import com.qonversion.android.sdk.Qonversion
 import com.qonversion.android.sdk.QonversionError
@@ -41,19 +36,13 @@ import com.qonversion.android.sdk.dto.QPermission
 import com.qonversion.android.sdk.dto.products.QProduct
 import com.qonversion.android.sdk.dto.products.QProductRenewState
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import javax.inject.Inject
 
-@ExperimentalCoroutinesApi
 @AndroidEntryPoint
-class SubscribeFragment @Inject constructor() : Fragment() {
-    @Inject
-    lateinit var preferencesManager: PreferencesManager
-
+class SubscribeFragment : Fragment() {
     private var _binding: FragmentSubscribeBinding? = null
     val binding get() = _binding!!
 
-    private val sharedViewModel: SharedViewModel by activityViewModels()
+    private val viewModel: SubscribeViewModel by viewModels()
 
     private var bufferSelected = 0
     private var isCancelled = false
@@ -62,40 +51,38 @@ class SubscribeFragment @Inject constructor() : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_subscribe, container, false)
+        _binding = FragmentSubscribeBinding.inflate(layoutInflater)
 
-        binding.standardOptionParent.setOnClickListener {
-            sharedViewModel.selectedPremiumType.value = 0
+        (activity as MainActivity).let { activity ->
+            activity.binding.fabMain.setOnClickListener {
+                processSubscription()
+            }
+            activity.binding.fabMain.setOnLongClickListener(null)
+            activity.onBackPressedDispatcher.addCallback(this) {
+                findNavController().navigateUp()
+            }
         }
-        binding.monthOptionParent.setOnClickListener {
-            sharedViewModel.selectedPremiumType.value = 1
-        }
-        binding.sixMonthOptionParent.setOnClickListener {
-            sharedViewModel.selectedPremiumType.value = 2
-        }
-        binding.yearOptionParent.setOnClickListener {
-            sharedViewModel.selectedPremiumType.value = 3
-        }
-        binding.restorePurchases.setOnClickListener { restorePurchases() }
 
-        (requireActivity() as MainActivity).checkPermissions()
+        binding.mCvStandardOption.setOnClickListener {
+            openSubscriptionSettings()
+        }
+        binding.mCvMonthOption.setOnClickListener {
+            viewModel.updateSelectedPremium(1)
+        }
+        binding.mCvSixMonthOption.setOnClickListener {
+            viewModel.updateSelectedPremium(2)
+        }
+        binding.mCvYearOption.setOnClickListener {
+            viewModel.updateSelectedPremium(3)
+        }
+        binding.tvRestorePurchases.setOnClickListener { restorePurchases() }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            findNavController().navigateUp()
-        }
         postponeEnterTransition()
         view.doOnPreDraw { startPostponedEnterTransition() }
-        //Out enter
-        exitTransition = MaterialElevationScale(false).apply {
-            duration = resources.getInteger(R.integer.reply_motion_duration_large).toLong()
-        }
-        reenterTransition = MaterialElevationScale(false).apply {
-            duration = resources.getInteger(R.integer.reply_motion_duration_large).toLong()
-        }
 
         //Enter
         enterTransition = MaterialSharedAxis(MaterialSharedAxis.X, true).apply {
@@ -105,55 +92,173 @@ class SubscribeFragment @Inject constructor() : Fragment() {
             duration = resources.getInteger(R.integer.reply_motion_duration_large).toLong()
         }
 
-        (activity as MainActivity).binding.bottomFloatingButton.apply {
-            setOnClickListener { purchaseSubscription() }
-            setOnLongClickListener(null)
+        binding.tvBenefits.text =
+            Html.fromHtml(
+                resources.getString(R.string.benefits),
+                HtmlCompat.FROM_HTML_MODE_LEGACY
+            )
+
+
+        viewModel.premiumType.observe(viewLifecycleOwner) {
+            when (it) {
+                PremiumType.STANDARD -> {
+                    productsChecked(standard = true)
+                    viewModel.updateSelectedPremium(0)
+                    bufferSelected = 0
+                }
+                PremiumType.MONTH -> {
+                    productsChecked(month = true)
+                    viewModel.updateSelectedPremium(1)
+                    bufferSelected = 1
+                }
+                PremiumType.SIX_MONTH -> {
+                    productsChecked(sixMonth = true)
+                    viewModel.updateSelectedPremium(2)
+                    bufferSelected = 2
+                }
+                PremiumType.YEAR -> {
+                    productsChecked(year = true)
+                    viewModel.updateSelectedPremium(3)
+                    bufferSelected = 3
+                }
+                else -> {}
+            }
+            if (it != PremiumType.STANDARD) showManageSubscriptionUI() else hideManageSubscriptionUI()
         }
 
-        binding.benefits.text =
-            Html.fromHtml(resources.getString(R.string.benefits), HtmlCompat.FROM_HTML_MODE_LEGACY)
-
-        setSubscribeOptions()
-
+        viewModel.selectedPremiumType.observe(viewLifecycleOwner) {
+            when (it) {
+                0 -> productsChecked(standard = true)
+                1 -> productsChecked(month = true)
+                2 -> productsChecked(sixMonth = true)
+                3 -> productsChecked(year = true)
+            }
+        }
+        setSubscribeProducts()
     }
 
-    private fun setSubscribeOptions() {
-        Qonversion.products(object : QonversionProductsCallback {
-            override fun onSuccess(products: Map<String, QProduct>) {
-                updateContent(products)
-                (requireActivity() as MainActivity).checkPermissions()
-            }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        viewModel.selectedPremiumType.removeObservers(this)
+    }
 
-            override fun onError(error: QonversionError) {
-                Toast.makeText(requireContext(), error.additionalMessage, Toast.LENGTH_SHORT).show()
-            }
-        })
+
+    private fun showManageSubscriptionUI() {
+        binding.tvStandardOptionTitle.text = resources.getString(R.string.manage_subscriptions)
+        binding.tvStandardOptionPrice.text = null
+        binding.rbStandardOption.visibility = View.INVISIBLE
+        binding.mCvStandardOption.setOnClickListener {
+            openSubscriptionSettings()
+        }
+    }
+
+    private fun hideManageSubscriptionUI() {
+        binding.tvStandardOptionTitle.text =
+            resources.getString(R.string.standard_subscription)
+        binding.tvStandardOptionPrice.text = resources.getString(R.string.free)
+        binding.rbStandardOption.visibility = View.VISIBLE
+        binding.mCvStandardOption.setOnClickListener {
+            viewModel.updateSelectedPremium(0)
+        }
+    }
+
+    private fun productsChecked(
+        standard: Boolean = false,
+        month: Boolean = false,
+        sixMonth: Boolean = false,
+        year: Boolean = false
+    ) {
+        val color = ContextCompat.getColor(
+            requireContext(),
+            R.color.secondaryLightColorFire
+        )
+
+        binding.rbStandardOption.isChecked = standard
+        binding.rbMonthOption.isChecked = month
+        binding.rbSixMonthOption.isChecked = sixMonth
+        binding.rbYearOption.isChecked = year
+
+        binding.sivCheckMark1.visibility = if (bufferSelected == 0) View.VISIBLE else View.GONE
+        binding.sivCheckMark2.visibility = if (bufferSelected == 1) View.VISIBLE else View.GONE
+        binding.sivCheckMark3.visibility = if (bufferSelected == 2) View.VISIBLE else View.GONE
+        binding.sivCheckMark4.visibility = if (bufferSelected == 3) View.VISIBLE else View.GONE
+
+        binding.mCvStandardOption.strokeColor = if (standard) color else Color.TRANSPARENT
+        binding.mCvMonthOption.strokeColor = if (month) color else Color.TRANSPARENT
+        binding.mCvSixMonthOption.strokeColor = if (sixMonth) color else Color.TRANSPARENT
+        binding.mCvYearOption.strokeColor = if (year) color else Color.TRANSPARENT
+
+        val checkMark: ShapeableImageView = when (bufferSelected) {
+            0 -> binding.sivCheckMark1
+            1 -> binding.sivCheckMark2
+            2 -> binding.sivCheckMark3
+            3 -> binding.sivCheckMark4
+            else -> binding.sivCheckMark1
+        }
+
+        if (isCancelled) {
+            checkMark.setImageDrawable(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.ic_baseline_help_24
+                )
+            )
+        }
+    }
+
+    private fun setSubscribeProducts() {
+        val connectivityManager =
+            ContextCompat.getSystemService(requireContext(), ConnectivityManager::class.java)
+        val isConnected = connectivityManager?.isAppInternetConnected()
+
+        if (isConnected == true) {
+            Qonversion.products(object : QonversionProductsCallback {
+                override fun onSuccess(products: Map<String, QProduct>) {
+                    if (products.isNotEmpty()) {
+                        updateContent(products)
+                    }
+                }
+
+                override fun onError(error: QonversionError) {
+                    showErrorToast(requireContext(), Exception(error.additionalMessage))
+                }
+            })
+        } else {
+            Toast.makeText(
+                requireContext(),
+                resources.getString(R.string.check_your_internet),
+                Toast.LENGTH_SHORT
+            ).show()
+            findNavController().navigateUp()
+        }
     }
 
     private fun updateContent(products: Map<String, QProduct>) {
-
         val monthSubscription = products[MainActivity.MONTH_PRODUCT]
         val sixSubscription = products[MainActivity.SIX_MONTH_PRODUCT]
         val yearSubscription = products[MainActivity.YEAR_PRODUCT]
 
-        if (monthSubscription != null) {
-            binding.monthOptionTitle.text = resources.getString(R.string.month_subscription)
-            binding.monthOptionPrice.text = monthSubscription.prettyPrice
-        }
+        _binding?.let {
+            if (monthSubscription != null) {
+                binding.tvMonthOptionTitle.text = resources.getString(R.string.month_subscription)
+                binding.tvMonthOptionPrice.text = monthSubscription.prettyPrice
+            }
 
-        if (sixSubscription != null) {
-            binding.sixMonthOptionTitle.text = resources.getString(R.string.six_month_subscription)
-            binding.sixMonthOptionPrice.text = sixSubscription.prettyPrice
-            binding.discount1.paint.isStrikeThruText = true
-            binding.discount1.text = resources.getString(R.string.discount_15)
-        }
+            if (sixSubscription != null) {
+                binding.tvSixMonthOptionTitle.text =
+                    resources.getString(R.string.six_month_subscription)
+                binding.tvSixMonthOptionPrice.text = sixSubscription.prettyPrice
+                binding.discount1.paint.isStrikeThruText = true
+                binding.discount1.text = resources.getString(R.string.discount_15)
+            }
 
-        if (yearSubscription != null) {
-            binding.yearOptionTitle.text = resources.getString(R.string.year_subscription)
-            binding.yearOptionPrice.text = yearSubscription.prettyPrice
-            binding.discount2.paint.isStrikeThruText = true
-            binding.discount2.text = resources.getString(R.string.discount_20)
-
+            if (yearSubscription != null) {
+                binding.tvYearOptionTitle.text = resources.getString(R.string.year_subscription)
+                binding.tvYearOptionPrice.text = yearSubscription.prettyPrice
+                binding.discount2.paint.isStrikeThruText = true
+                binding.discount2.text = resources.getString(R.string.discount_20)
+            }
         }
         Qonversion.syncPurchases()
         Qonversion.checkPermissions(object : QonversionPermissionsCallback {
@@ -168,552 +273,195 @@ class SubscribeFragment @Inject constructor() : Fragment() {
             }
 
             override fun onError(error: QonversionError) {
-                Toast.makeText(requireContext(), error.description, Toast.LENGTH_SHORT).show()
+                showErrorToast(requireContext(), Exception(error.additionalMessage))
             }
         })
+    }
 
-
-        sharedViewModel.premiumType.observe(this.viewLifecycleOwner) {
-            val color = ContextCompat.getColor(
-                requireContext(),
-                R.color.secondaryLightColorFire
+    private fun processSubscription() {
+        val selectedPremium = viewModel.selectedPremiumType.value
+        if ((selectedPremium != bufferSelected || isCancelled) &&
+            selectedPremium != 0
+        ) {
+            val loadingDialog = LoadingDialogFragment()
+            loadingDialog.isCancelable = false
+            loadingDialog.show(
+                childFragmentManager, LoadingDialogFragment.TAG
             )
-            when (it) {
-                PremiumType.STANDARD -> {
-                    sharedViewModel.selectedPremiumType.value = 0
-                    binding.standardOptionTitle.text =
-                        resources.getString(R.string.standard_subscription)
-                    binding.standardOptionPrice.text = resources.getString(R.string.free)
-                    binding.standardOptionRadio.visibility = View.VISIBLE
-                    binding.standardOptionParent.setOnClickListener {
-                        sharedViewModel.selectedPremiumType.value = 0
-                    }
 
-
-                    if (bufferSelected == 0) {
-                        bufferSelected = 0
-                        binding.standardOptionParent.strokeColor = color
-                        binding.standardOptionParent.strokeWidth = 8
-
-                        binding.monthOptionParent.strokeColor = Color.TRANSPARENT
-                        binding.sixMonthOptionParent.strokeColor = Color.TRANSPARENT
-                        binding.yearOptionParent.strokeColor = Color.TRANSPARENT
-
-
-                        binding.checkMark1.visibility = View.VISIBLE
-                        binding.checkMark2.visibility = View.GONE
-                        binding.checkMark3.visibility = View.GONE
-                        binding.checkMark4.visibility = View.GONE
-
-                        binding.monthOptionParent.strokeColor = Color.TRANSPARENT
-                        binding.sixMonthOptionParent.strokeColor = Color.TRANSPARENT
-                        binding.yearOptionParent.strokeColor = Color.TRANSPARENT
-                    }
-                }
-                PremiumType.MONTH -> {
-                    sharedViewModel.selectedPremiumType.value = 1
-                    binding.standardOptionTitle.text =
-                        resources.getString(R.string.manage_subscriptions)
-                    binding.standardOptionPrice.text = null
-                    binding.standardOptionRadio.visibility = View.INVISIBLE
-                    binding.standardOptionParent.setOnClickListener {
-                        openSubscriptionScreen()
-                    }
-
-                    if (bufferSelected == 0) {
-                        if (isCancelled) {
-                            binding.checkMark2.setImageDrawable(
-                                ContextCompat.getDrawable(
-                                    requireContext(),
-                                    R.drawable.ic_baseline_help_24
-                                )
-                            )
-                        }
-                        bufferSelected = 1
-                        binding.monthOptionParent.strokeColor = color
-                        binding.monthOptionParent.strokeWidth = 8
-
-                        binding.checkMark1.visibility = View.GONE
-                        binding.checkMark2.visibility = View.VISIBLE
-                        binding.checkMark3.visibility = View.GONE
-                        binding.checkMark4.visibility = View.GONE
-
-                        binding.standardOptionParent.strokeColor = Color.TRANSPARENT
-                        binding.sixMonthOptionParent.strokeColor = Color.TRANSPARENT
-                        binding.yearOptionParent.strokeColor = Color.TRANSPARENT
-                    }
-                }
-                PremiumType.SIX_MONTH -> {
-                    sharedViewModel.selectedPremiumType.value = 2
-                    binding.standardOptionTitle.text =
-                        resources.getString(R.string.manage_subscriptions)
-                    binding.standardOptionPrice.text = null
-                    binding.standardOptionRadio.visibility = View.INVISIBLE
-                    binding.standardOptionParent.setOnClickListener {
-                        openSubscriptionScreen()
-                    }
-
-                    if (bufferSelected == 0) {
-                        if (isCancelled) {
-                            binding.checkMark3.setImageDrawable(
-                                ContextCompat.getDrawable(
-                                    requireContext(),
-                                    R.drawable.ic_baseline_help_24
-                                )
-                            )
-                        }
-                        bufferSelected = 2
-                        binding.sixMonthOptionParent.strokeColor = color
-                        binding.sixMonthOptionParent.strokeWidth = 8
-
-                        binding.checkMark1.visibility = View.GONE
-                        binding.checkMark2.visibility = View.GONE
-                        binding.checkMark3.visibility = View.VISIBLE
-                        binding.checkMark4.visibility = View.GONE
-
-                        binding.standardOptionParent.strokeColor = Color.TRANSPARENT
-                        binding.monthOptionParent.strokeColor = Color.TRANSPARENT
-                        binding.yearOptionParent.strokeColor = Color.TRANSPARENT
-                    }
-                }
-                PremiumType.YEAR -> {
-                    sharedViewModel.selectedPremiumType.value = 3
-                    binding.standardOptionTitle.text =
-                        resources.getString(R.string.manage_subscriptions)
-                    binding.standardOptionPrice.text = null
-                    binding.standardOptionRadio.visibility = View.INVISIBLE
-                    binding.standardOptionParent.setOnClickListener {
-                        openSubscriptionScreen()
-                    }
-
-                    if (bufferSelected == 0) {
-                        if (isCancelled) {
-                            binding.checkMark4.setImageDrawable(
-                                ContextCompat.getDrawable(
-                                    requireContext(),
-                                    R.drawable.ic_baseline_help_24
-                                )
-                            )
-                        }
-
-                        bufferSelected = 3
-                        binding.yearOptionParent.strokeColor = color
-                        binding.yearOptionParent.strokeWidth = 8
-
-                        binding.checkMark1.visibility = View.GONE
-                        binding.checkMark2.visibility = View.GONE
-                        binding.checkMark3.visibility = View.GONE
-                        binding.checkMark4.visibility = View.VISIBLE
-
-                        binding.standardOptionParent.strokeColor = Color.TRANSPARENT
-                        binding.monthOptionParent.strokeColor = Color.TRANSPARENT
-                        binding.sixMonthOptionParent.strokeColor = Color.TRANSPARENT
-                    }
-                }
-                null -> {
-                    sharedViewModel.selectedPremiumType.value = 0
-                }
-            }
-        }
-
-        sharedViewModel.selectedPremiumType.observe(this.viewLifecycleOwner) {
-            when (it) {
-                0 -> {
-                    binding.standardOptionRadio.isChecked = true
-                    binding.monthOptionRadio.isChecked = false
-                    binding.sixMonthOptionRadio.isChecked = false
-                    binding.yearOptionRadio.isChecked = false
-                }
+            when (selectedPremium) {
                 1 -> {
-                    binding.standardOptionRadio.isChecked = false
-                    binding.monthOptionRadio.isChecked = true
-                    binding.sixMonthOptionRadio.isChecked = false
-                    binding.yearOptionRadio.isChecked = false
+                    if (bufferSelected == 0 || isCancelled) {
+                        purchaseSubscription(
+                            loadingDialog,
+                            MainActivity.MONTH_PRODUCT,
+                            PremiumType.MONTH
+                        )
+                    } else {
+                        updatePurchaseSubscription(
+                            loadingDialog,
+                            MainActivity.MONTH_PRODUCT,
+                            PremiumType.MONTH
+                        )
+                    }
                 }
                 2 -> {
-                    binding.standardOptionRadio.isChecked = false
-                    binding.monthOptionRadio.isChecked = false
-                    binding.sixMonthOptionRadio.isChecked = true
-                    binding.yearOptionRadio.isChecked = false
+                    if (bufferSelected == 0 || isCancelled) {
+                        purchaseSubscription(
+                            loadingDialog,
+                            MainActivity.SIX_MONTH_PRODUCT,
+                            PremiumType.SIX_MONTH
+                        )
+                    } else {
+                        updatePurchaseSubscription(
+                            loadingDialog,
+                            MainActivity.SIX_MONTH_PRODUCT,
+                            PremiumType.SIX_MONTH
+                        )
+                    }
                 }
                 3 -> {
-                    binding.standardOptionRadio.isChecked = false
-                    binding.monthOptionRadio.isChecked = false
-                    binding.sixMonthOptionRadio.isChecked = false
-                    binding.yearOptionRadio.isChecked = true
+                    if (bufferSelected == 0 || isCancelled) {
+                        purchaseSubscription(
+                            loadingDialog,
+                            MainActivity.YEAR_PRODUCT,
+                            PremiumType.YEAR
+                        )
+                    } else {
+                        updatePurchaseSubscription(
+                            loadingDialog,
+                            MainActivity.YEAR_PRODUCT,
+                            PremiumType.YEAR
+                        )
+                    }
                 }
             }
+            (activity as MainActivity).checkPermissions()
+        } else {
+            findNavController().navigateUp()
         }
     }
 
-    private fun openSubscriptionScreen() {
-        val typeSubscription = when (sharedViewModel.premiumType.value) {
+    private fun purchaseSubscription(
+        loadingDialog: LoadingDialogFragment,
+        premiumProduct: String,
+        newPremiumType: PremiumType
+    ) {
+        val activity = activity as MainActivity
+
+        Qonversion.purchase(
+            activity,
+            premiumProduct,
+            object : QonversionPermissionsCallback {
+                override fun onSuccess(permissions: Map<String, QPermission>) {
+                    val premiumPermission =
+                        permissions[MainActivity.PREMIUM_PERMISSION]
+
+                    if (premiumPermission != null && premiumPermission.isActive()) {
+                        viewModel.setNewPremium(
+                            newPremiumType,
+                            hashMapOf(FirebaseRepository.UserKey.KEY_USER_PREMIUM_TYPE to newPremiumType.name)
+                        )
+                    }
+                    loadingDialog.dismiss()
+                    findNavController().navigateUp()
+                }
+
+                override fun onError(error: QonversionError) {
+                    showErrorToast(
+                        requireContext(),
+                        Exception(error.additionalMessage)
+                    )
+                    loadingDialog.dismiss()
+                }
+
+            })
+    }
+
+    private fun updatePurchaseSubscription(
+        loadingDialog: LoadingDialogFragment,
+        premiumProduct: String,
+        newPremiumType: PremiumType
+    ) {
+        val activity = activity as MainActivity
+        val prorationMode = BillingFlowParams.ProrationMode.IMMEDIATE_WITH_TIME_PRORATION
+
+        Qonversion.updatePurchase(
+            activity,
+            premiumProduct,
+            when (bufferSelected) {
+                1 -> MainActivity.MONTH_PRODUCT
+                2 -> MainActivity.SIX_MONTH_PRODUCT
+                3 -> MainActivity.YEAR_PRODUCT
+                else -> return
+            },
+            prorationMode,
+            object : QonversionPermissionsCallback {
+                override fun onSuccess(permissions: Map<String, QPermission>) {
+                    val premiumPermission =
+                        permissions[MainActivity.PREMIUM_PERMISSION]
+
+                    if (premiumPermission != null && premiumPermission.isActive()) {
+                        viewModel.setNewPremium(
+                            newPremiumType,
+                            hashMapOf(FirebaseRepository.UserKey.KEY_USER_PREMIUM_TYPE to newPremiumType.name),
+                            true
+                        )
+                    }
+                    loadingDialog.dismiss()
+                    findNavController().navigateUp()
+                }
+
+                override fun onError(error: QonversionError) {
+                    showErrorToast(
+                        requireContext(),
+                        Exception(error.additionalMessage)
+                    )
+                    loadingDialog.dismiss()
+                }
+            })
+    }
+
+    private fun restorePurchases() {
+        val loadingDialog = LoadingDialogFragment()
+        loadingDialog.isCancelable = false
+        loadingDialog.show(
+            childFragmentManager, LoadingDialogFragment.TAG
+        )
+
+        Qonversion.restore(object : QonversionPermissionsCallback {
+            override fun onSuccess(permissions: Map<String, QPermission>) {
+                val premiumPermission = permissions[MainActivity.PREMIUM_PERMISSION]
+                if (premiumPermission != null && premiumPermission.isActive()) {
+                    viewModel.updatePremium(true)
+                    (requireActivity() as MainActivity).checkPermissions()
+                }
+                loadingDialog.dismiss()
+                findNavController().navigateUp()
+                Toast.makeText(context, R.string.restored_purchases, Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onError(error: QonversionError) {
+                loadingDialog.dismiss()
+                showErrorToast(requireContext(), Exception(error.additionalMessage))
+            }
+        })
+    }
+
+
+    private fun openSubscriptionSettings() {
+        val typeSubscription = when (viewModel.premiumType.value) {
             PremiumType.STANDARD -> null
             PremiumType.MONTH -> MainActivity.MONTH_PRODUCT
             PremiumType.SIX_MONTH -> MainActivity.SIX_MONTH_PRODUCT
             PremiumType.YEAR -> MainActivity.YEAR_PRODUCT
             else -> null
         }
+
         typeSubscription?.let {
             val uri: Uri =
                 Uri.parse("https://play.google.com/store/account/subscriptions?$it&package=${requireContext().packageName}")
             startActivity(Intent(Intent.ACTION_VIEW, uri))
         }
     }
-
-    private fun purchaseSubscription() {
-        val prorationMode = BillingFlowParams.ProrationMode.IMMEDIATE_WITH_TIME_PRORATION
-        if ((sharedViewModel.selectedPremiumType.value != bufferSelected || isCancelled) &&
-            sharedViewModel.selectedPremiumType.value != 0
-        ) {
-            val activity = activity as MainActivity
-            val loadingDialog = LoadingAlertFragment()
-            loadingDialog.show(
-                childFragmentManager, LoadingAlertFragment.TAG
-            )
-
-            when (sharedViewModel.selectedPremiumType.value) {
-                1 -> {
-                    if (bufferSelected == 0 || isCancelled) {
-                        Qonversion.purchase(activity,
-                            MainActivity.MONTH_PRODUCT, object : QonversionPermissionsCallback {
-                                override fun onSuccess(permissions: Map<String, QPermission>) {
-                                    val premiumPermission =
-                                        permissions[MainActivity.PREMIUM_PERMISSION]
-                                    if (premiumPermission != null && premiumPermission.isActive()) {
-                                        sharedViewModel.updatePremiumType(PremiumType.MONTH)
-                                        activity.getSharedPreferences(
-                                            APP_FILE,
-                                            Context.MODE_PRIVATE
-                                        )
-                                            .edit()
-                                            .putBoolean(
-                                                IMPORT_CONFIRM, false
-                                            )
-                                            .putBoolean(
-                                                RESUBSCRIBE_ALERT, false
-                                            )
-                                            .apply()
-                                        activity.db.document("Users/${activity.auth.currentUser?.uid}")
-                                            .update(
-                                                hashMapOf<String, Any>(MainFragment.KEY_USER_PREMIUM_TYPE to PremiumType.MONTH.name)
-                                            )
-
-                                    }
-                                    loadingDialog.dismiss()
-                                    findNavController().navigateUp()
-                                }
-
-                                override fun onError(error: QonversionError) {
-                                    Toast.makeText(
-                                        context,
-                                        error.description,
-                                        Toast.LENGTH_LONG
-                                    )
-                                        .show()
-                                    loadingDialog.dismiss()
-                                }
-
-                            })
-                    } else {
-                        Qonversion.updatePurchase(
-                            activity,
-                            MainActivity.MONTH_PRODUCT,
-                            when (bufferSelected) {
-                                1 -> {
-                                    MainActivity.MONTH_PRODUCT
-                                }
-                                2 -> {
-                                    MainActivity.SIX_MONTH_PRODUCT
-                                }
-                                3 -> {
-                                    MainActivity.YEAR_PRODUCT
-                                }
-                                else -> {
-                                    return
-                                }
-                            },
-                            prorationMode,
-                            object : QonversionPermissionsCallback {
-                                override fun onSuccess(permissions: Map<String, QPermission>) {
-                                    val premiumPermission =
-                                        permissions[MainActivity.PREMIUM_PERMISSION]
-                                    if (premiumPermission != null && premiumPermission.isActive()) {
-                                        sharedViewModel.updatePremiumType(PremiumType.MONTH)
-                                        activity.getSharedPreferences(
-                                            APP_FILE,
-                                            Context.MODE_PRIVATE
-                                        )
-                                            .edit()
-                                            .putBoolean(
-                                                IMPORT_CONFIRM, false
-                                            )
-                                            .putBoolean(
-                                                RESUBSCRIBE_ALERT, false
-                                            )
-                                            .apply()
-                                        activity.db.document("Users/${activity.auth.currentUser?.uid}")
-                                            .update(
-                                                hashMapOf<String, Any>(MainFragment.KEY_USER_PREMIUM_TYPE to PremiumType.MONTH.name)
-                                            )
-
-                                    }
-                                    loadingDialog.dismiss()
-                                    findNavController().navigateUp()
-                                }
-
-                                override fun onError(error: QonversionError) {
-                                    Toast.makeText(
-                                        context,
-                                        error.description,
-                                        Toast.LENGTH_LONG
-                                    )
-                                        .show()
-                                    loadingDialog.dismiss()
-                                }
-
-                            })
-                    }
-                }
-                2 -> {
-                    if (bufferSelected == 0 || isCancelled) {
-                        Qonversion.purchase(activity,
-                            MainActivity.SIX_MONTH_PRODUCT, object : QonversionPermissionsCallback {
-                                override fun onSuccess(permissions: Map<String, QPermission>) {
-                                    val premiumPermission =
-                                        permissions[MainActivity.PREMIUM_PERMISSION]
-                                    if (premiumPermission != null && premiumPermission.isActive()) {
-                                        sharedViewModel.updatePremiumType(PremiumType.SIX_MONTH)
-                                        activity.getSharedPreferences(
-                                            APP_FILE,
-                                            Context.MODE_PRIVATE
-                                        )
-                                            .edit()
-                                            .putBoolean(
-                                                IMPORT_CONFIRM, false
-                                            )
-                                            .putBoolean(
-                                                RESUBSCRIBE_ALERT, false
-                                            )
-                                            .apply()
-                                        activity.db.document("Users/${activity.auth.currentUser?.uid}")
-                                            .update(
-                                                hashMapOf<String, Any>(MainFragment.KEY_USER_PREMIUM_TYPE to PremiumType.SIX_MONTH.name)
-                                            )
-
-                                    }
-                                    loadingDialog.dismiss()
-                                    findNavController().navigateUp()
-                                }
-
-                                override fun onError(error: QonversionError) {
-                                    Toast.makeText(context, error.description, Toast.LENGTH_LONG)
-                                        .show()
-                                    loadingDialog.dismiss()
-                                }
-                            })
-                    } else {
-                        Qonversion.updatePurchase(
-                            activity,
-                            MainActivity.SIX_MONTH_PRODUCT,
-                            when (bufferSelected) {
-                                1 -> {
-                                    MainActivity.MONTH_PRODUCT
-                                }
-                                2 -> {
-                                    MainActivity.SIX_MONTH_PRODUCT
-                                }
-                                3 -> {
-                                    MainActivity.YEAR_PRODUCT
-                                }
-                                else -> {
-                                    return
-                                }
-                            },
-                            prorationMode,
-                            object : QonversionPermissionsCallback {
-                                override fun onSuccess(permissions: Map<String, QPermission>) {
-                                    val premiumPermission =
-                                        permissions[MainActivity.PREMIUM_PERMISSION]
-                                    if (premiumPermission != null && premiumPermission.isActive()) {
-                                        sharedViewModel.updatePremiumType(PremiumType.SIX_MONTH)
-                                        activity.getSharedPreferences(
-                                            APP_FILE,
-                                            Context.MODE_PRIVATE
-                                        )
-                                            .edit()
-                                            .putBoolean(
-                                                IMPORT_CONFIRM, false
-                                            )
-                                            .putBoolean(
-                                                RESUBSCRIBE_ALERT, false
-                                            )
-                                            .apply()
-                                        activity.db.document("Users/${activity.auth.currentUser?.uid}")
-                                            .update(
-                                                hashMapOf<String, Any>(MainFragment.KEY_USER_PREMIUM_TYPE to PremiumType.SIX_MONTH.name)
-                                            )
-
-                                    }
-                                    loadingDialog.dismiss()
-                                    findNavController().navigateUp()
-                                }
-
-                                override fun onError(error: QonversionError) {
-                                    Toast.makeText(
-                                        context,
-                                        error.description,
-                                        Toast.LENGTH_LONG
-                                    )
-                                        .show()
-                                    loadingDialog.dismiss()
-                                }
-
-                            })
-                    }
-                }
-                3 -> {
-                    if (bufferSelected == 0 || isCancelled) {
-                        Qonversion.purchase(activity,
-                            MainActivity.YEAR_PRODUCT, object : QonversionPermissionsCallback {
-                                override fun onSuccess(permissions: Map<String, QPermission>) {
-                                    val premiumPermission =
-                                        permissions[MainActivity.PREMIUM_PERMISSION]
-                                    if (premiumPermission != null && premiumPermission.isActive()) {
-                                        sharedViewModel.updatePremiumType(PremiumType.YEAR)
-                                        activity.getSharedPreferences(
-                                            APP_FILE,
-                                            Context.MODE_PRIVATE
-                                        )
-                                            .edit()
-                                            .putBoolean(
-                                                IMPORT_CONFIRM, false
-                                            )
-                                            .putBoolean(
-                                                RESUBSCRIBE_ALERT, false
-                                            )
-                                            .apply()
-                                        activity.db.document("Users/${activity.auth.currentUser?.uid}")
-                                            .update(
-                                                hashMapOf<String, Any>(MainFragment.KEY_USER_PREMIUM_TYPE to PremiumType.YEAR.name)
-                                            )
-
-                                    }
-                                    loadingDialog.dismiss()
-                                    findNavController().navigateUp()
-                                }
-
-                                override fun onError(error: QonversionError) {
-                                    Toast.makeText(context, error.description, Toast.LENGTH_LONG)
-                                        .show()
-                                    loadingDialog.dismiss()
-                                }
-                            })
-                    } else {
-                        Qonversion.updatePurchase(
-                            activity,
-                            MainActivity.YEAR_PRODUCT,
-                            when (bufferSelected) {
-                                1 -> {
-                                    MainActivity.MONTH_PRODUCT
-                                }
-                                2 -> {
-                                    MainActivity.SIX_MONTH_PRODUCT
-                                }
-                                3 -> {
-                                    MainActivity.YEAR_PRODUCT
-                                }
-                                else -> {
-                                    return
-                                }
-                            },
-                            prorationMode,
-                            object : QonversionPermissionsCallback {
-                                override fun onSuccess(permissions: Map<String, QPermission>) {
-                                    val premiumPermission =
-                                        permissions[MainActivity.PREMIUM_PERMISSION]
-                                    if (premiumPermission != null && premiumPermission.isActive()) {
-                                        sharedViewModel.updatePremiumType(PremiumType.YEAR)
-                                        activity.getSharedPreferences(
-                                            APP_FILE,
-                                            Context.MODE_PRIVATE
-                                        )
-                                            .edit()
-                                            .putBoolean(
-                                                IMPORT_CONFIRM, false
-                                            )
-                                            .putBoolean(
-                                                RESUBSCRIBE_ALERT, false
-                                            )
-                                            .apply()
-                                        activity.db.document("Users/${activity.auth.currentUser?.uid}")
-                                            .update(
-                                                hashMapOf<String, Any>(MainFragment.KEY_USER_PREMIUM_TYPE to PremiumType.YEAR.name)
-                                            )
-                                    }
-                                    loadingDialog.dismiss()
-                                    findNavController().navigateUp()
-                                }
-
-                                override fun onError(error: QonversionError) {
-                                    Toast.makeText(
-                                        context,
-                                        error.description,
-                                        Toast.LENGTH_LONG
-                                    )
-                                        .show()
-                                    loadingDialog.dismiss()
-                                }
-
-                            })
-                    }
-                }
-            }
-            activity.checkPermissions()
-        } else {
-            findNavController().navigateUp()
-        }
-
-    }
-
-    private fun restorePurchases() {
-        val loadingView: View = LayoutInflater.from(context)
-            .inflate(
-                R.layout.alertdialog_downloading_tasks,
-                view as ViewGroup?,
-                false
-            )
-        val loadingTasksAlertDialog = MaterialAlertDialogBuilder(requireContext())
-            .setCancelable(false)
-            .setTitle(resources.getString(R.string.processing))
-            .setView(loadingView)
-
-        val loadingDialog = loadingTasksAlertDialog.create()
-        loadingDialog.show()
-
-        Qonversion.restore(object : QonversionPermissionsCallback {
-            override fun onSuccess(permissions: Map<String, QPermission>) {
-                val premiumPermission = permissions[MainActivity.PREMIUM_PERMISSION]
-                if (premiumPermission != null && premiumPermission.isActive()) {
-                    (requireActivity() as MainActivity).checkPermissions()
-                }
-                loadingDialog.dismiss()
-                findNavController().navigateUp()
-                Toast.makeText(context, R.string.restored_purchases, Toast.LENGTH_SHORT).show()
-
-            }
-
-            override fun onError(error: QonversionError) {
-                loadingDialog.dismiss()
-                Toast.makeText(context, error.description, Toast.LENGTH_LONG).show()
-            }
-        })
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-        sharedViewModel.selectedPremiumType.removeObservers(this)
-    }
-
 }

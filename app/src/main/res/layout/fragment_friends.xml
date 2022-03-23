@@ -3,16 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         paddingTopSystemWindowInsets="@{true}"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/friends_fragment_bg">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/parent_friends"
+            android:id="@+id/constraintLayout2"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tv_friend_list"
@@ -37,16 +40,19 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/parent_friends"
-            android:layout_alignParentBottom="true">
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/constraintLayout2">
 
             <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                android:id="@+id/swiperefresh"
-                android:paddingTop="50dp"
+                android:id="@+id/swipe_refresh"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="0dp"
+                android:paddingTop="50dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_friends"
@@ -54,7 +60,7 @@
                     android:layout_height="match_parent"
                     android:clipToPadding="false"
                     android:paddingHorizontal="10dp"
-                    android:paddingBottom="35dp"
+                    android:paddingBottom="55dp"
                     android:transitionGroup="true"
                     tools:listitem="@layout/list_friend" />
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
@@ -67,11 +73,12 @@
                 app:adUnitId="@string/friends_ad_unit_id"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="@id/constraintLayout" />
+
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tv_no_friends"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginBottom="75dp"
                 android:gravity="center"
                 android:text="@string/there_are_no_friends_for_showing"
@@ -83,5 +90,5 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

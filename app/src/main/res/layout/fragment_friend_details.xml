@@ -4,18 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
-            name="viewModel"
-            type="com.conboi.plannerapp.ui.main.SharedViewModel" />
-
-        <variable
-            name="friendLayout"
-            type="com.conboi.plannerapp.model.FriendType" />
+            name="friend"
+            type="com.conboi.plannerapp.data.model.FriendType" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/parent_friend_details"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
@@ -32,11 +26,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
-                app:title="@{friendLayout.user_name}">
+                app:title="@{friend.user_name}">
 
                 <ImageView
-                    android:id="@+id/friend_avatar"
-                    loadProfileImage="@{friendLayout.user_photo_url}"
+                    android:id="@+id/iv_avatar"
+                    ivLoadProfileImage="@{friend.user_photo_url}"
                     android:layout_width="170dp"
                     android:layout_height="170dp"
                     android:layout_gravity="end"
@@ -75,7 +69,7 @@
                 android:layout_height="match_parent">
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/tv_tasks_msg"
+                    android:id="@+id/tv_msg_empty"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
@@ -89,7 +83,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:ellipsize="end"
-                    android:text="@{friendLayout.user_email}"
+                    android:text="@{friend.user_email}"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
@@ -102,7 +96,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="4dp"
-                    android:text="@{@string/total_completed_tasks(friendLayout.user_count_completed)}"
+                    android:text="@{@string/total_completed_tasks(friend.user_count_completed)}"
                     android:textSize="12sp"
                     app:layout_constraintStart_toStartOf="@+id/tv_email"
                     app:layout_constraintTop_toBottomOf="@+id/tv_email"
@@ -110,7 +104,7 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_added"
-                    setFriendAdded="@{friendLayout.user_friend_adding_time}"
+                    mTvSetFriendAdded="@{friend.user_friend_adding_time}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
@@ -121,21 +115,21 @@
                     tools:text="@string/added_friend_time" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/count_of_tasks"
+                    android:id="@+id/tv_count_of_tasks"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:textSize="14sp"
                     app:layout_constraintBottom_toTopOf="@+id/divider"
-                    app:layout_constraintEnd_toStartOf="@+id/friend_private_mode"
+                    app:layout_constraintEnd_toStartOf="@+id/m_btn_private"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="@string/count_of_tasks" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/friend_private_mode"
+                    android:id="@+id/m_btn_private"
                     android:layout_width="66dp"
-                    android:layout_margin="16dp"
                     android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
                     app:icon="@drawable/ic_baseline_person_24"
                     app:layout_constraintBottom_toTopOf="@+id/divider"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -152,11 +146,11 @@
                     app:layout_constraintTop_toBottomOf="@id/tv_added" />
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_friend_task"
+                    android:id="@+id/rv_tasks"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="88dp"
+                    android:layout_height="0dp"
                     android:clipToPadding="false"
+                    android:nestedScrollingEnabled="false"
                     android:paddingTop="8dp"
                     android:paddingBottom="55dp"
                     app:layout_behavior="@string/appbar_scrolling_view_behavior"

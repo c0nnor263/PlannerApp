@@ -20,40 +20,8 @@
         <item name="materialAlertDialogTheme">@style/mMaterialAlertDialog.Rounded</item>
         <item name="android:fontFamily">@font/plannerapp_font_family_en_ru</item>
 
+
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
     </style>
 
-
-    <style name="PlannerApp.Theme.Friends" parent="PlannerApp.Theme.Main">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/primaryColorFire</item>
-        <item name="colorPrimaryVariant">@color/primaryLightColorFire</item>
-        <item name="colorOnPrimary">@color/primaryTextColor</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/secondaryColorFire</item>
-        <item name="colorSecondaryVariant">@color/secondaryDarkColorFire</item>
-        <item name="colorOnSecondary">@color/secondaryTextColor</item>
-
-    </style>
-
-    <style name="PlannerApp.Theme.Profile" parent="PlannerApp.Theme.Main">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/primaryColorTree</item>
-        <item name="colorPrimaryVariant">@color/primaryLightColorTree</item>
-        <item name="colorOnPrimary">@color/primaryTextColor</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/secondaryColorTree</item>
-        <item name="colorSecondaryVariant">@color/secondaryDarkColorTree</item>
-        <item name="colorOnSecondary">@color/secondaryTextColor</item>
-    </style>
-
-    <style name="PlannerApp.Theme.Task_and_Settings" parent="PlannerApp.Theme.Main">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/primaryColorAir</item>
-        <item name="colorPrimaryVariant">@color/primaryLightColorAir</item>
-        <item name="colorOnPrimary">@color/primaryTextColor</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/secondaryColorAir</item>
-        <item name="colorSecondaryVariant">@color/secondaryDarkColorAir</item>
-        <item name="colorOnSecondary">@color/secondaryTextColor</item>
-    </style>
 </resources>

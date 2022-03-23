@@ -2,8 +2,5 @@
 <resources>
     <integer name="reply_motion_duration_large">300</integer>
     <integer name="reply_motion_duration_medium">225</integer>
-    <integer name="reply_motion_duration_small">175</integer>
     <integer name="color_animation_duration_large">500</integer>
-    <integer name="color_animation_duration_medium">400</integer>
-    <integer name="color_animation_duration_small">300</integer>
 </resources>
