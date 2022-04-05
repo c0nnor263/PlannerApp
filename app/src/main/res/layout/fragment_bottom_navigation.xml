@@ -100,7 +100,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/divider"
-            app:menu="@menu/bottom_navigation_view_menu" />
+            app:menu="@menu/b_navigation_view_menu" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

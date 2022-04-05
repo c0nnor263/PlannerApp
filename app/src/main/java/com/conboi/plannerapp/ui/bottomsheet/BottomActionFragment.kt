@@ -36,10 +36,10 @@ class BottomActionFragment : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         when (arguments?.getString("action")) {
             BottomAction.DELETE.name -> {
-                binding.nvBottomActions.inflateMenu(R.menu.bottom_app_bar_main_delete_menu)
+                binding.nvBottomActions.inflateMenu(R.menu.b_app_bar_main_delete_menu)
             }
             BottomAction.SORT.name -> {
-                binding.nvBottomActions.inflateMenu(R.menu.bottom_app_bar_main_sort_menu)
+                binding.nvBottomActions.inflateMenu(R.menu.b_app_bar_main_sort_menu)
             }
         }
 

@@ -31,7 +31,7 @@
             app:fabCradleVerticalOffset="4dp"
             app:hideOnScroll="true"
             app:layout_scrollFlags="scroll|enterAlways"
-            app:menu="@menu/bottom_app_bar_main_menu"
+            app:menu="@menu/b_app_bar_main_menu"
             app:navigationIcon="@drawable/ic_baseline_menu_24">
 
             <LinearLayout

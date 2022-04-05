@@ -247,7 +247,7 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskListInterface,
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        menuInflater.inflate(R.menu.bottom_app_bar_main_menu, menu)
+        menuInflater.inflate(R.menu.b_app_bar_main_menu, menu)
         viewModel.allCompletedTaskSize.observe(viewLifecycleOwner) {
             menu.findItem(R.id.action_hide_completed_tasks).isEnabled = it > 0
         }

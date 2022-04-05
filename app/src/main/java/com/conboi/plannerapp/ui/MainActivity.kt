@@ -26,7 +26,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.MenuProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
@@ -429,7 +428,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         hideBottomAppBar()
         bottomAppBar.setFabAlignmentModeAndReplaceMenu(
             BottomAppBar.FAB_ALIGNMENT_MODE_END,
-            R.menu.bottom_app_bar_empty_menu
+            R.menu.b_app_bar_empty_menu
         )
         setColor(MAIN_TAG)
     }
@@ -447,7 +446,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         updateFabMainWithDrawable(R.drawable.ic_baseline_person_search_24)
         bottomAppBar.setFabAlignmentModeAndReplaceMenu(
             BottomAppBar.FAB_ALIGNMENT_MODE_END,
-            R.menu.bottom_app_bar_empty_menu
+            R.menu.b_app_bar_empty_menu
         )
         showFabAndAppBar()
 
@@ -466,7 +465,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         updateFabMainWithDrawable(R.drawable.ic_baseline_edit_24)
         bottomAppBar.setFabAlignmentModeAndReplaceMenu(
             BottomAppBar.FAB_ALIGNMENT_MODE_END,
-            R.menu.bottom_app_bar_empty_menu
+            R.menu.b_app_bar_empty_menu
         )
         showFabAndAppBar()
         setColor(PROFILE_TAG)
@@ -480,7 +479,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
         bottomAppBar.setFabAlignmentModeAndReplaceMenu(
             BottomAppBar.FAB_ALIGNMENT_MODE_END,
-            R.menu.bottom_app_bar_empty_menu
+            R.menu.b_app_bar_empty_menu
         )
         hideBottomAppBar()
 
