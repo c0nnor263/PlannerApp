@@ -2,6 +2,7 @@ package com.conboi.plannerapp.data.source.remote.repo
 
 import android.app.AlarmManager
 import android.content.Context
+import android.util.Log
 import com.conboi.plannerapp.data.model.FriendType
 import com.conboi.plannerapp.data.model.TaskType
 import com.conboi.plannerapp.utils.*
@@ -298,7 +299,7 @@ class FirebaseRepository @Inject constructor(
             backupTasks.data?.isEmpty() == true &&
             isBackupDownloaded
         ) {
-            FirebaseResult.Error<Exception>(null)
+            return@firebaseCall FirebaseResult.Error(null)
         }
         FirebaseResult.Success(lastSyncTime)
     }
@@ -322,16 +323,18 @@ class FirebaseRepository @Inject constructor(
         val mapFromTasks: MutableMap<String, Any>? = tasksDocument?.data
 
 
-        val downloadedTasksList: MutableList<String> = ArrayList()
+        val stringTaskList: MutableList<String> = ArrayList()
         val processedList: MutableList<TaskType> = ArrayList()
+
         if (mapFromTasks != null) {
             //Get map value from key task
             for ((key) in mapFromTasks) {
-                downloadedTasksList.add(key)
+                stringTaskList.add(key)
             }
 
-            downloadedTasksList.forEach { task ->
-                val currentTime = System.currentTimeMillis()
+            stringTaskList.forEach { task ->
+                Log.d("TAG", "downloadUserTasks:$task ")
+                val currentTime = System.currentTimeMillis() + stringTaskList.indexOf(task)
 
                 val id = tasksDocument.getLong(
                     "$task.${TaskType.COLUMN_ID}"
@@ -422,20 +425,12 @@ class FirebaseRepository @Inject constructor(
             }
         } else {
             // Map of tasks is  null
-            FirebaseResult.Error<Exception>(Exception("There is no tasks for download"))
+            return@firebaseCall FirebaseResult.Error(Exception("There is no tasks for download"))
         }
 
-        processedList.addAll(currentList.ifEmpty { arrayListOf() })
+        processedList.removeAll(currentList.ifEmpty { arrayListOf() })
 
         // Creating unique task list
-        currentList.forEach { cTask ->
-            processedList.filterNot { pTask ->
-                pTask.idTask == cTask.idTask &&
-                        pTask.created == cTask.created &&
-                        pTask.title == cTask.title
-            }
-        }
-
         currentList.forEach { cTask ->
             processedList.forEach { pTask ->
                 if (pTask.idTask == cTask.idTask) {
@@ -448,8 +443,8 @@ class FirebaseRepository @Inject constructor(
                 }
             }
         }
-
         processedList.sortBy { it.created }
+        Log.d("TAG", "downloadUserTasks:result success $processedList")
         FirebaseResult.Success(processedList)
     }
 
@@ -489,13 +484,19 @@ class FirebaseRepository @Inject constructor(
 
             //Searching a friend
             usersList.forEach { listUser ->
+                Log.d("TAG", "inviteFriend: ${listUser.getString(UserKey.KEY_USER_ID)} $searchId")
                 if (listUser.getString(UserKey.KEY_USER_ID) == searchId) {
+
                     for (friendDocument in friendList) {
                         if (searchId == friendDocument.getString(
                                 UserKey.KEY_USER_ID
                             )
                         ) {
-                            FirebaseResult.Error<Exception>(Exception(InviteFriendError.FRIEND_ALREADY.name))
+                            return@firebaseCall FirebaseResult.Error(
+                                Exception(
+                                    InviteFriendError.FRIEND_ALREADY.name
+                                )
+                            )
                         }
                     }
 
@@ -569,7 +570,6 @@ class FirebaseRepository @Inject constructor(
                         }
                     }
 
-
                     userFriendIdReference(friendMap[UserKey.KEY_USER_ID] as String)?.set(
                         friendMap
                     )?.await()
@@ -579,11 +579,11 @@ class FirebaseRepository @Inject constructor(
 
                     FirebaseResult.Success(null)
                 } else {
-                    FirebaseResult.Error(Exception(InviteFriendError.NOT_EXIST.name))
+                    return@firebaseCall FirebaseResult.Error(Exception(InviteFriendError.NOT_EXIST.name))
                 }
             }
         } else {
-            FirebaseResult.Error<Exception>(Exception(InviteFriendError.ADD_YOURSELF.name))
+            return@firebaseCall FirebaseResult.Error(Exception(InviteFriendError.ADD_YOURSELF.name))
         }
         FirebaseResult.Success(null)
     }
@@ -658,7 +658,7 @@ class FirebaseRepository @Inject constructor(
                         .sortedByDescending { it.priority.ordinal }
                 FirebaseResult.Success(sortedList)
             } else {
-                FirebaseResult.Error(null)
+                return@firebaseCall FirebaseResult.Error(null)
             }
         }
 

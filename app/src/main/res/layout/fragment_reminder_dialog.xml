@@ -8,7 +8,7 @@
 
         <variable
             name="layoutViewModel"
-            type="com.conboi.plannerapp.ui.main.task.TaskDetailViewModel" />
+            type="com.conboi.plannerapp.ui.main.task.dialog.ReminderDialogViewModel" />
     </data>
 
     <ScrollView
@@ -30,7 +30,7 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tiet_time_reminder"
-                    tietSetTaskTime="@{layoutViewModel.newTime}"
+                    tietSetTaskTime="@{layoutViewModel.bufferTime}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
@@ -51,7 +51,7 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tiet_date_reminder"
-                    tietSetTaskDate="@{layoutViewModel.newTime}"
+                    tietSetTaskDate="@{layoutViewModel.bufferTime}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
@@ -72,7 +72,7 @@
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/actv_repeat_reminder"
-                    mActvSetRepeatMode="@{layoutViewModel.newRepeatMode}"
+                    mActvSetRepeatMode="@{layoutViewModel.bufferRepeatMode}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clickable="true"
@@ -116,7 +116,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="8dp"
                 android:text="@string/remove_reminder"
-                android:visibility="@{layoutViewModel.newTime == 0 ? View.GONE:View.VISIBLE}"
+                android:visibility="@{layoutViewModel.bufferTime == 0 ? View.GONE:View.VISIBLE}"
                 app:icon="@drawable/ic_baseline_delete_24"
                 app:layout_constraintEnd_toEndOf="@+id/iv_btn_open_datepicker"
                 app:layout_constraintStart_toStartOf="@+id/til_reminder_repeat"

@@ -36,7 +36,7 @@
                 android:clipToPadding="false"
                 android:paddingHorizontal="2dp"
                 android:paddingTop="85dp"
-                android:paddingBottom="?attr/actionBarSize"
+                android:paddingBottom="128dp"
                 android:scrollbars="none"
                 android:transitionGroup="true"/>
         </FrameLayout>

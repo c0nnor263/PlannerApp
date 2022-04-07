@@ -38,6 +38,7 @@ class InviteFriendDialogFragment(val callback: InviteFriendDialogCallback) : Dia
             )
             val negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
 
+
             positiveButton.setOnClickListener {
                 val enteredId = binding.inputId.text.toString().trim()
 

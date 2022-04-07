@@ -54,7 +54,6 @@ import com.qonversion.android.sdk.QonversionPermissionsCallback
 import com.qonversion.android.sdk.dto.QPermission
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.text.DateFormat
@@ -122,24 +121,8 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskListInterface,
         initRv()
 
         viewModel.premiumState.observe(viewLifecycleOwner) {
-            if (it) {
-                hideAdView(
-                    binding.adView,
-                    viewToPadding = binding.rvTasks,
-                    8
-                )
-            } else {
-                adView =
-                    showAdView(
-                        requireContext(),
-                        binding.adView,
-                        viewToPadding = binding.rvTasks,
-                        55
-                    )
-                binding.rvTasks.scrollToPosition(0)
-            }
+            viewModel.sendGetPremiumEvent(it)
         }
-
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 // Events observer
@@ -181,6 +164,24 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskListInterface,
                             showCantOvercheckDialog(requireContext())
                             viewModel.sendCantOvercheckEvent(null)
                         }
+                        is MainViewModel.MainFragmentEvent.GetPremium ->{
+                            if (currentState.alreadyGot) {
+                                hideAdView(
+                                    binding.adView,
+                                    viewToPadding = binding.rvTasks,
+                                    8
+                                )
+                            } else {
+                                adView =
+                                    showAdView(
+                                        requireContext(),
+                                        binding.adView,
+                                        viewToPadding = binding.rvTasks,
+                                        55
+                                    )
+                                binding.rvTasks.scrollToPosition(0)
+                            }
+                        }
                         is MainViewModel.MainFragmentEvent.ShowSync -> {
                             showSyncDialog(
                                 currentState.premium,
@@ -211,12 +212,6 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskListInterface,
             }
         }
 
-
-        viewModel.authState.observe(viewLifecycleOwner) {
-            if (it == FirebaseUserLiveData.AuthenticationState.AUTHENTICATED) viewModel.initUser()
-        }
-
-
         // List of sorted tasks
         viewModel.sortedTasks.observe(viewLifecycleOwner) {
             if (mAdapter.currentList.isNotEmpty()) {
@@ -227,6 +222,11 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskListInterface,
                 startPostponedEnterTransition()
             }
         }
+
+        viewModel.authState.observe(viewLifecycleOwner) {
+            if (it == FirebaseUserLiveData.AuthenticationState.AUTHENTICATED) viewModel.initUser()
+        }
+
 
         // Size of tasks list
         viewModel.taskSize.observe(viewLifecycleOwner) {
@@ -380,9 +380,7 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskListInterface,
     }
 
     override fun beginInsert(inputAmount: String) {
-        val enteredCount = inputAmount.toInt()
 
-        viewModel.increaseRateUs(enteredCount)
         viewModel.insertMultiTasks(
             inputAmount
         ) { result, error ->
@@ -528,18 +526,16 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskListInterface,
             }
         }).attachToRecyclerView(this)
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            delay(1000)
-            mAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-                override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                    super.onItemRangeInserted(positionStart, itemCount)
-                    (binding.rvTasks.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
-                        positionStart,
-                        0
-                    )
-                }
-            })
-        }
+
+        mAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                (binding.rvTasks.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
+                    positionStart,
+                    0
+                )
+            }
+        })
     }
 
     // Firebase
@@ -560,7 +556,7 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskListInterface,
         })
     }
 
-    private fun downloadServerList() = runBlocking {
+    fun downloadServerList() = runBlocking {
         val loadingDialog = LoadingDialogFragment()
         loadingDialog.isCancelable = false
         loadingDialog.show(
@@ -602,7 +598,8 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskListInterface,
     }
 
     private fun addingMultipleTasks() {
-        val inputTaskAmountDialogFragment = InputTaskAmountDialogFragment(this)
+        val inputTaskAmountDialogFragment =
+            InputTaskAmountDialogFragment(viewModel.premiumState.value ?: false, this)
         inputTaskAmountDialogFragment.show(parentFragmentManager, InputTaskAmountDialogFragment.TAG)
     }
 

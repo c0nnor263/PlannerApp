@@ -10,7 +10,7 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.doOnPreDraw
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -48,7 +48,7 @@ class FriendsFragment : BaseTabFragment(), FriendListInterface, InviteFriendDial
     private var _binding: FragmentFriendsBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: FriendsViewModel by viewModels()
+    private val viewModel: FriendsViewModel by activityViewModels()
 
     private lateinit var mAdapterFriends: FriendAdapter
 

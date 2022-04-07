@@ -1,4 +1,4 @@
-package com.conboi.plannerapp.ui.main.task
+package com.conboi.plannerapp.ui.main.task.dialog
 
 import android.app.Dialog
 import android.os.Bundle
@@ -8,8 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import com.conboi.plannerapp.R
+import com.conboi.plannerapp.data.model.TaskType
 import com.conboi.plannerapp.databinding.FragmentDeadlineDialogBinding
 import com.conboi.plannerapp.interfaces.dialog.DeadlineDialogCallback
 import com.conboi.plannerapp.utils.GLOBAL_START_DATE
@@ -19,39 +20,21 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
-import dagger.hilt.android.AndroidEntryPoint
 import java.text.DateFormat
 import java.util.*
 
-@AndroidEntryPoint
 class DeadlineDialogFragment(
-    val callback: DeadlineDialogCallback
+    private val initialTask: TaskType,
+    private val inCalendarTime: Long,
+    val callback: DeadlineDialogCallback,
 ) : DialogFragment() {
     private var _binding: FragmentDeadlineDialogBinding? = null
     val binding get() = _binding!!
 
-    val viewModel: TaskDetailViewModel by activityViewModels()
-
-    private lateinit var newCalendar: Calendar
+    val viewModel: DeadlineDialogViewModel by viewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = FragmentDeadlineDialogBinding.inflate(layoutInflater)
-        val initialDeadline = viewModel.initialTask.value!!.deadline
-
-        newCalendar = Calendar.getInstance().apply {
-            timeInMillis =
-                if (initialDeadline != GLOBAL_START_DATE) initialDeadline else GLOBAL_START_DATE
-
-            set(
-                Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR)
-            )
-            set(
-                Calendar.MONTH, Calendar.getInstance().get(Calendar.MONTH)
-            )
-            set(
-                Calendar.DAY_OF_MONTH, Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
-            )
-        }
 
         val thisDialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle(resources.getString(R.string.add_deadline))
@@ -66,7 +49,10 @@ class DeadlineDialogFragment(
                 val negativeBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
 
                 positiveBtn.setOnClickListener {
-                    callback.saveDeadline(newCalendar)
+                    val newCalendar = viewModel.bufferCalendar.value!!
+                    val newMissed = viewModel.bufferMissed.value!!
+
+                    callback.saveDeadline(newCalendar, newMissed)
                     dialog.dismiss()
                 }
                 negativeBtn.setOnClickListener {
@@ -88,28 +74,47 @@ class DeadlineDialogFragment(
         binding.lifecycleOwner = this
         binding.layoutViewModel = viewModel
 
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis =
+                if (initialTask.deadline != GLOBAL_START_DATE) inCalendarTime else GLOBAL_START_DATE
+
+            set(
+                Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR)
+            )
+            set(
+                Calendar.MONTH, Calendar.getInstance().get(Calendar.MONTH)
+            )
+            set(
+                Calendar.DAY_OF_MONTH, Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
+            )
+        }
+
+        viewModel.updateBufferCalendar(calendar)
+        viewModel.updateBufferMissed(initialTask.missed)
+        viewModel.updateBufferDeadline(initialTask.deadline)
+
+
         binding.ivBtnOpenTimepicker.setOnClickListener {
-            newCalendar = createTimePickerDeadline(newCalendar)
+            viewModel.updateBufferCalendar(createTimePickerDeadline())
         }
         binding.ivBtnOpenDatepicker.setOnClickListener {
-            newCalendar = createDatePickerDeadline(newCalendar)
+            viewModel.updateBufferCalendar(createDatePickerDeadline())
         }
 
         binding.mBtnRemoveDeadline.setOnClickListener {
-            viewModel.removeDeadline()
             dismiss()
-
-            binding.tietTimeDeadline.setText(resources.getString(R.string.time_word))
-            binding.tietDateDeadline.setText(resources.getString(R.string.date_word))
 
             callback.removeDeadline()
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
-    private fun createTimePickerDeadline(
-        calendar: Calendar
-    ): Calendar {
+    private fun createTimePickerDeadline(): Calendar {
+        val calendar = viewModel.bufferCalendar.value!!
         val clockFormat =
             if (is24HourFormat(context)) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H
 
@@ -131,16 +136,15 @@ class DeadlineDialogFragment(
                     Date(calendar.timeInMillis)
                 )
             )
-            viewModel.updateDeadlineValue(calendar.timeInMillis)
-            viewModel.updateMissedValue(false)
+            viewModel.updateBufferDeadline(calendar.timeInMillis)
+            viewModel.updateBufferMissed(false)
         }
         picker.show(requireActivity().supportFragmentManager, "tag")
         return calendar
     }
 
-    private fun createDatePickerDeadline(
-        calendar: Calendar
-    ): Calendar {
+    private fun createDatePickerDeadline(): Calendar {
+        val calendar = viewModel.bufferCalendar.value!!
         val picker = MaterialDatePicker.Builder.datePicker()
             .setTitleText(resources.getString(R.string.select_date))
             .setCalendarConstraints(
@@ -166,16 +170,11 @@ class DeadlineDialogFragment(
                     Date(calendar.timeInMillis)
                 )
             )
-            viewModel.updateDeadlineValue(calendar.timeInMillis)
-            viewModel.updateMissedValue(false)
+            viewModel.updateBufferDeadline(calendar.timeInMillis)
+            viewModel.updateBufferMissed(false)
         }
         picker.show(requireActivity().supportFragmentManager, "tag")
         return calendar
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     companion object {

@@ -175,30 +175,36 @@ class MainViewModel @Inject constructor(
         callback: (Int?, Exception?) -> Unit
     ) =
         viewModelScope.launch {
-            val maxTaskCount =
-                MAX_TASK_COUNT + if (premiumState.value == true) 50 else 0
-            var enteredCount = inputAmountString.toInt()
+            withContext(ioDispatcher) {
+                val maxTaskCount =
+                    MAX_TASK_COUNT + if (premiumState.value == true) 50 else 0
+                var enteredCount = inputAmountString.toInt()
 
-            if (inputAmountString.isNotEmpty()) {
-                if (isListNotFull()) {
-                    if (enteredCount in 1..MAX_TASK_COUNT) {
-                        if (enteredCount.plus(taskSize.value!!) > maxTaskCount
-                        ) {
-                            enteredCount = maxTaskCount - taskSize.value!!
+                if (inputAmountString.isNotEmpty()) {
+                    if (isListNotFull()) {
+                        if (enteredCount in 1..MAX_TASK_COUNT) {
+                            val addTaskSum = enteredCount + taskSize.value!!
+
+                            if (addTaskSum > maxTaskCount) {
+                                enteredCount = maxTaskCount - taskSize.value!!
+                            } else if (addTaskSum > MAX_ADD_TASK) {
+                                enteredCount = MAX_ADD_TASK
+                            }
+                            repeat(enteredCount) {
+                                taskRepository.insertTask()
+                                increaseRateUs()
+                            }
+
+                            updateMiddleList()
+                            callback(enteredCount, null)
+                        } else {
+                            callback(null, Exception(InsertMultipleTaskError.INCORRECT.name))
                         }
-                        callback(enteredCount, null)
                     } else {
-                        callback(null, Exception(InsertMultipleTaskError.INCORRECT.name))
+                        callback(null, Exception(InsertMultipleTaskError.MAXIMUM.name))
                     }
-                } else {
-                    callback(null, Exception(InsertMultipleTaskError.MAXIMUM.name))
                 }
             }
-
-            repeat(enteredCount) {
-                taskRepository.insertTask()
-            }
-            updateMiddleList()
         }
 
     fun downloadTasks(
@@ -220,8 +226,6 @@ class MainViewModel @Inject constructor(
                 withContext(ioDispatcher) {
                     taskRepository.insertDownloadedTasks(downloadTasks)
                 }
-
-
             } else {
                 callback(null, result.error)
             }
@@ -346,7 +350,12 @@ class MainViewModel @Inject constructor(
         _uiState.value = if (show == true) MainFragmentEvent.ShowEmailNotConfirmed else null
     }
 
+    fun sendGetPremiumEvent(alreadyGot: Boolean = false) {
+        _uiState.value = MainFragmentEvent.GetPremium(alreadyGot)
+    }
+
     sealed class MainFragmentEvent {
+        data class GetPremium(val alreadyGot: Boolean) : MainFragmentEvent()
         data class ShowSync(val premium: Boolean, val lastSyncString: String) : MainFragmentEvent()
         data class SwipeDeleteTask(val task: TaskType) : MainFragmentEvent()
         object ShowImportServerTasks : MainFragmentEvent()
@@ -358,5 +367,6 @@ class MainViewModel @Inject constructor(
         object ShowExit : MainFragmentEvent()
         object ShowCantOvercheck : MainFragmentEvent()
         object ShowCantCheck : MainFragmentEvent()
+
     }
 }

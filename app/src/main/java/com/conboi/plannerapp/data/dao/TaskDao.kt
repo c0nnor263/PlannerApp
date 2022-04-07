@@ -55,7 +55,7 @@ interface TaskDao {
         hideOvercompleted: Boolean
     ): Flow<List<TaskType>>
 
-    @Query("SELECT * FROM $TABLE_NAME WHERE (:hideOvercompleted != (totalChecked > 1) or $COLUMN_TOTAL_CHECKED < 2) AND (:hideCompleted != checked or (checked = 0 or totalChecked > 1)) AND title LIKE '%' || :searchQuery || '%' ORDER BY completed DESC, priority DESC")
+    @Query("SELECT * FROM $TABLE_NAME WHERE (:hideOvercompleted != (totalChecked > 1) or $COLUMN_TOTAL_CHECKED < 2) AND (:hideCompleted != checked or (checked = 0 or totalChecked > 1)) AND title LIKE '%' || :searchQuery || '%' ORDER BY completed, priority DESC")
     fun getTasksSortByCompletedDate(
         searchQuery: String,
         hideCompleted: Boolean,

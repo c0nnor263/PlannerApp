@@ -22,56 +22,7 @@ import java.util.*
 class IntroActivity : AppIntro() {
     private val viewModel: IntroViewModel by viewModels()
 
-    private val listOfFragments = listOf(
-        AppIntroCustomFragment.newInstance(
-            title = resources.getString(R.string.slide1_title),
-            imageDrawable = R.drawable.ic_logo,
-            description = resources.getString(R.string.slide1_desc),
-            backgroundColor = ContextCompat.getColor(this, R.color.secondaryDarkColorWater)
-        ),
-        AppIntroCustomFragment.newInstance(
-            title = resources.getString(R.string.slide2_title),
-            imageDrawable = R.drawable.intro_checking_crop_gif,
-            description = resources.getString(R.string.slide2_desc),
-            backgroundColor = ContextCompat.getColor(this, R.color.secondaryDarkColorWater)
-        ),
-        AppIntroCustomFragment.newInstance(
-            title = resources.getString(R.string.slide3_title),
-            imageDrawable = R.drawable.intro_typing_crop_gif,
-            description = resources.getString(R.string.slide3_desc),
-            backgroundColor = ContextCompat.getColor(this, R.color.primaryDarkColorFire)
-        ),
-        AppIntroCustomFragment.newInstance(
-            title = resources.getString(R.string.slide4_title),
-            imageDrawable = R.drawable.intro_adding_multiple_gif,
-            description = resources.getString(R.string.slide4_desc),
-            backgroundColor = ContextCompat.getColor(this, R.color.primaryDarkColorFire)
-        ),
-        AppIntroCustomFragment.newInstance(
-            title = resources.getString(R.string.slide5_title),
-            imageDrawable = R.drawable.intro_deleting_crop_gif,
-            description = resources.getString(R.string.slide5_desc),
-            backgroundColor = ContextCompat.getColor(this, R.color.secondaryDarkColorTree)
-        ),
-        AppIntroCustomFragment.newInstance(
-            title = resources.getString(R.string.delete_friend),
-            imageDrawable = R.drawable.intro_deleting_friend_crop_gif,
-            description = resources.getString(R.string.slide6_desc),
-            backgroundColor = ContextCompat.getColor(this, R.color.secondaryDarkColorTree)
-        ),
-        AppIntroCustomFragment.newInstance(
-            title = resources.getString(R.string.settings),
-            imageDrawable = R.drawable.intro_settings_gif,
-            description = resources.getString(R.string.slide7_desc),
-            backgroundColor = ContextCompat.getColor(this, R.color.secondaryDarkColorAir)
-        ),
-        AppIntroCustomFragment.newInstance(
-            title = resources.getString(R.string.slide8_title),
-            imageDrawable = R.drawable.intro_switch_tab,
-            description = resources.getString(R.string.slide8_desc),
-            backgroundColor = ContextCompat.getColor(this, R.color.secondaryDarkColorWater)
-        )
-    )
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,6 +30,57 @@ class IntroActivity : AppIntro() {
     }
 
     private fun initIntro() {
+        val listOfFragments = listOf(
+            AppIntroCustomFragment.newInstance(
+                title = resources.getString(R.string.slide1_title),
+                imageDrawable = R.drawable.ic_logo,
+                description = resources.getString(R.string.slide1_desc),
+                backgroundColor = ContextCompat.getColor(this, R.color.secondaryDarkColorWater)
+            ),
+            AppIntroCustomFragment.newInstance(
+                title = resources.getString(R.string.slide2_title),
+                imageDrawable = R.drawable.intro_checking_crop_gif,
+                description = resources.getString(R.string.slide2_desc),
+                backgroundColor = ContextCompat.getColor(this, R.color.secondaryDarkColorWater)
+            ),
+            AppIntroCustomFragment.newInstance(
+                title = resources.getString(R.string.slide3_title),
+                imageDrawable = R.drawable.intro_typing_crop_gif,
+                description = resources.getString(R.string.slide3_desc),
+                backgroundColor = ContextCompat.getColor(this, R.color.primaryDarkColorFire)
+            ),
+            AppIntroCustomFragment.newInstance(
+                title = resources.getString(R.string.slide4_title),
+                imageDrawable = R.drawable.intro_adding_multiple_gif,
+                description = resources.getString(R.string.slide4_desc),
+                backgroundColor = ContextCompat.getColor(this, R.color.primaryDarkColorFire)
+            ),
+            AppIntroCustomFragment.newInstance(
+                title = resources.getString(R.string.slide5_title),
+                imageDrawable = R.drawable.intro_deleting_crop_gif,
+                description = resources.getString(R.string.slide5_desc),
+                backgroundColor = ContextCompat.getColor(this, R.color.secondaryDarkColorTree)
+            ),
+            AppIntroCustomFragment.newInstance(
+                title = resources.getString(R.string.delete_friend),
+                imageDrawable = R.drawable.intro_deleting_friend_crop_gif,
+                description = resources.getString(R.string.slide6_desc),
+                backgroundColor = ContextCompat.getColor(this, R.color.secondaryDarkColorTree)
+            ),
+            AppIntroCustomFragment.newInstance(
+                title = resources.getString(R.string.settings),
+                imageDrawable = R.drawable.intro_settings_gif,
+                description = resources.getString(R.string.slide7_desc),
+                backgroundColor = ContextCompat.getColor(this, R.color.secondaryDarkColorAir)
+            ),
+            AppIntroCustomFragment.newInstance(
+                title = resources.getString(R.string.slide8_title),
+                imageDrawable = R.drawable.intro_switch_tab,
+                description = resources.getString(R.string.slide8_desc),
+                backgroundColor = ContextCompat.getColor(this, R.color.secondaryDarkColorWater)
+            )
+        )
+
         setImmersiveMode()
         isColorTransitionsEnabled = true
         isSystemBackButtonLocked = true

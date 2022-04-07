@@ -1,4 +1,4 @@
-package com.conboi.plannerapp.ui.main.task
+package com.conboi.plannerapp.ui.main.task.dialog
 
 import android.app.Dialog
 import android.os.Bundle
@@ -8,8 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import com.conboi.plannerapp.R
+import com.conboi.plannerapp.data.model.TaskType
 import com.conboi.plannerapp.databinding.FragmentReminderDialogBinding
 import com.conboi.plannerapp.interfaces.dialog.ReminderDialogCallback
 import com.conboi.plannerapp.utils.GLOBAL_START_DATE
@@ -20,40 +21,22 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
-import java.text.DateFormat
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
-
+@AndroidEntryPoint
 class ReminderDialogFragment(
-    val callback: ReminderDialogCallback
+    private val initialTask: TaskType,
+    private val inCalendarTime: Long,
+    val callback: ReminderDialogCallback,
 ) : DialogFragment() {
     private var _binding: FragmentReminderDialogBinding? = null
     val binding get() = _binding!!
 
-    val viewModel: TaskDetailViewModel by activityViewModels()
-
-    private lateinit var newCalendar: Calendar
+    val viewModel: ReminderDialogViewModel by viewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = FragmentReminderDialogBinding.inflate(layoutInflater)
-
-        val initialTime = viewModel.initialTask.value!!.time
-        val initialRepeatMode = viewModel.initialTask.value!!.repeatMode
-        newCalendar = Calendar.getInstance().apply {
-            timeInMillis = if (initialTime != GLOBAL_START_DATE) initialTime else GLOBAL_START_DATE
-
-            set(
-                Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR)
-            )
-            set(
-                Calendar.MONTH, Calendar.getInstance().get(Calendar.MONTH)
-            )
-            set(
-                Calendar.DAY_OF_MONTH, Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
-            )
-        }
-
-
         val thisDialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle(resources.getString(R.string.add_reminder))
             .setView(binding.root)
@@ -67,13 +50,15 @@ class ReminderDialogFragment(
             val negativeBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
 
             positiveBtn.setOnClickListener {
-                callback.saveReminder(newCalendar)
-                dialog.dismiss()
+                val newCalendar = viewModel.bufferCalendar.value!!
+                val newRepeatMode = viewModel.bufferRepeatMode.value!!
+
+                callback.saveReminder(newCalendar, newRepeatMode)
+                dismiss()
             }
 
             negativeBtn.setOnClickListener {
-                viewModel.updateRepeatModeValue(initialRepeatMode)
-                dialog.cancel()
+                dismiss()
             }
         }
         return thisDialog
@@ -90,16 +75,34 @@ class ReminderDialogFragment(
         binding.lifecycleOwner = this
         binding.layoutViewModel = viewModel
 
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis =
+                if (initialTask.time != GLOBAL_START_DATE) inCalendarTime else GLOBAL_START_DATE
+            set(
+                Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR)
+            )
+            set(
+                Calendar.MONTH, Calendar.getInstance().get(Calendar.MONTH)
+            )
+            set(
+                Calendar.DAY_OF_MONTH, Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
+            )
+        }
+
+        viewModel.updateBufferCalendar(calendar)
+        viewModel.updateBufferTime(initialTask.time)
+        viewModel.updateBufferRepeatMode(initialTask.repeatMode)
+
         // TaskDetail
         binding.ivBtnOpenTimepicker.setOnClickListener {
-            newCalendar = createTimePickerReminder(newCalendar)
+            viewModel.updateBufferCalendar(createTimePickerReminder())
         }
         binding.ivBtnOpenDatepicker.setOnClickListener {
-            newCalendar = createDatePickerReminder(newCalendar)
+            viewModel.updateBufferCalendar(createDatePickerReminder())
         }
 
         binding.actvRepeatReminder.setOnItemClickListener { _, _, position, _ ->
-            viewModel.updateRepeatModeValue(
+            viewModel.updateBufferRepeatMode(
                 when (position) {
                     0 -> RepeatMode.Once
                     1 -> RepeatMode.Daily
@@ -110,19 +113,19 @@ class ReminderDialogFragment(
         }
 
         binding.mBtnRemoveReminder.setOnClickListener {
-            viewModel.removeReminder()
             dismiss()
-            binding.tietTimeReminder.setText(resources.getString(R.string.time_word))
-            binding.tietDateReminder.setText(resources.getString(R.string.date_word))
-
 
             callback.removeReminder()
         }
     }
 
-    private fun createTimePickerReminder(
-        calendar: Calendar
-    ): Calendar {
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun createTimePickerReminder(): Calendar {
+        val calendar = viewModel.bufferCalendar.value!!
         val clockFormat =
             if (is24HourFormat(context)) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H
         val picker = MaterialTimePicker.Builder()
@@ -135,23 +138,15 @@ class ReminderDialogFragment(
         picker.addOnPositiveButtonClickListener {
             calendar[Calendar.HOUR_OF_DAY] = picker.hour
             calendar[Calendar.MINUTE] = picker.minute
-            binding.tietTimeReminder.setText(
-                DateFormat.getTimeInstance(
-                    DateFormat.DEFAULT,
-                    resources.configuration.locales[0]
-                ).format(
-                    Date(calendar.timeInMillis)
-                )
-            )
-            viewModel.updateTimeValue(calendar.timeInMillis)
+
+            viewModel.updateBufferTime(calendar.timeInMillis)
         }
         picker.show(requireActivity().supportFragmentManager, "tag")
         return calendar
     }
 
-    private fun createDatePickerReminder(
-        calendar: Calendar
-    ): Calendar {
+    private fun createDatePickerReminder(): Calendar {
+        val calendar = viewModel.bufferCalendar.value!!
         val picker = MaterialDatePicker.Builder.datePicker()
             .setTitleText(resources.getString(R.string.select_date))
             .setCalendarConstraints(
@@ -169,24 +164,11 @@ class ReminderDialogFragment(
                 dateCalendar[Calendar.DAY_OF_MONTH]
             )
 
-            binding.tietDateReminder.setText(
-                DateFormat.getDateInstance(
-                    DateFormat.DEFAULT,
-                    resources.configuration.locales[0]
-                ).format(
-                    Date(calendar.timeInMillis)
-                )
-            )
-            viewModel.updateTimeValue(calendar.timeInMillis)
+            viewModel.updateBufferTime(calendar.timeInMillis)
         }
 
         picker.show(requireActivity().supportFragmentManager, "tag")
         return calendar
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     companion object {

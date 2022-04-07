@@ -86,7 +86,7 @@ class AlarmUtil @Inject constructor(
                 getUniqueRequestCode(AlarmType.REMINDER, idTask),
                 it.apply {
                     putExtra(TaskType.COLUMN_ID, idTask)
-                    putExtra(NOTIFICATION_CODE, NotificationType.REMINDER)
+                    putExtra(NOTIFICATION_CODE, NotificationType.REMINDER.name)
                 },
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
@@ -121,7 +121,7 @@ class AlarmUtil @Inject constructor(
                     context,
                     getUniqueRequestCode(AlarmType.DEADLINE, idTask),
                     intent.apply {
-                        putExtra(NOTIFICATION_CODE, NotificationType.REMINDER_FOR_DEADLINE)
+                        putExtra(NOTIFICATION_CODE, NotificationType.REMINDER_FOR_DEADLINE.name)
                     },
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
@@ -131,7 +131,7 @@ class AlarmUtil @Inject constructor(
                 AlarmManager.RTC_WAKEUP, deadlineTime, PendingIntent.getBroadcast(
                     context,
                     getUniqueRequestCode(AlarmType.DEADLINE, idTask),
-                    intent.putExtra(NOTIFICATION_CODE, NotificationType.DEADLINE),
+                    intent.putExtra(NOTIFICATION_CODE, NotificationType.DEADLINE.name),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
             )

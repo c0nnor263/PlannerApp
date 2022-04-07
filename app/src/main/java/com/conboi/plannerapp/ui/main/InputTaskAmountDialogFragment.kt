@@ -9,10 +9,13 @@ import androidx.fragment.app.DialogFragment
 import com.conboi.plannerapp.R
 import com.conboi.plannerapp.databinding.FragmentInputTaskAmountDialogBinding
 import com.conboi.plannerapp.interfaces.dialog.InputTaskAmountCallback
-import com.conboi.plannerapp.utils.MAX_TASK_COUNT
+import com.conboi.plannerapp.utils.MAX_ADD_TASK
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-class InputTaskAmountDialogFragment(val callback: InputTaskAmountCallback) : DialogFragment() {
+class InputTaskAmountDialogFragment(
+    private val premiumState: Boolean,
+    val callback: InputTaskAmountCallback
+) : DialogFragment() {
     private var _binding: FragmentInputTaskAmountDialogBinding? = null
     val binding get() = _binding!!
 
@@ -45,7 +48,10 @@ class InputTaskAmountDialogFragment(val callback: InputTaskAmountCallback) : Dia
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.inputAmountLayout.hint =
-            resources.getString(R.string.enter_amount_hint, MAX_TASK_COUNT)
+            resources.getString(
+                R.string.enter_amount_hint,
+                MAX_ADD_TASK
+            )
     }
 
     override fun onDestroyView() {

@@ -147,7 +147,7 @@ class AlarmServiceReceiver : BroadcastReceiver() {
                         getUniqueRequestCode(AlarmType.DEADLINE, task.idTask),
                         Intent(context, AlarmServiceReceiver::class.java).apply {
                             putExtra(TaskType.COLUMN_ID, task.idTask)
-                            putExtra(NOTIFICATION_CODE, NotificationType.DEADLINE)
+                            putExtra(NOTIFICATION_CODE, NotificationType.DEADLINE.name)
                         },
                         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )

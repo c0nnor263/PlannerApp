@@ -13,7 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -25,6 +25,8 @@ import com.conboi.plannerapp.interfaces.UpdateTotalTaskCallback
 import com.conboi.plannerapp.interfaces.dialog.DeadlineDialogCallback
 import com.conboi.plannerapp.interfaces.dialog.ReminderDialogCallback
 import com.conboi.plannerapp.ui.MainActivity
+import com.conboi.plannerapp.ui.main.task.dialog.DeadlineDialogFragment
+import com.conboi.plannerapp.ui.main.task.dialog.ReminderDialogFragment
 import com.conboi.plannerapp.utils.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.transition.MaterialContainerTransform
@@ -39,7 +41,7 @@ class TaskDetailFragment : Fragment(), ReminderDialogCallback, DeadlineDialogCal
     private var _binding: FragmentTaskDetailBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: TaskDetailViewModel by activityViewModels()
+    private val viewModel: TaskDetailViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -118,8 +120,8 @@ class TaskDetailFragment : Fragment(), ReminderDialogCallback, DeadlineDialogCal
         val id = navigationArgs.idTask
 
         viewModel.getTask(id).observe(viewLifecycleOwner) { task ->
-                binding.checkBox.isChecked = task.checked
-                viewModel.setInitialTask(task)
+            binding.checkBox.isChecked = task.checked
+            viewModel.setInitialTask(task)
         }
 
         viewModel.newChecked.observe(viewLifecycleOwner) {
@@ -183,9 +185,13 @@ class TaskDetailFragment : Fragment(), ReminderDialogCallback, DeadlineDialogCal
     }
 
 
-    override fun saveReminder(calendar: Calendar) {
+    override fun saveReminder(calendar: Calendar, repeatMode: RepeatMode) {
         val initialTime = viewModel.initialTask.value!!.time
-        val newTime = viewModel.newTime.value!!
+        val newTime = calendar.timeInMillis
+
+        viewModel.updateRepeatModeValue(repeatMode)
+        viewModel.updateTimeValue(calendar.timeInMillis)
+
         if (newTime != initialTime) {
             calculateRemainingTime(calendar, AlarmType.REMINDER)
             binding.tietTime.setText(
@@ -202,6 +208,8 @@ class TaskDetailFragment : Fragment(), ReminderDialogCallback, DeadlineDialogCal
     }
 
     override fun removeReminder() {
+        viewModel.removeReminder()
+
         Toast.makeText(
             requireContext(),
             resources.getString(R.string.reminder_task_removed),
@@ -210,9 +218,12 @@ class TaskDetailFragment : Fragment(), ReminderDialogCallback, DeadlineDialogCal
         binding.tietTime.setText(resources.getString(R.string.set_reminder))
     }
 
-    override fun saveDeadline(calendar: Calendar) {
+    override fun saveDeadline(calendar: Calendar, missed: Boolean) {
         val initialDeadline = viewModel.initialTask.value!!.deadline
-        val newDeadline = viewModel.newDeadline.value!!
+        val newDeadline = calendar.timeInMillis
+
+        viewModel.updateDeadlineValue(newDeadline)
+        viewModel.updateMissedValue(missed)
 
         if (newDeadline != initialDeadline) {
             calculateRemainingTime(calendar, AlarmType.DEADLINE)
@@ -230,6 +241,8 @@ class TaskDetailFragment : Fragment(), ReminderDialogCallback, DeadlineDialogCal
     }
 
     override fun removeDeadline() {
+        viewModel.removeDeadline()
+
         Toast.makeText(
             requireContext(),
             resources.getString(R.string.deadline_task_removed),
@@ -278,13 +291,22 @@ class TaskDetailFragment : Fragment(), ReminderDialogCallback, DeadlineDialogCal
 
 
     private fun setTimeReminder() {
-        val adReminderFragment = ReminderDialogFragment(this)
+        val adReminderFragment =
+            ReminderDialogFragment(
+                viewModel.initialTask.value!!,
+                viewModel.newTime.value!!,
+                this
+            )
         adReminderFragment.show(parentFragmentManager, ReminderDialogFragment.TAG)
     }
 
 
     private fun setTimeDeadline() {
-        val adDeadlineFragment = DeadlineDialogFragment(this)
+        val adDeadlineFragment = DeadlineDialogFragment(
+            viewModel.initialTask.value!!,
+            viewModel.newDeadline.value!!,
+            this
+        )
         adDeadlineFragment.show(parentFragmentManager, DeadlineDialogFragment.TAG)
     }
 
