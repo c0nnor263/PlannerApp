@@ -13,11 +13,11 @@
         tools:context=".ui.profile.SubscribeFragment">
 
         <ImageView
+            android:contentDescription="@string/app_intro_image_content_description"
             android:id="@+id/iv_logo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="80dp"
-            android:contentDescription="@string/fui_accessibility_logo"
             android:src="@drawable/ic_logo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

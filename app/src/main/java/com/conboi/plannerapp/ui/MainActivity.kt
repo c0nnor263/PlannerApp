@@ -37,6 +37,10 @@ import com.conboi.plannerapp.ui.bottomsheet.BottomNavigationFragment
 import com.conboi.plannerapp.utils.*
 import com.conboi.plannerapp.utils.shared.firebase.FirebaseUserLiveData
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.auth.api.identity.BeginSignInRequest
+import com.google.android.gms.auth.api.identity.BeginSignInResult
+import com.google.android.gms.auth.api.identity.Identity
+import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.play.core.splitcompat.SplitCompat
@@ -57,6 +61,8 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     lateinit var binding: ActivityMainBinding
 
     private lateinit var navController: NavController
+    private lateinit var signInRequest: BeginSignInRequest
+    lateinit var oneTapClient: SignInClient
 
     private val viewModel: MainActivityViewModel by viewModels()
 
@@ -180,6 +186,16 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         firebaseAppCheck.installAppCheckProviderFactory(
             SafetyNetAppCheckProviderFactory.getInstance()
         )
+        oneTapClient = Identity.getSignInClient(this)
+        signInRequest = BeginSignInRequest.Builder()
+            .setGoogleIdTokenRequestOptions(
+                BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
+                    .setSupported(true)
+                    .setServerClientId(resources.getString(R.string.web_client_id))
+                    .setFilterByAuthorizedAccounts(false)
+                    .build()
+            )
+            .build()
 
         createChannel(
             getString(R.string.reminder_notification_channel_id),
@@ -271,7 +287,10 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             when (it) {
                 FirebaseUserLiveData.AuthenticationState.UNAUTHENTICATED -> {
                     viewModel.saveLastUserID()
-                    navController.popBackStack()
+                    navController.popBackStackAllInstances(
+                        navController.currentBackStackEntry?.destination?.id!!,
+                        true
+                    )
                     if (navController.currentDestination?.id != R.id.loginFragment) {
                         navController.navigate(R.id.loginFragment)
                     }
@@ -319,27 +338,14 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         }
         Handler(Looper.getMainLooper()).postDelayed({
             when (destination?.id) {
-                R.id.mainFragment -> {
-                    setBottomAppBarForMain()
-                }
-                R.id.taskDetailsFragment -> {
-                    setBottomAppBarForTaskDetails()
-                }
-                R.id.searchFragment -> {
-                    setBottomAppBarForSearch()
-                }
-                R.id.friendsFragment -> {
-                    setBottomAppBarForFriends()
-                }
-                R.id.friendDetailsFragment -> {
-                    setBottomAppBarForFriendDetails()
-                }
-                R.id.profileFragment -> {
-                    setBottomAppBarForProfile()
-                }
-                R.id.subscribeFragment -> {
-                    setBottomAppBarForSubscribe()
-                }
+                R.id.loginFragment -> setBottomAppBarForLogin()
+                R.id.mainFragment -> setBottomAppBarForMain()
+                R.id.taskDetailsFragment -> setBottomAppBarForTaskDetails()
+                R.id.searchFragment -> setBottomAppBarForSearch()
+                R.id.friendsFragment -> setBottomAppBarForFriends()
+                R.id.friendDetailsFragment -> setBottomAppBarForFriendDetails()
+                R.id.profileFragment -> setBottomAppBarForProfile()
+                R.id.subscribeFragment -> setBottomAppBarForSubscribe()
             }
             delay = 0
         }, delay)
@@ -411,12 +417,17 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     }
 
     // Set UI for specific fragment
-    private fun setBottomAppBarForMain() = with(binding) {
+    private fun setBottomAppBarForLogin() {
+        hideFabAndAppBar()
+        setColor(OTHER_COLOR)
+    }
+
+    private fun setBottomAppBarForMain() {
         checkPermissions()
         showSyncTotalContent()
 
         updateFabMainWithDrawable(R.drawable.add_anim)
-        bottomAppBar.fabAlignmentMode = BottomAppBar.FAB_ALIGNMENT_MODE_CENTER
+        binding.bottomAppBar.fabAlignmentMode = BottomAppBar.FAB_ALIGNMENT_MODE_CENTER
         showFabAndAppBar()
 
         setColor(MAIN_TAG)
@@ -686,6 +697,17 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
     fun loginInitApp() {
         viewModel.initUser(newSignIn = true)
+    }
+
+    fun beginGoogleSignIn(callback: (BeginSignInResult?, Exception?) -> Unit) {
+        oneTapClient.beginSignIn(signInRequest)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    callback(task.result, null)
+                } else {
+                    callback(null, task.exception)
+                }
+            }
     }
 
     companion object QonversionSku {

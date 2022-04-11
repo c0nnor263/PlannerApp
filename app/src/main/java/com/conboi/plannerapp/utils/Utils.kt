@@ -10,6 +10,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.util.Patterns
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -228,6 +229,9 @@ fun showErrorCheckInternetConnectionDialog(
         .setCancelable(false)
         .show()
 
+fun isEmailValid(email: String): Boolean {
+    return email.isNotBlank() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
+}
 
 inline fun <T> firebaseCall(action: () -> FirebaseResult<T>): FirebaseResult<T> {
     return try {

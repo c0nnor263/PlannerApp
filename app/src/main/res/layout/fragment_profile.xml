@@ -119,7 +119,7 @@
                         android:text="@{bindUser.email}"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        tools:text="@string/fui_email_hint" />
+                        tools:text="Email" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tv_confirm_email"
@@ -129,9 +129,9 @@
                         android:textSize="20sp"
                         android:textStyle="bold"
                         android:visibility="gone"
-                        tools:text="@string/fui_email_link_confirm_email_message"
-                        tools:visibility="visible"
-                        tools:ignore="HardcodedText" />
+                        tools:ignore="HardcodedText"
+                        tools:text="@string/email_not_confirmed"
+                        tools:visibility="visible" />
                 </LinearLayout>
 
                 <com.google.android.material.textview.MaterialTextView
@@ -142,7 +142,7 @@
                     android:ellipsize="end"
                     android:text="@{bindUser.displayName}"
                     android:textSize="16sp"
-                    tools:text="@string/fui_name_hint" />
+                    tools:text="@string/app_name" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"

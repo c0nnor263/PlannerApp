@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="friend"
             type="com.conboi.plannerapp.data.model.FriendType" />
@@ -88,7 +89,7 @@
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:text="@string/fui_email_hint" />
+                    tools:text="@string/email" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_total_completed"

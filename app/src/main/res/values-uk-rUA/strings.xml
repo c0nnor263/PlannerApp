@@ -246,4 +246,15 @@
     <string name="you_have_active_subscription">Схоже, Ви маєте активну підписку %1$s. Чи хотіли б Ви повторно підписатися на майбутнє?</string>
     <string name="restored_purchases">Усі покупки відновлені</string>
     <string name="send_friend">Надіслати запит на дружбу</string>
+    <string name="enter_password_same">Переконайтеся, що ваші паролі збігаються</string>
+    <string name="enter_name">Введіть ім\'я!</string>
+    <string name="user_name">Ім\'я користувача</string>
+    <string name="password_repeat">Повторіть пароль</string>
+    <string name="sign_up">Реєстрація</string>
+    <string name="forgot_password">Забули пароль?</string>
+    <string name="enter_password_length_alert">Пароль має містити не менше 8 символів</string>
+    <string name="enter_password_alert">Введіть пароль!</string>
+    <string name="enter_email_alert">Введіть email!</string>
+    <string name="password">Пароль</string>
+    <string name="email">Електронна пошта</string>
 </resources>

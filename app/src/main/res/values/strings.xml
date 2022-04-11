@@ -1,6 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-->System<-->
+    <string name="web_client_id" translatable="false">822973545769-5i2qglaribp8b3uubescoqnnl1ctmmr7.apps.googleusercontent.com</string>
     <string name="app_name" translatable="false">PlannerApp</string>
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
 
@@ -327,5 +328,16 @@
     <string name="processing">Processing…</string>
     <string name="restored_purchases">All purchases has been restored</string>
     <string name="send_friend">Send friend request</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="enter_email_alert">Enter email!</string>
+    <string name="enter_password_alert">Enter password!</string>
+    <string name="enter_password_length_alert">The password must be at least 8 characters long</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="sign_up">Sign up</string>
+    <string name="password_repeat">Repeat password</string>
+    <string name="user_name">Username</string>
+    <string name="enter_name">Enter name!</string>
+    <string name="enter_password_same">Make sure your passwords match</string>
 
 </resources>

@@ -4,14 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <import type="android.view.View" />
 
         <variable
             name="layoutViewModel"
             type="com.conboi.plannerapp.ui.main.task.TaskDetailViewModel" />
-
-
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

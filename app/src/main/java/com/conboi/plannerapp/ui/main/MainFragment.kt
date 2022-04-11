@@ -556,7 +556,7 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskListInterface,
         })
     }
 
-    fun downloadServerList() = runBlocking {
+    private fun downloadServerList() = runBlocking {
         val loadingDialog = LoadingDialogFragment()
         loadingDialog.isCancelable = false
         loadingDialog.show(
@@ -599,7 +599,7 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskListInterface,
 
     private fun addingMultipleTasks() {
         val inputTaskAmountDialogFragment =
-            InputTaskAmountDialogFragment(viewModel.premiumState.value ?: false, this)
+            InputTaskAmountDialogFragment( this)
         inputTaskAmountDialogFragment.show(parentFragmentManager, InputTaskAmountDialogFragment.TAG)
     }
 

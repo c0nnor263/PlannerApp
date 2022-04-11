@@ -9,7 +9,6 @@ import com.conboi.plannerapp.data.source.remote.repo.FirebaseRepository
 import com.conboi.plannerapp.utils.PremiumType
 import com.conboi.plannerapp.utils.SynchronizationState
 import com.conboi.plannerapp.utils.shared.firebase.FirebaseResult
-import com.google.firebase.auth.FirebaseUser
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
@@ -120,10 +119,6 @@ class UserRepository @Inject constructor(
         firebaseRepository.initUser(privateModeState)
         downloadPremiumType()
         downloadTotalCompleted()
-    }
-
-    fun signIn(newUser: FirebaseUser) {
-        firebaseRepository.signIn(newUser)
     }
 
     fun signOut() {

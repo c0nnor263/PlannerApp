@@ -8,6 +8,7 @@ import com.conboi.plannerapp.data.model.TaskType
 import com.conboi.plannerapp.utils.*
 import com.conboi.plannerapp.utils.shared.AlarmUtil
 import com.conboi.plannerapp.utils.shared.firebase.FirebaseResult
+import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -44,15 +45,62 @@ class FirebaseRepository @Inject constructor(
     }
 
 
-    fun signIn(newUser: FirebaseUser) {
-        auth = Firebase.auth
-        firestore = Firebase.firestore
-        user = newUser
+    fun createUserWithEmailAndPassword(
+        displayName: String,
+        email: String,
+        password: String,
+        callback: (FirebaseUser?, Exception?) -> Unit
+    ) {
+        auth?.createUserWithEmailAndPassword(email, password)
+            ?.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    auth?.currentUser?.updateProfile(userProfileChangeRequest {
+                        setDisplayName(displayName)
+                    })?.addOnCompleteListener {
+                        user = auth?.currentUser
+                        callback(user, null)
+                    }
+                } else {
+                    callback(null, task.exception)
+                }
+            }
+    }
+
+
+    fun signInWithEmailAndPassword(
+        email: String,
+        password: String,
+        callback: (FirebaseUser?, Exception?) -> Unit
+    ) {
+        auth?.signInWithEmailAndPassword(email, password)
+            ?.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    user = auth?.currentUser
+                    callback(user, null)
+                } else {
+                    callback(null, task.exception)
+                }
+            }
+    }
+
+
+    fun signInWithGoogleCredential(
+        firebaseCredential: AuthCredential,
+        callback: (FirebaseUser?, Exception?) -> Unit
+    ) {
+        auth?.signInWithCredential(firebaseCredential)
+            ?.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    user = auth?.currentUser
+                    callback(user, null)
+                } else {
+                    callback(null, task.exception)
+                }
+            }
     }
 
     fun signOut() {
-        auth = null
-        firestore = null
+        auth?.signOut()
     }
 
     private fun usersReference() = firestore?.collection("Users")
@@ -280,11 +328,13 @@ class FirebaseRepository @Inject constructor(
         FirebaseResult.Success(null)
     }
 
-    suspend fun sendResetPasswordEmail(): FirebaseResult<Any?> = firebaseCall {
-        val email = user?.email.toString()
-        auth?.sendPasswordResetEmail(email)?.await()
-        FirebaseResult.Success(null)
-    }
+    suspend fun sendResetPasswordEmail(
+        email: String = user?.email.toString()
+    ): FirebaseResult<Any?> =
+        firebaseCall {
+            auth?.sendPasswordResetEmail(email)?.await()
+            FirebaseResult.Success(null)
+        }
 
 
     suspend fun downloadLatestBackupInfo(isBackupDownloaded: Boolean) = firebaseCall {
@@ -677,6 +727,7 @@ class FirebaseRepository @Inject constructor(
         friendUserIdReference(user?.uid)?.update(friendUserFriendPrivate)?.await()
         FirebaseResult.Success(null)
     }
+
 
     object UserKey {
         const val KEY_USER_ID = "user_id"

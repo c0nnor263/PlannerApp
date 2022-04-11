@@ -13,7 +13,6 @@ import com.conboi.plannerapp.utils.MAX_ADD_TASK
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class InputTaskAmountDialogFragment(
-    private val premiumState: Boolean,
     val callback: InputTaskAmountCallback
 ) : DialogFragment() {
     private var _binding: FragmentInputTaskAmountDialogBinding? = null

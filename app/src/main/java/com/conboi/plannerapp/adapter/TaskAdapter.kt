@@ -18,7 +18,6 @@ import com.conboi.plannerapp.databinding.ListTaskBinding
 import com.conboi.plannerapp.interfaces.TaskListInterface
 import com.conboi.plannerapp.utils.GLOBAL_START_DATE
 import com.conboi.plannerapp.utils.MIDDLE_COUNT
-import com.google.android.material.textfield.TextInputLayout
 
 
 class TaskAdapter(
@@ -150,13 +149,13 @@ class TaskAdapter(
                     clSubparent.setBackgroundResource(R.color.secondaryDarkColorWater)
                 }
             }
-            tietTitle.setOnFocusChangeListener { _, hasFocus ->
+            /*tietTitle.setOnFocusChangeListener { _, hasFocus ->
                 tilTitle.endIconMode = if (hasFocus) {
                     TextInputLayout.END_ICON_CLEAR_TEXT
                 } else {
                     TextInputLayout.END_ICON_NONE
                 }
-            }
+            }*/
 
             //ImageButton
             ivBtnOpenTask.setOnClickListener {

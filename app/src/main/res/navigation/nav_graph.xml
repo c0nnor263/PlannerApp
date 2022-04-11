@@ -78,4 +78,12 @@
         tools:layout="@layout/fragment_subscribe"
         android:name="com.conboi.plannerapp.ui.profile.SubscribeFragment"
         android:label="SubscribeFragment" />
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.conboi.plannerapp.ui.auth.options.SignUpFragment"
+        android:label="SignUpFragment" />
+    <fragment
+        android:id="@+id/signInFragment"
+        android:name="com.conboi.plannerapp.ui.auth.options.SignInFragment"
+        android:label="SignInFragment" />
 </navigation>

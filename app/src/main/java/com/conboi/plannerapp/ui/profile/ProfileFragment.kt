@@ -28,7 +28,6 @@ import com.conboi.plannerapp.ui.IntroActivity
 import com.conboi.plannerapp.ui.MainActivity
 import com.conboi.plannerapp.utils.*
 import com.conboi.plannerapp.utils.shared.LoadingDialogFragment
-import com.firebase.ui.auth.AuthUI
 import com.google.android.gms.ads.AdView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -331,12 +330,10 @@ class ProfileFragment : BaseTabFragment(), EditProfileDialogCallback {
     }
 
     private fun successOut() {
-        AuthUI.getInstance().signOut(requireContext()).addOnCompleteListener {
-            viewModel.signOut()
-            ContextCompat.getSystemService(requireContext(), NotificationManager::class.java)
-                ?.cancelAll()
-            Qonversion.logout()
-        }
+        viewModel.signOut()
+        ContextCompat.getSystemService(requireContext(), NotificationManager::class.java)
+            ?.cancelAll()
+        Qonversion.logout()
     }
 
     private fun MaterialButton.toSuccess() {

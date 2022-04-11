@@ -74,7 +74,7 @@
                 app:boxStrokeColor="#FFF"
                 app:boxStrokeWidth="0dp"
                 app:boxStrokeWidthFocused="0dp"
-                app:endIconMode="none"
+                app:endIconMode="clear_text"
                 app:hintEnabled="false"
                 app:layout_constraintBottom_toBottomOf="@+id/check_box"
                 app:layout_constraintEnd_toEndOf="parent"

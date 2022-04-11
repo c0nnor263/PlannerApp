@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.conboi.plannerapp.ui.auth.options.SignInViewModel" />
+    </data>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tabLayout"
+        tools:context=".ui.auth.options.SignInFragment">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="24dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_email"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="@string/email"
+                app:endIconMode="clear_text"
+                app:hintEnabled="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiet_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:autofillHints="emailAddress"
+                    android:inputType="textEmailAddress"
+                    android:text="@{viewModel.bufferEmail}"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                    tools:text="@string/check_new_email" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_password"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="@string/password"
+                app:counterEnabled="true"
+                app:counterMaxLength="100"
+                app:endIconMode="password_toggle"
+                app:hintEnabled="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/til_email">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiet_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:autofillHints="password"
+                    android:inputType="textPassword"
+                    android:text="@{viewModel.bufferPassword}"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                    tools:text="@string/check_new_email" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/m_btn_sign_in"
+                android:layout_width="150dp"
+                android:layout_height="70dp"
+                android:layout_marginTop="24dp"
+                android:text="@string/common_signin_button_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/til_password" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tv_forgot_password"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_marginTop="8dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center"
+                android:paddingHorizontal="8dp"
+                android:text="@string/forgot_password"
+                android:textSize="11sp"
+                app:layout_constraintEnd_toEndOf="@+id/m_btn_sign_in"
+                app:layout_constraintStart_toStartOf="@+id/m_btn_sign_in"
+                app:layout_constraintTop_toBottomOf="@+id/m_btn_sign_in" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_google_sign_in"
+                style="@style/Widget.Material3.Button.ElevatedButton.Icon"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/common_signin_button_text_long"
+                android:textSize="12sp"
+                app:cornerRadius="@dimen/material_corner_radius"
+                app:icon="@drawable/google_icon"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_forgot_password" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</layout>

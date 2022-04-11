@@ -37,7 +37,7 @@
             app:layout_constraintEnd_toStartOf="@+id/iv_btn_settings"
             app:layout_constraintStart_toEndOf="@+id/iv_avatar"
             app:layout_constraintTop_toBottomOf="@id/v_drag_icon"
-            tools:text="@string/fui_name_hint" />
+            tools:text="@string/user_name" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_email"
@@ -49,7 +49,7 @@
             app:layout_constraintEnd_toEndOf="@+id/tv_name"
             app:layout_constraintStart_toStartOf="@+id/tv_name"
             app:layout_constraintTop_toBottomOf="@+id/tv_name"
-            tools:text="@string/fui_email_hint" />
+            tools:text="@string/email" />
 
         <ImageView
             android:id="@+id/iv_avatar"

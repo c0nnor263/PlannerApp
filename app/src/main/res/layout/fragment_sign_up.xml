@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.conboi.plannerapp.ui.auth.options.SignUpViewModel" />
+    </data>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tabLayout"
+        tools:context=".ui.auth.options.SignUpFragment">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_name"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/user_name"
+                app:endIconMode="clear_text"
+                app:hintEnabled="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiet_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:autofillHints="name"
+                    android:inputType="textPersonName"
+                    android:text="@{viewModel.bufferName}"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                    tools:text="@string/app_name" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_email"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="@string/email"
+                app:endIconMode="clear_text"
+                app:hintEnabled="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/til_name">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiet_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:autofillHints="emailAddress"
+                    android:inputType="textEmailAddress"
+                    android:text="@{viewModel.bufferEmail}"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                    tools:text="@string/check_new_email" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_password"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:hint="@string/password"
+                app:counterEnabled="true"
+                app:counterMaxLength="100"
+                app:endIconMode="password_toggle"
+                app:hintEnabled="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/til_email">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiet_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:autofillHints="password"
+                    android:inputType="textPassword"
+                    android:text="@{viewModel.bufferPassword}"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                    tools:text="@string/check_new_email" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_repeat_password"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="@string/password_repeat"
+                app:counterEnabled="true"
+                app:counterMaxLength="100"
+                app:endIconMode="password_toggle"
+                app:hintEnabled="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/til_password">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiet_repeat_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:autofillHints="password"
+                    android:inputType="textPassword"
+                    android:text="@{viewModel.bufferRepeatPassword}"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                    tools:text="@string/check_new_email" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/m_btn_sign_up"
+                android:layout_width="192dp"
+                android:layout_height="64dp"
+                android:layout_marginTop="24dp"
+                android:text="@string/sign_up"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/til_repeat_password" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</layout>

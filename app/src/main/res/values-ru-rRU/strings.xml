@@ -296,4 +296,15 @@
     <string name="you_have_active_subscription">Похоже, у Вас активна подписка %1$s. Хотели бы Вы повторно подписаться на будущее?</string>
     <string name="restored_purchases">Все покупки восстановлены</string>
     <string name="send_friend">Отправить запрос дружбы</string>
+    <string name="enter_password_same">Убедитесь, что ваши пароли совпадают</string>
+    <string name="enter_name">Введите имя!</string>
+    <string name="user_name">Имя пользователя</string>
+    <string name="password_repeat">Повторите пароль</string>
+    <string name="sign_up">Регистрация</string>
+    <string name="forgot_password">Забыли пароль?</string>
+    <string name="enter_password_length_alert">Пароль должен быть не менее 8 символов</string>
+    <string name="enter_password_alert">Ввести пароль!</string>
+    <string name="enter_email_alert">Введите email!</string>
+    <string name="password">Пароль</string>
+    <string name="email">Электронная почта</string>
 </resources>
