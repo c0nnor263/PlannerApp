@@ -1,7 +1,6 @@
 package com.conboi.plannerapp.ui.auth
 
 import android.content.Context
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.conboi.plannerapp.data.source.local.repo.AppSettingsRepository
 import com.conboi.plannerapp.data.source.local.repo.UserRepository

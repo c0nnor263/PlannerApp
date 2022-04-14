@@ -242,7 +242,7 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskListInterface,
         viewModel.premiumState.observe(viewLifecycleOwner) {
             mAdapter.updatePremiumState(it)
         }
-        setHasOptionsMenu(true)
+
         mainActivity.addMenuProvider(this)
     }
 

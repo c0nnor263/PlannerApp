@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import com.conboi.plannerapp.R
 import com.conboi.plannerapp.databinding.FragmentSignUpBinding
 import com.conboi.plannerapp.ui.auth.LoginViewModel
@@ -22,7 +21,7 @@ class SignUpFragment : Fragment() {
     private var _binding: FragmentSignUpBinding? = null
     val binding get() = _binding!!
 
-    private val viewModel: SignUpViewModel by viewModels()
+    private val viewModel: SignUpViewModel by activityViewModels()
     private val signViewModel: LoginViewModel by activityViewModels()
 
     override fun onCreateView(

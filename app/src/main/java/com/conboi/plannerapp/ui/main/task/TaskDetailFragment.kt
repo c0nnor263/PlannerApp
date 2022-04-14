@@ -13,7 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -41,7 +41,7 @@ class TaskDetailFragment : Fragment(), ReminderDialogCallback, DeadlineDialogCal
     private var _binding: FragmentTaskDetailBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: TaskDetailViewModel by viewModels()
+    private val viewModel: TaskDetailViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

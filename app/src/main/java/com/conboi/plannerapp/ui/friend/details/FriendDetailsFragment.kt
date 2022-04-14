@@ -11,7 +11,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -42,7 +42,7 @@ class FriendDetailsFragment : Fragment() {
     private var _binding: FragmentFriendDetailsBinding? = null
     val binding get() = _binding!!
 
-    private val viewModel: FriendDetailsViewModel by viewModels()
+    private val viewModel: FriendDetailsViewModel by activityViewModels()
 
     private lateinit var mAdapterFriendTask: FriendTaskAdapter
 

@@ -81,6 +81,38 @@ class LoginFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun initAd() {
+        val adRequest = AdRequest.Builder().build()
+
+        InterstitialAd.load(
+            requireContext(),
+            resources.getString(R.string.login_ad_unit_id),
+            adRequest,
+            object : InterstitialAdLoadCallback() {
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    super.onAdFailedToLoad(adError)
+                    mInterstitialAd = null
+                }
+
+                override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                    super.onAdLoaded(interstitialAd)
+                    mInterstitialAd = interstitialAd
+                }
+            }
+        )
+
+        mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+            override fun onAdShowedFullScreenContent() {
+                mInterstitialAd = null
+            }
+        }
+    }
+
     private fun initViewPager() {
         mAdapter = LoginViewPagerAdapter(childFragmentManager, lifecycle)
         binding.viewPager.adapter = mAdapter
@@ -118,39 +150,6 @@ class LoginFragment : Fragment() {
             }
         }.attach()
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    private fun initAd() {
-        val adRequest = AdRequest.Builder().build()
-
-        InterstitialAd.load(
-            requireContext(),
-            resources.getString(R.string.login_ad_unit_id),
-            adRequest,
-            object : InterstitialAdLoadCallback() {
-                override fun onAdFailedToLoad(adError: LoadAdError) {
-                    super.onAdFailedToLoad(adError)
-                    mInterstitialAd = null
-                }
-
-                override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                    super.onAdLoaded(interstitialAd)
-                    mInterstitialAd = interstitialAd
-                }
-            }
-        )
-
-        mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-            override fun onAdShowedFullScreenContent() {
-                mInterstitialAd = null
-            }
-        }
-    }
-
 
     private fun navigateToMain(user: FirebaseUser?) {
         lifecycleScope.launch {

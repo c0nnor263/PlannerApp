@@ -96,35 +96,39 @@ class FriendsFragment : BaseTabFragment(), FriendListInterface, InviteFriendDial
         initRv()
 
         viewModel.premiumState.observe(viewLifecycleOwner) {
-            if (it) {
-                hideAdView(
-                    binding.adView,
-                    viewToPadding = binding.swipeRefresh,
-                    0
-                )
-            } else {
-                adView = showAdView(
-                    requireContext(),
-                    binding.adView,
-                    viewToPadding = binding.swipeRefresh,
-                    50
-                )
-            }
+            viewModel.sendGetPremiumEvent(it)
         }
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { uiState ->
-                    when (uiState) {
+                viewModel.uiState.collect { state ->
+                    when (state) {
+                        is FriendsViewModel.FriendsEvent.GetPremium -> {
+                            if (state.alreadyGot) {
+                                hideAdView(
+                                    binding.adView,
+                                    viewToPadding = binding.swipeRefresh,
+                                    0
+                                )
+                            } else {
+                                adView = showAdView(
+                                    requireContext(),
+                                    binding.adView,
+                                    viewToPadding = binding.swipeRefresh,
+                                    50
+                                )
+                            }
+                        }
                         is FriendsViewModel.FriendsEvent.ShowRequestFriend -> {
-                            showRequestFriend(uiState.id)
+                            showRequestFriend(state.id)
                             viewModel.sendRequestFriendEvent(null, null)
                         }
                         is FriendsViewModel.FriendsEvent.ShowFriendOptions -> {
-                            showFriendOptions(uiState.view, uiState.id)
+                            showFriendOptions(state.view, state.id)
                             viewModel.sendFriendOptionsEvent(null, null, null)
                         }
                         is FriendsViewModel.FriendsEvent.NavigateDetails -> {
-                            navigateToFriendDetails(uiState.friend)
+                            navigateToFriendDetails(state.friend)
                             viewModel.sendNavigateDetailsEvent(null, null)
                         }
                         FriendsViewModel.FriendsEvent.ShowInviteFriend -> {
@@ -246,11 +250,6 @@ class FriendsFragment : BaseTabFragment(), FriendListInterface, InviteFriendDial
                 if (result?.isNotEmpty() == true) {
                     checkEveryFriendInfo(result)
                 } else {
-                    Toast.makeText(
-                        context,
-                        resources.getString(R.string.cant_get_user_friends, ""),
-                        Toast.LENGTH_SHORT
-                    ).show()
                     refreshAdapter()
                 }
             } else {
@@ -344,7 +343,7 @@ class FriendsFragment : BaseTabFragment(), FriendListInterface, InviteFriendDial
     private fun refreshAdapter() {
         mAdapterFriends.refresh()
         lifecycleScope.launch {
-            delay(200)
+            delay(300)
             if (_binding != null) {
                 if (mAdapterFriends.itemCount == 0) {
                     binding.tvNoFriends.visibility = View.VISIBLE

@@ -14,7 +14,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import com.conboi.plannerapp.R
 import com.conboi.plannerapp.databinding.FragmentSignInBinding
 import com.conboi.plannerapp.ui.MainActivity
@@ -31,7 +30,7 @@ class SignInFragment : Fragment() {
     private var _binding: FragmentSignInBinding? = null
     val binding get() = _binding!!
 
-    private val viewModel: SignInViewModel by viewModels()
+    private val viewModel: SignInViewModel by activityViewModels ()
     private val signViewModel: LoginViewModel by activityViewModels()
 
     private val signInRequestLauncher =

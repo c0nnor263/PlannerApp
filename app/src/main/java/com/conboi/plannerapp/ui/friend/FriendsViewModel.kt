@@ -78,11 +78,17 @@ class FriendsViewModel @Inject constructor(
         _uiState.value = if (show == true) FriendsEvent.CheckFriendList else null
     }
 
+    fun sendGetPremiumEvent(alreadyGot: Boolean = false) {
+        _uiState.value = FriendsEvent.GetPremium(alreadyGot)
+    }
+
     sealed class FriendsEvent {
-        object ShowInviteFriend : FriendsEvent()
-        object CheckFriendList : FriendsEvent()
+        data class GetPremium(val alreadyGot: Boolean) : FriendsEvent()
         data class NavigateDetails(val friend: FriendType) : FriendsEvent()
         data class ShowRequestFriend(val id: String) : FriendsEvent()
         data class ShowFriendOptions(val view: View, val id: String) : FriendsEvent()
+        object ShowInviteFriend : FriendsEvent()
+        object CheckFriendList : FriendsEvent()
+
     }
 }

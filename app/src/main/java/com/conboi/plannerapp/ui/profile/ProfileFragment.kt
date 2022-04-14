@@ -149,7 +149,8 @@ class ProfileFragment : BaseTabFragment(), EditProfileDialogCallback {
             val colorTheme = requireContext().getColorPrimaryTheme(PROFILE_TAG)
             delay(100)
             ViewCompat.setBackgroundTintList(
-                binding.mBtnSignOut, colorTintList(
+                binding.mBtnSignOut,
+                colorTintList(
                     requireContext(),
                     colorTheme
                 )

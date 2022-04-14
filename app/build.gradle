@@ -14,15 +14,6 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(rootProject.file('keystore.properties')))
 
 android {
-    signingConfigs {
-        release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-        }
-    }
-
     compileSdk 31
     compileSdkVersion 31
     buildToolsVersion '30.0.3'
@@ -50,10 +41,19 @@ android {
         }
     }
 
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+
     buildTypes {
         release {
             debuggable false
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
@@ -100,21 +100,21 @@ dependencies {
 
 
     // Fragment
-    implementation 'androidx.fragment:fragment-ktx:1.5.0-alpha04'
+    implementation 'androidx.fragment:fragment-ktx:1.5.0-alpha05'
     // Navigation Component
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.0-alpha03'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.5.0-alpha03'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.0-alpha04'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.5.0-alpha04'
 
 
     // Lifecycle + ViewModel & LiveData
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0-alpha05'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0-alpha06'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
 
 
     // Coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1-native-mt'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1-native-mt'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.1-native-mt'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.1'
 
     // Dagger Hilt
     implementation 'com.google.dagger:hilt-android:2.41'
@@ -138,8 +138,8 @@ dependencies {
 
     implementation 'com.firebaseui:firebase-ui-firestore:8.0.1'
 
-    implementation 'com.google.firebase:firebase-appcheck:16.0.0-beta05'
-    implementation 'com.google.firebase:firebase-appcheck-safetynet:16.0.0-beta05'
+    implementation 'com.google.firebase:firebase-appcheck:16.0.0-beta06'
+    implementation 'com.google.firebase:firebase-appcheck-safetynet:16.0.0-beta06'
 
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-analytics-ktx'
