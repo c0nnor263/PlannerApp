@@ -403,7 +403,7 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskListInterface,
                     }
                     InsertMultipleTaskError.INCORRECT.name -> {
                         Toast.makeText(
-                            context,
+                            requireContext(),
                             resources.getString(
                                 R.string.incorrect_add_tasks,
                                 MAX_ADD_TASK

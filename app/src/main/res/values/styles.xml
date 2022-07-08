@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/secondaryDarkColorWater</item>
-        <item name="windowSplashScreenIconBackgroundColor">@color/primaryColorWater</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_playstore</item>
-        <item name="postSplashScreenTheme">@style/PlannerApp.Theme.Main</item>
-
-        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
-    </style>
-
     <!-->MaterialAlertDialog styles<-->
     <style name="mMaterialAlertDialog.Rounded" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="alertDialogStyle">@style/MaterialAlertDialog.Rounded</item>

@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.content.IntentSender
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -145,7 +144,6 @@ class SignInFragment : Fragment() {
                     signInRequestLauncher.launch(intentSenderRequest)
                     loadingDialog.dismiss()
                 } catch (e: IntentSender.SendIntentException) {
-                    Log.e("TAG", "Couldn't start One Tap UI: ${e.localizedMessage}")
                     loadingDialog.dismiss()
                 }
             }
@@ -169,25 +167,13 @@ class SignInFragment : Fragment() {
                     }
                 }
                 else -> {
-                    Log.d("TAG", "No ID token or password!")
                 }
             }
         } catch (e: ApiException) {
             when (e.statusCode) {
-                CommonStatusCodes.CANCELED -> {
-                    Log.d("TAG", "One-tap dialog was closed.")
-                    // Don't re-prompt the user.
-                }
-                CommonStatusCodes.NETWORK_ERROR -> {
-                    Log.d("TAG", "One-tap encountered a network error.")
-                    // Try again or just ignore.
-                }
-                else -> {
-                    Log.d(
-                        "TAG", "Couldn't get credential from result." +
-                                " (${e.localizedMessage})"
-                    )
-                }
+                CommonStatusCodes.CANCELED -> {}
+                CommonStatusCodes.NETWORK_ERROR -> {}
+                else -> {}
             }
         }
     }

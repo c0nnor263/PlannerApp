@@ -1,7 +1,6 @@
 package com.conboi.plannerapp.data.source.local.preferences
 
 import android.content.Context
-import android.util.Log
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
@@ -32,7 +31,6 @@ class AppPreferencesDataStore @Inject constructor(@ApplicationContext context: C
     val preferencesFlow = dataStore.data
         .catch { exception ->
             if (exception is IOException) {
-                Log.d("Preferences Manager", "Error reading $APP_PREFERENCES", exception)
                 emit(emptyPreferences())
             } else {
                 throw exception

@@ -175,34 +175,32 @@ class MainViewModel @Inject constructor(
         callback: (Int?, Exception?) -> Unit
     ) =
         viewModelScope.launch {
-            withContext(ioDispatcher) {
-                val maxTaskCount =
-                    MAX_TASK_COUNT + if (premiumState.value == true) 50 else 0
-                var enteredCount = inputAmountString.toInt()
+            val maxTaskCount =
+                MAX_TASK_COUNT + if (premiumState.value == true) 50 else 0
+            var enteredCount = inputAmountString.toInt()
 
-                if (inputAmountString.isNotEmpty()) {
-                    if (isListNotFull()) {
-                        if (enteredCount in 1..MAX_TASK_COUNT) {
-                            val addTaskSum = enteredCount + taskSize.value!!
+            if (inputAmountString.isNotEmpty()) {
+                if (isListNotFull()) {
+                    if (enteredCount in 1..MAX_TASK_COUNT) {
+                        val addTaskSum = enteredCount + taskSize.value!!
 
-                            if (addTaskSum > maxTaskCount) {
-                                enteredCount = maxTaskCount - taskSize.value!!
-                            } else if (addTaskSum > MAX_ADD_TASK) {
-                                enteredCount = MAX_ADD_TASK
-                            }
-                            repeat(enteredCount) {
-                                taskRepository.insertTask()
-                                increaseRateUs()
-                            }
-
-                            updateMiddleList()
-                            callback(enteredCount, null)
-                        } else {
-                            callback(null, Exception(InsertMultipleTaskError.INCORRECT.name))
+                        if (addTaskSum > maxTaskCount) {
+                            enteredCount = maxTaskCount - taskSize.value!!
+                        } else if (addTaskSum > MAX_ADD_TASK) {
+                            enteredCount = MAX_ADD_TASK
                         }
+                        repeat(enteredCount) {
+                            taskRepository.insertTask()
+                            increaseRateUs()
+                        }
+
+                        updateMiddleList()
+                        callback(enteredCount, null)
                     } else {
-                        callback(null, Exception(InsertMultipleTaskError.MAXIMUM.name))
+                        callback(null, Exception(InsertMultipleTaskError.INCORRECT.name))
                     }
+                } else {
+                    callback(null, Exception(InsertMultipleTaskError.MAXIMUM.name))
                 }
             }
         }

@@ -1,7 +1,6 @@
 package com.conboi.plannerapp.data.source.local.preferences
 
 import android.content.Context
-import android.util.Log
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.conboi.plannerapp.utils.GLOBAL_START_DATE
@@ -30,7 +29,6 @@ class PremiumPreferencesDataStore @Inject constructor(@ApplicationContext contex
     val preferencesFlow = dataStore.data
         .catch { exception ->
             if (exception is IOException) {
-                Log.d("Preferences Manager", "Error reading $PREMIUM_PREFERENCES", exception)
                 emit(emptyPreferences())
             } else {
                 throw exception

@@ -195,8 +195,7 @@
                     android:paddingHorizontal="8dp"
                     android:text="@{bindUser.uid}"
                     android:textSize="14sp"
-                    android:textStyle="bold"
-                    tools:text="@string/com.crashlytics.android.build_id" />
+                    android:textStyle="bold" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_privacy_policy"

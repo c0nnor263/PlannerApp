@@ -23,7 +23,6 @@ class IntroActivity : AppIntro() {
     private val viewModel: IntroViewModel by viewModels()
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initIntro()

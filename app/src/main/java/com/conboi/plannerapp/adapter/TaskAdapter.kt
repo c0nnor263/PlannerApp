@@ -255,7 +255,7 @@ class TaskAdapter(
         position: Int,
         payloads: MutableList<Any>
     ) {
-        if (payloads.isNullOrEmpty()) {
+        if (payloads.isEmpty()) {
             super.onBindViewHolder(vh, position, payloads)
         } else {
             val task = currentList[position]

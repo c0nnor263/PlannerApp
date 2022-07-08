@@ -27,13 +27,13 @@ class LoginViewModel @Inject constructor(
     suspend fun checkForNewUser(newUser: FirebaseUser?, context: Context) {
         withContext(Dispatchers.Main.immediate) {
             val lastUserId = appSettingsRepository.getLastUserIdValue()
-            val newId = newUser!!.uid
+            val newId = newUser?.uid
 
             if (lastUserId != newId) {
                 userRepository.signInNewUserWipe(context)
             }
-            Qonversion.setProperty(QUserProperties.CustomUserId, newId)
-            Qonversion.identify(newId)
+            Qonversion.setProperty(QUserProperties.CustomUserId, newId ?: "")
+            Qonversion.identify(newId ?: "")
         }
     }
 

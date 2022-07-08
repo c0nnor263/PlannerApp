@@ -25,7 +25,6 @@ import com.conboi.plannerapp.databinding.FragmentFriendDetailsBinding
 import com.conboi.plannerapp.utils.FRIENDS_TAG
 import com.conboi.plannerapp.utils.getColorPrimaryTheme
 import com.conboi.plannerapp.utils.showErrorToast
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.transition.MaterialSharedAxis
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -74,7 +73,7 @@ class FriendDetailsFragment : Fragment() {
         binding.mBtnPrivate.setOnClickListener {
             viewModel.updatePrivateMode()
         }
-        binding.appBarLayout.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
+        binding.appBarLayout.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
             if (abs(verticalOffset) == appBarLayout.totalScrollRange) {
                 TransitionManager.beginDelayedTransition(
                     binding.root as CoordinatorLayout,
@@ -88,7 +87,7 @@ class FriendDetailsFragment : Fragment() {
                 )
                 binding.ivAvatar.visibility = View.VISIBLE
             }
-        })
+        }
         return binding.root
     }
 

@@ -7,7 +7,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -173,7 +172,6 @@ class AlarmUtil @Inject constructor(
                         )
                         checkAlarmFileCounts(context)
                     } catch (e: Exception) {
-                        Log.d("TAG", "cancelReminder: $e")
                     }
                 }
             }
@@ -207,7 +205,6 @@ class AlarmUtil @Inject constructor(
                         taskDao.update(task.copy(deadline = GLOBAL_START_DATE, missed = false))
                         checkAlarmFileCounts(context)
                     } catch (e: Exception) {
-                        Log.d("TAG", "cancelDeadline: $e")
                     }
                 }
             }

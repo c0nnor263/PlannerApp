@@ -1,7 +1,6 @@
 package com.conboi.plannerapp.ui
 
 import android.animation.ArgbEvaluator
-import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -14,7 +13,6 @@ import android.os.*
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowInsets
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
@@ -23,9 +21,7 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
@@ -70,21 +66,6 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        installSplashScreen().setOnExitAnimationListener { splashScreenView ->
-            ObjectAnimator.ofFloat(
-                splashScreenView.view,
-                View.TRANSLATION_Y,
-                0f,
-                splashScreenView.view.height.toFloat()
-            ).apply {
-                interpolator = AccelerateDecelerateInterpolator()
-                duration = resources.getInteger(R.integer.reply_motion_duration_medium).toLong()
-                doOnEnd {
-                    splashScreenView.remove()
-                }
-                start()
-            }
-        }
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

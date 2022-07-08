@@ -2,7 +2,6 @@ package com.conboi.plannerapp.data.source.remote.repo
 
 import android.app.AlarmManager
 import android.content.Context
-import android.util.Log
 import com.conboi.plannerapp.data.model.FriendType
 import com.conboi.plannerapp.data.model.TaskType
 import com.conboi.plannerapp.utils.*
@@ -383,7 +382,6 @@ class FirebaseRepository @Inject constructor(
             }
 
             stringTaskList.forEach { task ->
-                Log.d("TAG", "downloadUserTasks:$task ")
                 val currentTime = System.currentTimeMillis() + stringTaskList.indexOf(task)
 
                 val id = tasksDocument.getLong(
@@ -478,7 +476,7 @@ class FirebaseRepository @Inject constructor(
             return@firebaseCall FirebaseResult.Error(Exception("There is no tasks for download"))
         }
 
-        processedList.removeAll(currentList.ifEmpty { arrayListOf() })
+        processedList.removeAll(currentList.ifEmpty { arrayListOf() }.toSet())
 
         // Creating unique task list
         currentList.forEach { cTask ->
@@ -494,7 +492,6 @@ class FirebaseRepository @Inject constructor(
             }
         }
         processedList.sortBy { it.created }
-        Log.d("TAG", "downloadUserTasks:result success $processedList")
         FirebaseResult.Success(processedList)
     }
 
@@ -534,7 +531,6 @@ class FirebaseRepository @Inject constructor(
 
             //Searching a friend
             usersList.forEach { listUser ->
-                Log.d("TAG", "inviteFriend: ${listUser.getString(UserKey.KEY_USER_ID)} $searchId")
                 if (listUser.getString(UserKey.KEY_USER_ID) == searchId) {
 
                     for (friendDocument in friendList) {

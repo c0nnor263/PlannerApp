@@ -1,7 +1,6 @@
 package com.conboi.plannerapp.data.source.local.preferences
 
 import android.content.Context
-import android.util.Log
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
@@ -28,7 +27,6 @@ class AlarmPreferencesDataStore @Inject constructor(@ApplicationContext context:
     val preferencesFlow = dataStore.data
         .catch { exception ->
             if (exception is IOException) {
-                Log.d("Preferences Manager", "Error reading $ALARM_PREFERENCES", exception)
                 emit(emptyPreferences())
             } else {
                 throw exception
