@@ -29,12 +29,12 @@ import com.conboi.plannerapp.utils.showErrorToast
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.transition.MaterialSharedAxis
 import com.qonversion.android.sdk.Qonversion
-import com.qonversion.android.sdk.QonversionError
-import com.qonversion.android.sdk.QonversionPermissionsCallback
-import com.qonversion.android.sdk.QonversionProductsCallback
-import com.qonversion.android.sdk.dto.QPermission
+import com.qonversion.android.sdk.dto.QEntitlement
+import com.qonversion.android.sdk.dto.QEntitlementRenewState
+import com.qonversion.android.sdk.dto.QonversionError
 import com.qonversion.android.sdk.dto.products.QProduct
-import com.qonversion.android.sdk.dto.products.QProductRenewState
+import com.qonversion.android.sdk.listeners.QonversionEntitlementsCallback
+import com.qonversion.android.sdk.listeners.QonversionProductsCallback
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -213,7 +213,7 @@ class SubscribeFragment : Fragment() {
         val isConnected = connectivityManager?.isAppInternetConnected()
 
         if (isConnected == true) {
-            Qonversion.products(object : QonversionProductsCallback {
+            Qonversion.shared.products(object : QonversionProductsCallback {
                 override fun onSuccess(products: Map<String, QProduct>) {
                     if (products.isNotEmpty()) {
                         updateContent(products)
@@ -260,13 +260,13 @@ class SubscribeFragment : Fragment() {
                 binding.discount2.text = resources.getString(R.string.discount_20)
             }
         }
-        Qonversion.syncPurchases()
-        Qonversion.checkPermissions(object : QonversionPermissionsCallback {
-            override fun onSuccess(permissions: Map<String, QPermission>) {
+        Qonversion.shared.syncPurchases()
+        Qonversion.shared.checkEntitlements(object : QonversionEntitlementsCallback {
+            override fun onSuccess(permissions: Map<String, QEntitlement>) {
                 val premiumPermission = permissions[MainActivity.PREMIUM_PERMISSION]
 
-                if (premiumPermission != null && premiumPermission.isActive()) {
-                    if (premiumPermission.renewState == QProductRenewState.Canceled) {
+                if (premiumPermission != null && premiumPermission.isActive) {
+                    if (premiumPermission.renewState == QEntitlementRenewState.Canceled) {
                         isCancelled = true
                     }
                 }
@@ -349,15 +349,15 @@ class SubscribeFragment : Fragment() {
     ) {
         val activity = activity as MainActivity
 
-        Qonversion.purchase(
+        Qonversion.shared.purchase(
             activity,
             premiumProduct,
-            object : QonversionPermissionsCallback {
-                override fun onSuccess(permissions: Map<String, QPermission>) {
+            object : QonversionEntitlementsCallback {
+                override fun onSuccess(permissions: Map<String, QEntitlement>) {
                     val premiumPermission =
                         permissions[MainActivity.PREMIUM_PERMISSION]
 
-                    if (premiumPermission != null && premiumPermission.isActive()) {
+                    if (premiumPermission != null && premiumPermission.isActive) {
                         viewModel.setNewPremium(
                             newPremiumType,
                             hashMapOf(FirebaseRepository.UserKey.KEY_USER_PREMIUM_TYPE to newPremiumType.name)
@@ -386,7 +386,7 @@ class SubscribeFragment : Fragment() {
         val activity = activity as MainActivity
         val prorationMode = BillingFlowParams.ProrationMode.IMMEDIATE_WITH_TIME_PRORATION
 
-        Qonversion.updatePurchase(
+        Qonversion.shared.updatePurchase(
             activity,
             premiumProduct,
             when (bufferSelected) {
@@ -396,12 +396,12 @@ class SubscribeFragment : Fragment() {
                 else -> return
             },
             prorationMode,
-            object : QonversionPermissionsCallback {
-                override fun onSuccess(permissions: Map<String, QPermission>) {
+            object : QonversionEntitlementsCallback {
+                override fun onSuccess(permissions: Map<String, QEntitlement>) {
                     val premiumPermission =
                         permissions[MainActivity.PREMIUM_PERMISSION]
 
-                    if (premiumPermission != null && premiumPermission.isActive()) {
+                    if (premiumPermission != null && premiumPermission.isActive) {
                         viewModel.setNewPremium(
                             newPremiumType,
                             hashMapOf(FirebaseRepository.UserKey.KEY_USER_PREMIUM_TYPE to newPremiumType.name),
@@ -429,10 +429,10 @@ class SubscribeFragment : Fragment() {
             childFragmentManager, LoadingDialogFragment.TAG
         )
 
-        Qonversion.restore(object : QonversionPermissionsCallback {
-            override fun onSuccess(permissions: Map<String, QPermission>) {
+        Qonversion.shared.restore(object : QonversionEntitlementsCallback {
+            override fun onSuccess(permissions: Map<String, QEntitlement>) {
                 val premiumPermission = permissions[MainActivity.PREMIUM_PERMISSION]
-                if (premiumPermission != null && premiumPermission.isActive()) {
+                if (premiumPermission != null && premiumPermission.isActive) {
                     viewModel.updatePremium(true)
                     (requireActivity() as MainActivity).checkPermissions()
                 }

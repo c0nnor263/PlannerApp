@@ -44,7 +44,7 @@ class SplashActivity : AppCompatActivity() {
 
 
         AnimatorSet().apply {
-            play(translateY).after(scaleX).with(scaleY)
+            play(scaleX).with(scaleY).before(translateY)
             doOnEnd {
                 navigateToMainActivity()
             }

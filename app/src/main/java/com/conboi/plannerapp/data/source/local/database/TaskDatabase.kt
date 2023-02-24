@@ -8,7 +8,7 @@ import com.conboi.plannerapp.data.model.TaskType
 
 @Database(
     version = 2,
-    entities = [TaskType::class]
+    entities = [TaskType::class], exportSchema = false
 )
 @TypeConverters(TaskDatabaseConvertors::class)
 abstract class TaskDatabase : RoomDatabase() {
