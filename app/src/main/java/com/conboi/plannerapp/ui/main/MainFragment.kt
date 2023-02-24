@@ -12,7 +12,13 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowInsets
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
@@ -38,9 +44,21 @@ import com.conboi.plannerapp.interfaces.TaskListInterface
 import com.conboi.plannerapp.interfaces.dialog.InputTaskAmountCallback
 import com.conboi.plannerapp.ui.MainActivity
 import com.conboi.plannerapp.ui.bottomsheet.BottomActionFragment
-import com.conboi.plannerapp.utils.*
+import com.conboi.plannerapp.utils.BaseTabFragment
+import com.conboi.plannerapp.utils.BottomAction
+import com.conboi.plannerapp.utils.HOLD_VIBRATION
+import com.conboi.plannerapp.utils.InsertMultipleTaskError
+import com.conboi.plannerapp.utils.MAX_ADD_TASK
+import com.conboi.plannerapp.utils.drawableToBitmap
+import com.conboi.plannerapp.utils.hideAdView
+import com.conboi.plannerapp.utils.hideKeyboard
 import com.conboi.plannerapp.utils.shared.LoadingDialogFragment
 import com.conboi.plannerapp.utils.shared.firebase.FirebaseUserLiveData
+import com.conboi.plannerapp.utils.showAdView
+import com.conboi.plannerapp.utils.showCantCheckDialog
+import com.conboi.plannerapp.utils.showCantOvercheckDialog
+import com.conboi.plannerapp.utils.showErrorCheckInternetConnectionDialog
+import com.conboi.plannerapp.utils.showErrorToast
 import com.google.android.gms.ads.AdView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -49,9 +67,9 @@ import com.google.android.material.transition.MaterialFadeThrough
 import com.google.android.material.transition.MaterialSharedAxis
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.qonversion.android.sdk.Qonversion
-import com.qonversion.android.sdk.QonversionError
-import com.qonversion.android.sdk.QonversionPermissionsCallback
-import com.qonversion.android.sdk.dto.QPermission
+import com.qonversion.android.sdk.dto.QEntitlement
+import com.qonversion.android.sdk.dto.QonversionError
+import com.qonversion.android.sdk.listeners.QonversionEntitlementsCallback
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -540,12 +558,12 @@ class MainFragment @Inject constructor() : BaseTabFragment(), TaskListInterface,
 
     // Firebase
     private fun importServerTasks() {
-        Qonversion.checkPermissions(object : QonversionPermissionsCallback {
-            override fun onSuccess(permissions: Map<String, QPermission>) {
+        Qonversion.shared.checkEntitlements(object : QonversionEntitlementsCallback {
+            override fun onSuccess(permissions: Map<String, QEntitlement>) {
                 val premiumPermission = permissions[MainActivity.PREMIUM_PERMISSION]
                 if (viewModel.getUser()?.isEmailVerified == true) {
                     showSyncAbility(
-                        premiumPermission != null && premiumPermission.isActive()
+                        premiumPermission != null && premiumPermission.isActive
                     )
                 }
             }

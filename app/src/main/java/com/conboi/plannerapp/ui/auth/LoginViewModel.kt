@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import com.conboi.plannerapp.data.source.local.repo.AppSettingsRepository
 import com.conboi.plannerapp.data.source.local.repo.UserRepository
 import com.google.firebase.auth.FirebaseUser
-import com.qonversion.android.sdk.QUserProperties
 import com.qonversion.android.sdk.Qonversion
+import com.qonversion.android.sdk.dto.QUserProperty
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,8 +32,8 @@ class LoginViewModel @Inject constructor(
             if (lastUserId != newId) {
                 userRepository.signInNewUserWipe(context)
             }
-            Qonversion.setProperty(QUserProperties.CustomUserId, newId ?: "")
-            Qonversion.identify(newId ?: "")
+            Qonversion.shared.setProperty(QUserProperty.CustomUserId, newId ?: "")
+            Qonversion.shared.identify(newId ?: "")
         }
     }
 

@@ -17,7 +17,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.annotation.ColorRes
+import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -44,10 +44,10 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.appcheck.FirebaseAppCheck
 import com.google.firebase.appcheck.safetynet.SafetyNetAppCheckProviderFactory
 import com.qonversion.android.sdk.Qonversion
-import com.qonversion.android.sdk.QonversionError
-import com.qonversion.android.sdk.QonversionPermissionsCallback
-import com.qonversion.android.sdk.dto.QPermission
-import com.qonversion.android.sdk.dto.products.QProductRenewState
+import com.qonversion.android.sdk.dto.QEntitlement
+import com.qonversion.android.sdk.dto.QEntitlementRenewState
+import com.qonversion.android.sdk.dto.QonversionError
+import com.qonversion.android.sdk.listeners.QonversionEntitlementsCallback
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.*
@@ -195,14 +195,15 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             if (error == null) {
                 result?.let {
                     for (newFriend in it) {
-                        getSystemService(NotificationManager::class.java).sendNewFriendNotification(
-                            this,
-                            resources.getString(
-                                R.string.notification_new_friend,
-                                newFriend.user_name
-                            ),
-                            newFriend.user_id.toInt()
-                        )
+                        ContextCompat.getSystemService(this, NotificationManager::class.java)
+                            ?.sendNewFriendNotification(
+                                this,
+                                resources.getString(
+                                    R.string.notification_new_friend,
+                                    newFriend.user_name
+                                ),
+                                newFriend.user_id.toInt()
+                            )
                     }
                 }
             }
@@ -244,8 +245,8 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         viewModel.vibrationState.observe(this) {
             appVibrator =
                 if (it) {
-                    val am = getSystemService(AudioManager::class.java)
-                    if (am.ringerMode != AudioManager.RINGER_MODE_SILENT) {
+                    val am = ContextCompat.getSystemService(this, AudioManager::class.java)
+                    if (am?.ringerMode != AudioManager.RINGER_MODE_SILENT) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                             (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager?)?.defaultVibrator
                         } else {
@@ -276,6 +277,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
                         navController.navigate(R.id.loginFragment)
                     }
                 }
+
                 FirebaseUserLiveData.AuthenticationState.AUTHENTICATED -> viewModel.initUser()
                 null -> {}
             }
@@ -303,9 +305,10 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             enableVibration(true)
         }
 
-        getSystemService(NotificationManager::class.java).createNotificationChannel(
-            notificationChannel
-        )
+        ContextCompat.getSystemService(this, NotificationManager::class.java)
+            ?.createNotificationChannel(
+                notificationChannel
+            )
     }
 
     private fun appNavigation(
@@ -333,11 +336,11 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     }
 
     fun checkPermissions() {
-        Qonversion.checkPermissions(object : QonversionPermissionsCallback {
-            override fun onSuccess(permissions: Map<String, QPermission>) {
+        Qonversion.shared.checkEntitlements(object : QonversionEntitlementsCallback {
+            override fun onSuccess(permissions: Map<String, QEntitlement>) {
                 val premiumPermission = permissions[PREMIUM_PERMISSION]
 
-                if (premiumPermission != null && premiumPermission.isActive()) {
+                if (premiumPermission != null && premiumPermission.isActive) {
                     viewModel.setPremiumUI()
 
                     binding.tvCountTasks.text =
@@ -351,21 +354,23 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
                         val resubscribeAlert = viewModel.getResubscribeAlert()
                         val premiumType = viewModel.getPremiumType()
 
-                        when (premiumPermission.renewState) {
-                            QProductRenewState.NonRenewable,
-                            QProductRenewState.WillRenew -> {
+                        when (premiumPermission?.renewState) {
+                            QEntitlementRenewState.NonRenewable,
+                            QEntitlementRenewState.WillRenew -> {
                                 if (resubscribeAlert) {
                                     viewModel.updateResubscribeAlert(true)
                                 }
                             }
-                            QProductRenewState.BillingIssue -> {
+
+                            QEntitlementRenewState.BillingIssue -> {
                                 Toast.makeText(
                                     this@MainActivity,
                                     resources.getString(R.string.update_payment),
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
-                            QProductRenewState.Canceled -> {
+
+                            QEntitlementRenewState.Canceled -> {
                                 if (!resubscribeAlert) {
                                     val premiumTypeMessage =
                                         when (premiumType.name) {
@@ -385,7 +390,9 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
                                     viewModel.updateResubscribeAlert(true)
                                 }
                             }
-                            QProductRenewState.Unknown -> {}
+
+                            QEntitlementRenewState.Unknown -> {}
+                            else -> {}
                         }
                     }
                 } else setNonPremiumUI()
@@ -485,6 +492,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             Configuration.UI_MODE_NIGHT_NO -> {
                 lifecycleScope.launch { settingColorLightTheme(codeColor) }
             }
+
             Configuration.UI_MODE_NIGHT_YES -> {
                 lifecycleScope.launch { settingColorNightTheme(codeColor) }
             }
@@ -492,56 +500,64 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     }
 
     private fun settingColorNightTheme(code: Int) {
-        @ColorRes val bottomAppBarColor: Int
-        @ColorRes val fabMainColor: Int
+        @ColorInt val bottomAppBarColor: Int
+        @ColorInt val fabMainColor: Int
         when (code) {
             MAIN_TAG -> {
-                fabMainColor = getColor(R.color.secondaryDarkColorWater)
-                bottomAppBarColor = getColor(R.color.primaryDarkColorWater)
+                fabMainColor = ContextCompat.getColor(this, R.color.secondaryDarkColorWater)
+                bottomAppBarColor = ContextCompat.getColor(this, R.color.primaryDarkColorWater)
             }
+
             FRIENDS_TAG -> {
-                fabMainColor = getColor(R.color.secondaryDarkColorFire)
-                bottomAppBarColor = getColor(R.color.primaryDarkColorFire)
+                fabMainColor = ContextCompat.getColor(this, R.color.secondaryDarkColorFire)
+                bottomAppBarColor = ContextCompat.getColor(this, R.color.primaryDarkColorFire)
             }
+
             PROFILE_TAG -> {
-                fabMainColor = getColor(R.color.secondaryDarkColorTree)
-                bottomAppBarColor = getColor(R.color.secondaryDarkColorTree)
+                fabMainColor = ContextCompat.getColor(this, R.color.secondaryDarkColorTree)
+                bottomAppBarColor = ContextCompat.getColor(this, R.color.secondaryDarkColorTree)
             }
+
             OTHER_COLOR or SETTINGS_TAG -> {
-                fabMainColor = getColor(R.color.secondaryDarkColorAir)
-                bottomAppBarColor = getColor(R.color.secondaryDarkColorAir)
+                fabMainColor = ContextCompat.getColor(this, R.color.secondaryDarkColorAir)
+                bottomAppBarColor = ContextCompat.getColor(this, R.color.secondaryDarkColorAir)
             }
+
             else -> {
-                fabMainColor = getColor(R.color.secondaryDarkColorWater)
-                bottomAppBarColor = getColor(R.color.primaryDarkColorWater)
+                fabMainColor = ContextCompat.getColor(this, R.color.secondaryDarkColorWater)
+                bottomAppBarColor = ContextCompat.getColor(this, R.color.primaryDarkColorWater)
             }
         }
         animateColorThemeChanging(bottomAppBarColor, fabMainColor)
     }
 
     private fun settingColorLightTheme(code: Int) {
-        @ColorRes val bottomAppBarColor: Int
-        @ColorRes val fabMainColor: Int
+        @ColorInt val bottomAppBarColor: Int
+        @ColorInt val fabMainColor: Int
         when (code) {
             MAIN_TAG -> {
-                fabMainColor = getColor(R.color.secondaryColorWater)
-                bottomAppBarColor = getColor(R.color.primaryColorWater)
+                fabMainColor = ContextCompat.getColor(this, R.color.secondaryColorWater)
+                bottomAppBarColor = ContextCompat.getColor(this, R.color.primaryColorWater)
             }
+
             FRIENDS_TAG -> {
-                fabMainColor = getColor(R.color.secondaryColorFire)
-                bottomAppBarColor = getColor(R.color.primaryColorFire)
+                fabMainColor = ContextCompat.getColor(this, R.color.secondaryColorFire)
+                bottomAppBarColor = ContextCompat.getColor(this, R.color.primaryColorFire)
             }
+
             PROFILE_TAG -> {
-                fabMainColor = getColor(R.color.secondaryColorTree)
-                bottomAppBarColor = getColor(R.color.primaryColorTree)
+                fabMainColor = ContextCompat.getColor(this, R.color.secondaryColorTree)
+                bottomAppBarColor = ContextCompat.getColor(this, R.color.primaryColorTree)
             }
+
             OTHER_COLOR or SETTINGS_TAG -> {
-                fabMainColor = getColor(R.color.secondaryColorAir)
-                bottomAppBarColor = getColor(R.color.primaryColorAir)
+                fabMainColor = ContextCompat.getColor(this, R.color.secondaryColorAir)
+                bottomAppBarColor = ContextCompat.getColor(this, R.color.primaryColorAir)
             }
+
             else -> {
-                fabMainColor = getColor(R.color.secondaryColorWater)
-                bottomAppBarColor = getColor(R.color.primaryColorWater)
+                fabMainColor = ContextCompat.getColor(this, R.color.secondaryColorWater)
+                bottomAppBarColor = ContextCompat.getColor(this, R.color.primaryColorWater)
             }
         }
         animateColorThemeChanging(bottomAppBarColor, fabMainColor)

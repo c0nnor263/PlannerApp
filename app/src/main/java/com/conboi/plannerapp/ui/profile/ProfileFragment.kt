@@ -26,8 +26,13 @@ import com.conboi.plannerapp.databinding.FragmentProfileBinding
 import com.conboi.plannerapp.interfaces.dialog.EditProfileDialogCallback
 import com.conboi.plannerapp.ui.IntroActivity
 import com.conboi.plannerapp.ui.MainActivity
-import com.conboi.plannerapp.utils.*
+import com.conboi.plannerapp.utils.BaseTabFragment
+import com.conboi.plannerapp.utils.PROFILE_TAG
+import com.conboi.plannerapp.utils.getColorPrimaryTheme
+import com.conboi.plannerapp.utils.hideAdView
 import com.conboi.plannerapp.utils.shared.LoadingDialogFragment
+import com.conboi.plannerapp.utils.showAdView
+import com.conboi.plannerapp.utils.showErrorToast
 import com.google.android.gms.ads.AdView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -334,7 +339,7 @@ class ProfileFragment : BaseTabFragment(), EditProfileDialogCallback {
         viewModel.signOut()
         ContextCompat.getSystemService(requireContext(), NotificationManager::class.java)
             ?.cancelAll()
-        Qonversion.logout()
+        Qonversion.shared.logout()
     }
 
     private fun MaterialButton.toSuccess() {
