@@ -19,6 +19,7 @@
     <!--TODO POST Notifications-->
     <!--TODO benchmark    -->
 
+
     <application
         android:name=".di.PlannerAppApplication"
         android:allowBackup="true"
