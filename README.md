@@ -1,4 +1,4 @@
-# PlannerApp
+# PlannerApp(OUTDATED)
 PlannerApp for everyday tasks
 
 ![image](https://github.com/c0nnor263/PlannerApp/assets/36234732/91162f31-63ac-4f71-b575-aca3d31ede5b)
