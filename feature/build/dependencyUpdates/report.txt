@@ -1,0 +1,77 @@
+
+------------------------------------------------------------
+:feature Project Dependency Updates (report to plain text file)
+------------------------------------------------------------
+
+The following dependencies are using the latest milestone version:
+ - androidx.activity:activity-compose:1.10.1
+ - androidx.compose:compose-bom:2025.02.00
+ - androidx.compose.material3:material3:1.3.1
+ - androidx.compose.ui:ui:1.7.8
+ - androidx.compose.ui:ui-graphics:1.7.8
+ - androidx.compose.ui:ui-test-junit4:1.7.8
+ - androidx.compose.ui:ui-test-manifest:1.7.8
+ - androidx.compose.ui:ui-tooling:1.7.8
+ - androidx.compose.ui:ui-tooling-preview:1.7.8
+ - androidx.constraintlayout:constraintlayout-compose:1.1.1
+ - androidx.core:core-ktx:1.15.0
+ - androidx.hilt:hilt-compiler:1.2.0
+ - androidx.hilt:hilt-navigation-compose:1.2.0
+ - androidx.hilt:hilt-work:1.2.0
+ - androidx.lifecycle:lifecycle-runtime-compose:2.8.7
+ - androidx.lifecycle:lifecycle-runtime-ktx:2.8.7
+ - androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7
+ - androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7
+ - androidx.navigation:navigation-compose:2.8.8
+ - androidx.test.espresso:espresso-core:3.6.1
+ - androidx.test.ext:junit:1.2.1
+ - com.android.tools.utp:android-device-provider-ddmlib:31.8.2
+ - com.android.tools.utp:android-device-provider-gradle:31.8.2
+ - com.android.tools.utp:android-test-plugin-host-additional-test-output:31.8.2
+ - com.android.tools.utp:android-test-plugin-host-apk-installer:31.8.2
+ - com.android.tools.utp:android-test-plugin-host-coverage:31.8.2
+ - com.android.tools.utp:android-test-plugin-host-device-info:31.8.2
+ - com.android.tools.utp:android-test-plugin-host-emulator-control:31.8.2
+ - com.android.tools.utp:android-test-plugin-host-logcat:31.8.2
+ - com.android.tools.utp:android-test-plugin-host-retention:31.8.2
+ - com.android.tools.utp:android-test-plugin-result-listener-gradle:31.8.2
+ - com.google.dagger:hilt-android:2.55
+ - com.google.dagger:hilt-android-compiler:2.55
+ - com.google.dagger:hilt-compiler:2.55
+ - com.google.devtools.ksp:symbol-processing:2.1.10-1.0.31
+ - com.google.devtools.ksp:symbol-processing-api:2.1.10-1.0.31
+ - com.google.devtools.ksp:symbol-processing-cmdline:2.1.10-1.0.31
+ - io.github.detekt.sarif4k:sarif4k:0.6.0
+ - junit:junit:4.13.2
+ - org.jetbrains.kotlin:kotlin-build-tools-impl:2.1.10
+ - org.jetbrains.kotlin:kotlin-compiler-embeddable:2.1.10
+ - org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable:2.1.10
+ - org.jetbrains.kotlin:kotlin-klib-commonizer-embeddable:2.1.10
+ - org.jetbrains.kotlin:kotlin-stdlib:2.1.20-RC
+ - org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1
+ - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1
+ - org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.1
+ - org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0
+
+The following dependencies have later milestone versions:
+ - io.github.detekt.sarif4k:sarif4k [0.5.0 -> 0.6.0]
+     https://detekt.github.io/detekt
+ - io.github.oshai:kotlin-logging [5.1.0 -> 7.0.4]
+     https://github.com/oshai/kotlin-logging
+ - org.jetbrains.kotlin:kotlin-stdlib [2.1.10 -> 2.1.20-RC]
+     https://kotlinlang.org/
+
+Failed to determine the latest version for the following dependencies (use --info for details):
+ - com.google.testing.platform:android-driver-instrumentation
+ - com.google.testing.platform:android-test-plugin
+ - com.google.testing.platform:core
+ - com.google.testing.platform:launcher
+ - com.pinterest.ktlint:ktlint-cli
+     1.5.0
+ - com.pinterest.ktlint:ktlint-cli-reporter-baseline
+     1.5.0
+ - com.pinterest.ktlint:ktlint-ruleset-standard
+     1.5.0
+
+Gradle release-candidate updates:
+ - Gradle: [8.13: UP-TO-DATE]

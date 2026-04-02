@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--    &lt;!&ndash;>MaterialAlertDialog styles<&ndash;&gt;-->
+    <!--    <style name="mMaterialAlertDialog.Rounded" parent="ThemeOverlay.Material3.MaterialAlertDialog">-->
+    <!--        <item name="alertDialogStyle">@style/MaterialAlertDialog.Rounded</item>-->
+    <!--    </style>-->
+
+    <!--    <style name="MaterialAlertDialog.Rounded" parent="MaterialAlertDialog.Material3">-->
+    <!--        <item name="shapeAppearance">@style/ShapeAppearance.MaterialAlertDialog.Rounded</item>-->
+    <!--    </style>-->
+
+    <!--    <style name="ShapeAppearance.MaterialAlertDialog.Rounded" parent="">-->
+    <!--        <item name="cornerSize">16dp</item>-->
+    <!--    </style>-->
+
+    <!--    &lt;!&ndash;>BottomSheetDialog styles<&ndash;&gt;-->
+    <!--    <style name="mBottomSheetDialogDayNight" parent="Theme.MaterialComponents.DayNight.BottomSheetDialog">-->
+    <!--        <item name="android:windowTranslucentStatus">true</item>-->
+    <!--        <item name="bottomSheetStyle">@style/mBottomSheetDialogBackground</item>-->
+    <!--    </style>-->
+
+
+    <!--    <style name="mBottomSheetDialogBackground" parent="Widget.Design.BottomSheet.Modal">-->
+    <!--        <item name="android:background">@drawable/bottom_navigation_view_round_corners</item>-->
+    <!--        <item name="behavior_peekHeight">500dp</item>-->
+    <!--    </style>-->
+
+    <!--    <style name="mCircleImageView" parent="">-->
+    <!--        <item name="cornerFamily">rounded</item>-->
+    <!--        <item name="cornerSize">50%</item>-->
+    <!--    </style>-->
+</resources>

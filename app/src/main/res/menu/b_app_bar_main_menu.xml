@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+            android:id="@+id/action_search"
+            android:icon="@drawable/ic_baseline_search_24"
+            android:title="@string/search"
+            app:showAsAction="ifRoom"/>
+
+
+    <item
+            android:id="@+id/action_delete_tasks"
+            android:title="@string/action_delete_tasks"
+            app:showAsAction="never"/>
+
+    <item android:title="@string/hide_tasks">
+        <menu>
+            <item
+                    android:id="@+id/action_hide_completed_tasks"
+                    android:checkable="true"
+                    android:title="@string/hide_completed"
+                    app:showAsAction="never"/>
+            <item
+                    android:id="@+id/action_hide_overcompleted_tasks"
+                    android:checkable="true"
+                    android:title="@string/hide_overcompleted"
+                    app:showAsAction="never"/>
+        </menu>
+    </item>
+    <item
+            android:id="@+id/action_sort"
+            android:icon="@drawable/ic_baseline_sort_24"
+            android:title="@string/sort"
+            app:showAsAction="never"/>
+</menu>

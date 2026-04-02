@@ -3,41 +3,87 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/bottom_menu_water_fragment">
+            app:startDestination="@id/mainFragment">
     <fragment
-        android:id="@+id/bottom_menu_water_fragment"
-        android:name="com.example.plannerapp.ui.water.WaterFragment"
-        android:label="Daily tasks"
-        tools:layout="@layout/fragment_water" >
+            android:id="@+id/mainFragment"
+            android:name="com.conboi.features.main.MainFragment"
+            android:label="mainFragment"
+            tools:layout="@layout/fragment_main">
         <action
-            android:id="@+id/action_waterFragment_to_edit_task"
-            app:destination="@id/editTaskFragment" />
+                android:id="@+id/action_mainFragment_to_searchFragment"
+                app:destination="@id/searchFragment"/>
+        <action
+                android:id="@+id/action_mainFragment_to_taskDetailsFragment"
+                app:destination="@id/taskDetailsFragment"/>
     </fragment>
 
     <fragment
-        android:id="@+id/bottom_menu_air_fragment"
-        android:name="com.example.plannerapp.ui.air.AirFragment"
-        android:label="Month tasks"
-        tools:layout="@layout/fragment_air" />
-    <fragment
-        android:id="@+id/bottom_menu_fire_fragment"
-        android:name="com.example.plannerapp.ui.fire.FireFragment"
+            android:id="@+id/friendsFragment"
+            android:name="com.conboi.features.friend.FriendsFragment"
         android:label="Friends"
-        tools:layout="@layout/fragment_fire" />
+            tools:layout="@layout/fragment_friends">
+        <action
+                android:id="@+id/action_friendsFragment_to_friendDetailsFragment"
+                app:destination="@id/friendDetailsFragment"/>
+    </fragment>
     <fragment
-        android:id="@+id/bottom_menu_tree_fragment"
-        android:name="com.example.plannerapp.ui.tree.TreeFragment"
+            android:id="@+id/settingsFragment"
+            android:name="com.conboi.plannerapp.ui.bottomsheet.BottomSettingsFragment"
         android:label="Profile"
-        tools:layout="@layout/fragment_tree" />
+            tools:layout="@layout/fragment_bottom_settings"/>
     <fragment
-        android:id="@+id/editTaskFragment"
-        android:name="com.example.plannerapp.ui.water.EditTaskFragment"
-        android:label="Edit task" >
+            android:id="@+id/taskDetailsFragment"
+            android:name="com.conboi.features.main.task.TaskDetailFragment"
+            android:label="Edit task"
+            tools:layout="@layout/fragment_task_detail">
         <argument
+                android:defaultValue="0"
             android:name="idTask"
             app:argType="integer" />
-        <action
-            android:id="@+id/action_editTaskFragment_to_waterFragment"
-            app:destination="@id/bottom_menu_water_fragment" />
     </fragment>
+    <fragment
+            android:id="@+id/searchFragment"
+            android:name="com.conboi.features.main.search.SearchFragment"
+            android:label="fragment_search"
+            tools:layout="@layout/fragment_search">
+        <action
+                android:id="@+id/action_searchFragment_to_taskDetailsFragment"
+                app:destination="@id/taskDetailsFragment"/>
+    </fragment>
+    <fragment
+            android:id="@+id/loginFragment"
+            android:name="com.conboi.plannerapp.ui.auth.LoginFragment"
+            android:label="fragment_login"
+            tools:layout="@layout/fragment_login"/>
+    <fragment
+            android:id="@+id/profileFragment"
+            android:name="com.conboi.plannerapp.ui.profile.ProfileFragment"
+            android:label="ProfileFragment"
+            tools:layout="@layout/fragment_profile">
+        <action
+                android:id="@+id/action_profileFragment_to_subscribeFragment"
+                app:destination="@id/subscribeFragment"/>
+    </fragment>
+    <fragment
+            android:id="@+id/friendDetailsFragment"
+            android:name="com.conboi.features.friend.details.FriendDetailsFragment"
+            android:label="FriendFragment"
+            tools:layout="@layout/fragment_friend_details">
+        <argument
+                android:name="friend"
+                app:argType="com.conboi.core.data.model.FriendType"/>
+    </fragment>
+    <fragment
+            android:id="@+id/subscribeFragment"
+            android:name="com.conboi.plannerapp.ui.profile.SubscribeFragment"
+            android:label="SubscribeFragment"
+            tools:layout="@layout/fragment_subscribe"/>
+    <fragment
+            android:id="@+id/signUpFragment"
+            android:name="com.conboi.plannerapp.ui.auth.options.SignUpFragment"
+            android:label="SignUpFragment"/>
+    <fragment
+            android:id="@+id/signInFragment"
+            android:name="com.conboi.plannerapp.ui.auth.options.SignInFragment"
+            android:label="SignInFragment"/>
 </navigation>

@@ -1,0 +1,180 @@
+package com.conboi.plannerapp.old.ui.auth.options
+
+//
+// @AndroidEntryPoint
+// class SignInFragment : Fragment() {
+//    private var _binding: FragmentSignInBinding? = null
+//    val binding get() = _binding!!
+//
+//    private val viewModel: SignInViewModel by activityViewModels()
+//    private val signViewModel: LoginViewModel by activityViewModels()
+//
+//    private val signInRequestLauncher =
+//        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
+//            if (it.resultCode == Activity.RESULT_OK) {
+//                processSignIn(it.data)
+//            }
+//        }
+//
+//    override fun onCreateView(
+//        inflater: LayoutInflater,
+//        container: ViewGroup?,
+//        savedInstanceState: Bundle?
+//    ): View {
+//        _binding = FragmentSignInBinding.inflate(layoutInflater)
+//        binding.lifecycleOwner = this
+//        binding.viewModel = viewModel
+//
+//        binding.mBtnSignIn.setOnClickListener {
+//            signInWithEmailAndPassword()
+//        }
+//        binding.tvForgotPassword.setOnClickListener {
+//            sendResetPasswordEmail()
+//        }
+//        binding.btnGoogleSignIn.apply {
+//            setOnClickListener {
+//                beginGoogleSignIn()
+//            }
+//        }
+//
+//        binding.tietEmail.addTextChangedListener {
+//            if (it.toString().isNotBlank()) {
+//                viewModel.updateBufferEmail(it.toString())
+//            }
+//        }
+//        binding.tietPassword.addTextChangedListener {
+//            if (it.toString().isNotBlank()) {
+//                viewModel.updateBufferPassword(it.toString())
+//            }
+//        }
+//
+//        return binding.root
+//    }
+//
+//    override fun onSaveInstanceState(outState: Bundle) {
+//        super.onSaveInstanceState(outState)
+//        viewModel.saveState()
+//    }
+//
+//    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+//        super.onViewStateRestored(savedInstanceState)
+//        viewModel.retrieveState()
+//    }
+//
+//    override fun onDestroyView() {
+//        super.onDestroyView()
+//        _binding = null
+//    }
+//
+//    private fun signInWithEmailAndPassword() {
+//        val loadingDialog = LoadingDialogFragment()
+//        loadingDialog.show(parentFragmentManager, LoadingDialogFragment.TAG)
+//
+//        var passCheck = true
+//        val email = binding.tietEmail.text.toString().trim()
+//        val password = binding.tietPassword.text.toString().trim()
+//
+//        binding.tilEmail.error = null
+//        binding.tilPassword.error = null
+//
+//        if (!isEmailValid(email)) {
+//            binding.tilEmail.error = resources.getString(R.string.enter_email_alert)
+//            passCheck = false
+//        }
+//
+//        if (password.isBlank()) {
+//            binding.tilPassword.error = resources.getString(R.string.enter_password_alert)
+//            passCheck = false
+//        } else if (password.length < 8) {
+//            binding.tilPassword.error = resources.getString(R.string.enter_password_length_alert)
+//            passCheck = false
+//        }
+//
+//        if (passCheck) {
+//            viewModel.signInWithEmailAndPassword(email, password) { user, error ->
+//                if (error == null) {
+//                    signViewModel.sendSuccessSignInEvent(user)
+//                    loadingDialog.dismiss()
+//                } else {
+//                    signViewModel.sendErrorSignInEvent(error)
+//                    loadingDialog.dismiss()
+//                }
+//            }
+//        } else {
+//            loadingDialog.dismiss()
+//        }
+//    }
+//
+//    private fun beginGoogleSignIn() {
+//        val loadingDialog = LoadingDialogFragment()
+//        loadingDialog.show(parentFragmentManager, LoadingDialogFragment.TAG)
+//
+//        val activity = requireActivity() as MainActivity
+//        activity.beginGoogleSignIn { result, error ->
+//            if (error == null) {
+//                try {
+//                    val intentSenderRequest =
+//                        IntentSenderRequest.Builder(result!!.pendingIntent.intentSender)
+//                            .build()
+//                    signInRequestLauncher.launch(intentSenderRequest)
+//                    loadingDialog.dismiss()
+//                } catch (e: IntentSender.SendIntentException) {
+//                    loadingDialog.dismiss()
+//                }
+//            }
+//        }
+//    }
+//
+//    private fun processSignIn(data: Intent?) {
+//        try {
+//            val credential =
+//                (activity as MainActivity).oneTapClient.getSignInCredentialFromIntent(data)
+//            val idToken = credential.googleIdToken
+//            when {
+//                idToken != null -> {
+//                    val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+//                    viewModel.signInWithGoogleCredential(firebaseCredential) { user, error ->
+//                        if (error == null) {
+//                            signViewModel.sendSuccessSignInEvent(user)
+//                        } else {
+//                            signViewModel.sendErrorSignInEvent(error)
+//                        }
+//                    }
+//                }
+//                else -> {
+//                }
+//            }
+//        } catch (e: ApiException) {
+//            when (e.statusCode) {
+//                CommonStatusCodes.CANCELED -> {}
+//                CommonStatusCodes.NETWORK_ERROR -> {}
+//                else -> {}
+//            }
+//        }
+//    }
+//
+//    private fun sendResetPasswordEmail() {
+//        val email = binding.tietEmail.text.toString()
+//        if (isEmailValid(email)) {
+//            binding.tilEmail.error = null
+//
+//            viewModel.sendResetPasswordEmail(email) { _, error ->
+//                if (error == null) {
+//                    Toast.makeText(
+//                        requireContext(),
+//                        resources.getString(R.string.password_reset_sent),
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                } else {
+//                    Toast.makeText(
+//                        requireContext(),
+//                        resources.getString(R.string.password_reset_error),
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                }
+//            }
+//        } else {
+//            binding.tilEmail.error = resources.getString(R.string.enter_email_alert)
+//        }
+//    }
+// }

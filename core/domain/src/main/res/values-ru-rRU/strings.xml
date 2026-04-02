@@ -1,0 +1,310 @@
+<resources>
+
+    <!-->System<-->
+
+    <string name="reminder_notification_channel_name">Напоминания</string>
+    <string name="deadline_notification_channel_name">Крайние сроки</string>
+    <string name="friends_notification_channel_name">Друзья</string>
+
+    <!-->Global<-->
+    <string name="language">Язык</string>
+    <string name="main">Главная</string>
+    <string name="friends">Друзья</string>
+    <string name="settings">Настройки</string>
+    <string name="ok">ОК</string>
+    <string name="dismiss">Отменить</string>
+    <string name="save">Сохранить</string>
+    <string name="on">ВКЛ</string>
+    <string name="off">ВЫКЛ</string>
+    <string name="cancel">Отмена</string>
+    <string name="search">Поиск</string>
+    <string name="sort">Сортировать</string>
+    <string name="priority">Приоритет</string>
+    <string name="add">Добавить</string>
+    <string name="close">Закрыть</string>
+    <string name="profile_photo">Фотография профиля</string>
+    <string name="request_status">Статус запроса</string>
+    <string name="sign_out">Выход</string>
+    <string name="submit">Подтвердить</string>
+    <string name="confirm">Подтвердить</string>
+    <string name="confirm_removing">Удаление напоминаний</string>
+    <string name="confirm_deletion">Удаление заданий</string>
+    <string name="check_your_internet">Проверьте Ваше подключение к интернету и повторите попытку.</string>
+    <string name="try_word">Повторить</string>
+    <string name="time_word">Время</string>
+    <string name="date_word">Дата</string>
+    <string name="downloading">Загрузка…</string>
+    <string name="exit">Выход</string>
+    <string name="undo">Отменить</string>
+    <string name="deny">Отклонить</string>
+    <string name="saved">Сохранено</string>
+    <string name="upgrade">Улучшить</string>
+    <string name="warning">Внимание!</string>
+
+
+    <!-->MainFragment<-->
+    <string name="enter_amount_title">Введите количество заданий</string>
+    <string name="enter_amount_hint">Максимально - %1$d</string>
+    <string name="add_task">Добавить задание</string>
+    <string name="task_deleted">Задание удалено</string>
+    <string name="incorrect_add_tasks">Неверно, максимальное количество - %1$d</string>
+    <string name="reaching_max_tasks">Вы достигли максимума доступного количества задач</string>
+    <plurals name="tasks_been_added">
+        <item quantity="one">%d задание добавлено</item>
+        <item quantity="other">%d задания добавлены</item>
+        <item quantity="few">%d задания добавлены</item>
+        <item quantity="many">%d задания добавлены</item>
+    </plurals>
+
+    <string name="sort_by_title">Название</string>
+    <string name="sort_by_date_created">Дата создания</string>
+    <string name="sort_by_date_completed">Дата выполнения</string>
+    <string name="sort_by_overcompleted">Ежедневные</string>
+
+    <string name="hide_tasks">Скрытие заданий</string>
+    <string name="hide_completed">Выполненные задания</string>
+    <string name="hide_overcompleted">Ежедневные задания</string>
+    <string name="you_delete_completed">Вы хотите удалить выполненные задания?</string>
+    <string name="you_delete_overcompleted">Вы хотите удалить ежедневные задания?</string>
+    <string name="delete_only_completed">Удалить только выполненные</string>
+    <string name="action_delete_overcompleted">Удалить только ежедневные</string>
+    <string name="action_delete_tasks">Удалить задания</string>
+    <string name="completed_deleted">Выполненные задания успешно удалены</string>
+    <string name="overcompleted_deleted">Ежедневные задания успешно удалены</string>
+
+    <string name="cant_overcheck_task">"You can overcheck this task only once per day."</string>
+    <string name="cant_check_task">Вы не можете выполнить это задание. Нет названия</string>
+    <string name="there_are_no_tasks_for_showing">Список заданий пуст</string>
+    <string name="saving_title_indicator">Индикатор сохранения</string>
+
+    <string name="error_importing_tasks">Ошибка импорта задач!</string>
+    <string name="backup_tasks_message">Похоже, у Вас есть резервная копия предыдущих заданий и данных Вашего профиля от %1$s.\n
+        \n
+        Хотите ли Вы восстановить её?\n
+        (\"Отклонить\" - запись поверх резервной копии)</string>
+    <string name="error_checking_tasks">Ошибка проверки резервной копии заданий!</string>
+    <string name="sync_status">Статус синхронизации</string>
+    <string name="reminder_msg">Не забудьте о своём задании!</string>
+    <string name="check_tasks">Проверить задания</string>
+    <string name="deadline_msg">Крайний срок наступил😔</string>
+    Осталось 4 часа для выполнения задачи(или не 4😏)
+    <string name="deadline_reminder">Осталось %1$d часа для выполнения задачи(или не %1$d😏)</string>
+    <string name="check_reminders">Проверить напоминания</string>
+    <string name="check_deadlines">Проверить крайние сроки</string>
+    <string name="you_sure_quit">Уверены, что хотите выйти?</string>
+
+
+    <!-->TaskDetailsFragment<-->
+    <string name="task_created">Создано в: %1$s</string>
+    <string name="task_completed">Выполнено в: %1$s</string>
+
+    <string name="open_task">Открыть задание</string>
+    <string name="edit_task">Изменить задание</string>
+    <string name="edit_title">Название</string>
+    <string name="describe_task">Описание</string>
+    <string name="select_date">Выбрать дату</string>
+    <string name="select_time">Выбрать время</string>
+    <string name="reminder">Напоминание</string>
+    <string name="deadline">Крайний срок</string>
+    <string name="set_deadline">Задать крайний срок</string>
+    <string name="set_reminder">Задать напоминание</string>
+    <string name="add_deadline">Добавить крайний срок</string>
+    <string name="add_reminder">Добавить напоминание</string>
+    <string name="reminders_are_off">Напоминания отключены</string>
+    <string name="remove_reminder">Отключить напоминание</string>
+    <string name="remove_deadline">Удалить дату крайнего срока</string>
+    <string name="reminder_task_removed">Напоминание этого задания удалено</string>
+    <string name="deadline_task_removed">Крайний срок этого задания удален</string>
+    <string name="you_quit_without_changes">Вы уверены, что хотите выйти без изменений?</string>
+
+    <string name="reminder_less_than_minute">До напоминания меньше одной минуты.</string>
+    <string name="reminder_for_minutes">До напоминания %1$s.</string>
+    <string name="reminder_for_hour_minute">До напоминания %1$s и %2$s.</string>
+    <string name="reminder_for_day_hour_minute">До напоминания %1$s, %2$s и %3$s.</string>
+
+    <string name="deadline_less_than_minute">До крайнего срока меньше одной минуты.</string>
+    <string name="deadline_for_minutes">До крайнего срока %1$s.</string>
+    <string name="deadline_for_hour_minute">До крайнего срока %1$s и %2$s.</string>
+    <string name="deadline_for_day_hour_minute">До крайнего срока %1$s, %2$s и %3$s.</string>
+
+    <string-array name="priorities">
+        <item>Неважно</item>
+        <item>Обычно</item>
+        <item>Желательно</item>
+        <item>Важно</item>
+    </string-array>
+
+    <string-array name="repeat_modes">
+        <item>Единожды</item>
+        <item>Каждый день</item>
+        <item>Каждую неделю</item>
+    </string-array>
+
+    <plurals name="days">
+        <item quantity="one">%d день</item>
+        <item quantity="other">%d дней</item>
+        <item quantity="few">%d дней</item>
+        <item quantity="many">%d дней</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d час</item>
+        <item quantity="other">%d часов</item>
+        <item quantity="few">%d часов</item>
+        <item quantity="many">%d часов</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d минута</item>
+        <item quantity="other">%d минут</item>
+        <item quantity="few">%d минут</item>
+        <item quantity="many">%d минут</item>
+    </plurals>
+
+    <!-->FriendsFragment<-->
+    <string name="friends_list">Список друзей</string>
+    <string name="friends_tasks">Задания %1$s</string>
+    <string name="there_will_be_shown_friends_tasks">Тут будут отображены задания %1$s</string>
+    <string name="completed_tasks">Выполненные задания</string>
+
+    <string name="enter_user_id">Введите ID пользователя</string>
+    <string name="enter_id_alert">Введите ID!</string>
+    <string name="friend_is_not_exist">Пользователь, которого Вы ищете, не существует</string>
+    <string name="you_add_friend_yourself">Вы не можете добавить СЕБЯ в список друзей</string>
+    <string name="error_adding_friend_is_list">Ошибка: пользователь уже находится в Вашем списке друзей</string>
+
+    <string name="you_add_friend">Вы хотите добавить пользователя в друзья?</string>
+    <string name="successfully_adding_friend">Новый друг успешно добавлен!</string>
+    <string name="friend_request_deny">Вы отклонили запрос</string>
+    <string name="delete_friend">Удалить друга</string>
+    <string name="friend_removed">Пользователь был удален из списка друзей</string>
+
+    <string name="there_are_no_friends_for_showing">Список друзей пуст</string>
+    <string name="error_loading_friends">Ошибка загрузки списка друзей</string>
+    <string name="there_are_no_more_friends_for_loading">Больше нет друзей для загрузки</string>
+    <string name="cant_get_user_friends">Ошибка: %1$s Невозможно получить список друзей.\n
+Попробуйте позже
+    </string>
+    <string name="notification_new_friend">%1$s хочет добавить тебя в друзья</string>
+    <string name="new_friend">Новый друг</string>
+    <string name="check_new_friends">Проверить новых друзей</string>
+
+
+    <!--FriendDetailsFragment-->
+    <string name="added_friend_time">Время добавления: %1$s</string>
+    <string name="friends_tasks_empty">Список заданий друга пуст</string>
+    <string name="friends_tasks_private">Список заданий %1$s приватный</string>
+
+    <!-->ProfileSettings<-->
+    <string name="profile">Профиль</string>
+    <string name="total_completed_tasks">Всего выполнено: %1$d</string>
+    <string name="user_id">ID пользователя</string>
+    <string name="copy_user_id">Копировать ID:</string>
+    <string name="copied_user_id">Скопировано ID</string>
+    <string name="you_sign_out">Вы хотите выйти из аккаунта?</string>
+
+    <string name="reset_password">Сброс пароля</string>
+    <string name="new_email">Новая почта</string>
+    <string name="new_password">Новый пароль</string>
+    <string name="current_password">Текущий пароль</string>
+    <string name="edit_profile">Редак. профиль</string>
+    <string name="email_not_confirmed">Электронная почта не подтверждена</string>
+    <string name="you_confirm_email">Чтобы включить синхронизацию задач, подтвердите свой адрес электронной почты. Хотите перейти на вкладку «Профиль»?</string>
+    <string name="you_sent_email_confirm">Письмо с подтверждением отправлено</string>
+    <string name="error_send_email_confirm">Ошибка при отправке письма с подтверждением</string>
+    <string name="check_new_email">Проверьте указанную электронную почту</string>
+    <string name="error_check_new_email">"Ошибка обновления введенной электронной почты "</string>
+    <string name="error_check_new_password">Ошибка обновления введенного пароля</string>
+    <string name="password_reset_sent">Письмо для сброса пароля было выслано</string>
+    <string name="password_reset_error">Ошибка отправки письма для сброса пароля</string>
+    <string name="new_nickname">Новый никнейм</string>
+    <string name="password_is_invalid">Неверный пароль</string>
+    <string name="alert_enter_current_password">Введите текущий пароль</string>
+    <string name="specify_fields">Заполните одно из полей</string>
+    <string name="same_current_new_name">Текущий никнейм не должен совпадать с введенным</string>
+    <string name="same_current_new_email">Текущий адрес электронной почты не должен совпадать с введенным</string>
+    <string name="same_current_new_password">Текущий пароль не должен совпадать с введенным</string>
+    <string name="nickname_updated">Никнейм был обновлен</string>
+    <string name="error_nickname_update">Ошибка при обновлении никнейма</string>
+
+
+    <!--SettingsFragment-->
+    <string name="reminder_state">Напоминания: %1$s</string>
+    <string name="vibration_state">Вибрация приложения: %1$s</string>
+    <string name="private_state">Приватный режим: %1$s</string>
+    <string name="notification_state">Уведомления: %1$s</string>
+
+    <string name="remove_all_reminders">Все напоминания</string>
+    <string name="you_remove_reminders">Вы хотите удалить все напоминания?</string>
+    <string name="reminders_removed">Удалены все напоминания</string>
+    <string name="delete_all_tasks">Все задания</string>
+    <string name="you_delete_tasks">Вы хотите удалить все задания?</string>
+    <string name="tasks_deleted">Удалены все задания</string>
+
+
+    <!-->LoginFragment<-->
+    <string name="successfully_sign_in">Успешная авторизация в аккаунт %1$s!</string>
+    <string name="unsuccessful_sign_in">Неудачный вход %1$d</string>
+    <string name="repeat_mode">Повторение</string>
+    <string name="successfully_change_password">Пароль успешно обновлен</string>
+    <string name="tutorial">Обучение</string>
+    <string name="slide4_title">Добавление нескольких задач</string>
+    <string name="slide4_desc">Устали добавлять задачи одну за другой? Удерживайте кнопку добавления и создайте несколько задач</string>
+    <string name="slide2_title">Выполнить/Перевыполнить</string>
+    <string name="slide2_desc">Выполняйте или перевыполняйте задачи, удерживая значок отметки. Перевыполнять задачу можно только один раз в день</string>
+    <string name="slide8_desc">Наслаждайтесь пользованием приложения и самостоятельно откройте для себя его остальные возможности</string>
+    <string name="slide7_desc">В настройках приложения гибко настраивайте его в соответствии с Вашими потребностями</string>
+    <string name="slide6_desc">Удерживайте друга, чтобы отобразить меню с возможностью его удаления</string>
+    <string name="slide1_desc">Давайте познакомим Вас с возможностями этого приложения. Поехали!</string>
+    <string name="slide5_desc">Просто проведите вправо, чтобы удалить задачу</string>
+    <string name="slide5_title">Удаление жестом</string>
+    <string name="slide8_title">Вот и все!</string>
+    <string name="slide3_title">Редактируйте заголовки в списке</string>
+    <string name="slide1_title">Приветствуем Вас!</string>
+    <string name="slide3_desc">Вы можете выбрать заголовок задачи и отредактировать его. Он будет автоматически сохранен</string>
+    <string name="privacy_policy"><a href="https://github.com/c0nnor263/PlannerApp/blob/main/privacy-policy.md">Политика конфиденциальности</a></string>
+    <string name="max">MAX</string>
+    <string name="update_payment">Проблема с оплатой подписки. Обновите свой способ оплаты</string>
+    <string name="restore_purchases">Восстановить покупки</string>
+    <string name="processing">Обработка…</string>
+
+    <string name="backup_tasks_message_no_prem">Похоже, у Вас есть резервная копия предыдущих задач и данных аккаунта от %1$s.\n
+        \nВосстановление резервной копии - это премиум возможность.\nЖелаете подписаться?
+    </string>
+    <string name="rate_us">Нравится использовать PlannerApp?</string>
+    <string name="rate_us_message">Оставите отзыв?</string>
+    <string name="rate">Оценить</string>
+    <string name="not_now">Не сейчас</string>
+    <string name="later">Позже</string>
+    <string name="manage_subscriptions">Управление подписками</string>
+    <string name="dont_show">Не показывать</string>
+    <string name="subscription_is_active">Подписка все еще активна</string>
+    <string name="free">Бесплатно</string>
+    <string name="never">Никогда</string>
+    <string name="subscribe">Подписаться</string>
+    <string name="choose_your_subscription">Выберите подписку</string>
+    <string name="month_subscription">Месяц</string>
+    <string name="six_month_subscription">Полгода</string>
+    <string name="year_subscription">Год</string>
+    <string name="standard_subscription">Стандартная</string>
+
+    <string name="have_no_premium">Похоже, у Вас нет PlannerApp MAX</string>
+    <string name="you_subscribe_tasks">Хотите получить доступ к этим задачам с помощью PlannerApp MAX?</string>
+    <string name="benefits"><![CDATA[&#8226; Никакой рекламы<br/>
+                                     &#8226; Резервные копии<br/>
+                                     &#8226; Лимит задач до 100<br/>]]></string>
+    <string name="you_have_active_subscription">Похоже, у Вас активна подписка %1$s. Хотели бы Вы повторно подписаться на будущее?</string>
+    <string name="restored_purchases">Все покупки восстановлены</string>
+    <string name="send_friend">Отправить запрос дружбы</string>
+    <string name="enter_password_same">Убедитесь, что ваши пароли совпадают</string>
+    <string name="enter_name">Введите имя!</string>
+    <string name="user_name">Имя пользователя</string>
+    <string name="password_repeat">Повторите пароль</string>
+    <string name="sign_up">Регистрация</string>
+    <string name="forgot_password">Забыли пароль?</string>
+    <string name="enter_password_length_alert">Пароль должен быть не менее 8 символов</string>
+    <string name="enter_password_alert">Ввести пароль!</string>
+    <string name="enter_email_alert">Введите email!</string>
+    <string name="password">Пароль</string>
+    <string name="email">Электронная почта</string>
+</resources>

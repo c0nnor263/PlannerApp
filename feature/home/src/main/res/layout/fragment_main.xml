@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        >
+
+    <!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+    <!--        android:id="@+id/parent_main"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        android:animateLayoutChanges="true"-->
+    <!--        android:background="@drawable/main_fragment_bg">-->
+
+    <!--        <com.google.android.material.textview.MaterialTextView-->
+    <!--            android:id="@+id/tv_no_tasks"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="match_parent"-->
+    <!--            android:gravity="center"-->
+    <!--            android:text="@string/there_are_no_tasks_for_showing"-->
+    <!--            android:textColor="@android:color/darker_gray"-->
+    <!--            android:textSize="16sp"-->
+    <!--            android:visibility="gone" />-->
+
+    <!--        <FrameLayout-->
+    <!--            paddingTopSystemWindowInsets="@{true}"-->
+    <!--            android:layout_width="0dp"-->
+    <!--            android:layout_height="0dp"-->
+    <!--            app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            app:layout_constraintStart_toStartOf="parent"-->
+    <!--            app:layout_constraintTop_toTopOf="parent">-->
+
+    <!--            <androidx.recyclerview.widget.RecyclerView-->
+    <!--                android:id="@+id/rv_tasks"-->
+    <!--                android:layout_width="match_parent"-->
+    <!--                android:layout_height="match_parent"-->
+    <!--                android:layout_gravity="center"-->
+    <!--                android:clipToPadding="false"-->
+    <!--                android:paddingHorizontal="2dp"-->
+    <!--                android:paddingTop="85dp"-->
+    <!--                android:paddingBottom="128dp"-->
+    <!--                android:scrollbars="none"-->
+    <!--                android:transitionGroup="true"/>-->
+    <!--        </FrameLayout>-->
+
+    <!--        <androidx.coordinatorlayout.widget.CoordinatorLayout-->
+    <!--            android:id="@+id/cl_snack"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_marginBottom="112dp"-->
+    <!--            app:layout_constraintBottom_toBottomOf="parent" />-->
+
+    <!--        <RelativeLayout-->
+    <!--            android:id="@+id/adLayout"-->
+    <!--            paddingTopSystemWindowInsets="@{true}"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            app:layout_constraintStart_toStartOf="parent"-->
+    <!--            app:layout_constraintTop_toTopOf="parent">-->
+
+    <!--            <com.google.android.gms.ads.AdView-->
+    <!--                android:id="@+id/adView"-->
+    <!--                android:layout_width="wrap_content"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:layout_alignParentTop="true"-->
+    <!--                android:layout_centerHorizontal="true"-->
+    <!--                app:adSize="BANNER"-->
+    <!--                app:adUnitId="@string/main_ad_unit_id" />-->
+    <!--        </RelativeLayout>-->
+
+    <!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
+</layout>

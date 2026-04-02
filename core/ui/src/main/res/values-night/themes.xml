@@ -1,0 +1,27 @@
+<resources>
+    <!-- Base application theme. -->
+    <!--    <style name="PlannerApp.Theme.Main" parent="Theme.Material3.DayNight.NoActionBar">-->
+    <!--        &lt;!&ndash; Primary brand color. &ndash;&gt;-->
+    <!--        <item name="colorPrimary">@color/primaryDarkColorWater</item>-->
+    <!--        <item name="colorPrimaryVariant">@color/secondaryDarkColorWater</item>-->
+    <!--        <item name="colorOnPrimary">@color/primaryTextColor</item>-->
+    <!--        &lt;!&ndash; Secondary brand color. &ndash;&gt;-->
+    <!--        <item name="colorSecondary">@color/secondaryColorWater</item>-->
+    <!--        <item name="colorSecondaryVariant">@color/secondaryDarkColorWater</item>-->
+    <!--        <item name="colorOnSecondary">@color/secondaryTextColor</item>-->
+
+    <!--        <item name="android:windowTranslucentStatus">true</item>-->
+    <!--        <item name="android:windowTranslucentNavigation">true</item>-->
+    <!--        <item name="windowActionBar">false</item>-->
+    <!--        <item name="windowNoTitle">true</item>-->
+
+    <!--        &lt;!&ndash; Customize your theme here. &ndash;&gt;-->
+    <!--        <item name="bottomSheetDialogTheme">@style/mBottomSheetDialogDayNight</item>-->
+    <!--        <item name="materialAlertDialogTheme">@style/mMaterialAlertDialog.Rounded</item>-->
+    <!--        <item name="android:fontFamily">@font/plannerapp_font_family_en_ru</item>-->
+
+
+    <!--        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o_mr1">shortEdges-->
+    <!--        </item>-->
+    <!--    </style>-->
+</resources>

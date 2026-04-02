@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        >
+
+    <!--    <data>-->
+
+    <!--        <variable-->
+    <!--            name="bindUser"-->
+    <!--            type="com.google.firebase.auth.FirebaseUser" />-->
+
+    <!--        <variable-->
+    <!--            name="viewModel"-->
+    <!--            type="com.conboi.plannerapp.ui.profile.ProfileViewModel" />-->
+    <!--    </data>-->
+
+    <!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+    <!--        paddingTopSystemWindowInsets="@{true}"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        android:animateLayoutChanges="true"-->
+    <!--        android:background="@drawable/profile_fragment_bg">-->
+
+
+    <!--        <com.google.android.material.textview.MaterialTextView-->
+    <!--            android:id="@+id/tv_profile"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_margin="16dp"-->
+    <!--            android:text="@string/profile"-->
+    <!--            android:textSize="24sp"-->
+    <!--            android:textStyle="bold"-->
+    <!--            app:layout_constraintStart_toStartOf="parent"-->
+    <!--            app:layout_constraintTop_toTopOf="parent" />-->
+
+    <!--        <com.google.android.material.button.MaterialButton-->
+    <!--            android:id="@+id/m_btn_upgrade"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_margin="16dp"-->
+    <!--            android:backgroundTint="@color/primaryColorFire"-->
+    <!--            android:text="@string/upgrade"-->
+    <!--            app:layout_constraintBottom_toTopOf="@+id/divider"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            app:layout_constraintTop_toTopOf="parent" />-->
+
+    <!--        <com.google.android.material.divider.MaterialDivider-->
+    <!--            android:id="@+id/divider"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="1dp"-->
+    <!--            android:layout_marginTop="16dp"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            app:layout_constraintStart_toStartOf="parent"-->
+    <!--            app:layout_constraintTop_toBottomOf="@+id/tv_profile" />-->
+
+    <!--        <com.google.android.gms.ads.AdView-->
+    <!--            android:id="@+id/adView"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_alignParentTop="true"-->
+    <!--            android:layout_centerHorizontal="true"-->
+    <!--            app:adSize="BANNER"-->
+    <!--            app:adUnitId="@string/profile_ad_unit_id"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            app:layout_constraintStart_toStartOf="parent"-->
+    <!--            app:layout_constraintTop_toBottomOf="@+id/divider" />-->
+
+    <!--        <ScrollView-->
+    <!--            android:id="@+id/parent_sv"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:paddingTop="55dp"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            app:layout_constraintStart_toStartOf="parent"-->
+    <!--            app:layout_constraintTop_toBottomOf="@id/divider">-->
+
+    <!--            <LinearLayout-->
+    <!--                android:layout_width="match_parent"-->
+    <!--                android:layout_height="0dp"-->
+    <!--                android:orientation="vertical"-->
+    <!--                android:padding="16dp">-->
+
+    <!--                <com.google.android.material.textview.MaterialTextView-->
+    <!--                    android:id="@+id/tv_total_task"-->
+    <!--                    android:layout_width="wrap_content"-->
+    <!--                    android:layout_height="wrap_content"-->
+    <!--                    android:layout_gravity="center"-->
+    <!--                    android:layout_marginBottom="16dp"-->
+    <!--                    android:text="@{@string/total_completed_tasks(viewModel.totalCompleted)}"-->
+    <!--                    android:textSize="16sp"-->
+    <!--                    tools:text="@string/total_completed_tasks" />-->
+
+
+    <!--                <ImageView-->
+    <!--                    android:id="@+id/iv_avatar"-->
+    <!--                    ivLoadProfileImage="@{bindUser.photoUrl.toString()}"-->
+    <!--                    android:layout_width="140dp"-->
+    <!--                    android:layout_height="140dp"-->
+    <!--                    android:layout_gravity="center"-->
+    <!--                    android:layout_marginBottom="16dp"-->
+    <!--                    android:contentDescription="@string/profile_photo"-->
+    <!--                    android:cropToPadding="false"-->
+    <!--                    android:scaleType="centerCrop"-->
+    <!--                    app:layout_constraintStart_toStartOf="parent"-->
+    <!--                    app:layout_constraintTop_toTopOf="parent" />-->
+
+    <!--                <LinearLayout-->
+    <!--                    android:layout_width="wrap_content"-->
+    <!--                    android:layout_height="wrap_content"-->
+    <!--                    android:layout_gravity="center"-->
+    <!--                    android:layout_marginBottom="8dp">-->
+
+    <!--                    <com.google.android.material.textview.MaterialTextView-->
+    <!--                        android:id="@+id/tv_email"-->
+    <!--                        android:layout_width="wrap_content"-->
+    <!--                        android:layout_height="wrap_content"-->
+    <!--                        android:layout_marginEnd="8dp"-->
+    <!--                        android:ellipsize="end"-->
+    <!--                        android:text="@{bindUser.email}"-->
+    <!--                        android:textSize="18sp"-->
+    <!--                        android:textStyle="bold"-->
+    <!--                        tools:text="Email" />-->
+
+    <!--                    <com.google.android.material.textview.MaterialTextView-->
+    <!--                        android:id="@+id/tv_confirm_email"-->
+    <!--                        android:layout_width="wrap_content"-->
+    <!--                        android:layout_height="wrap_content"-->
+    <!--                        android:text="\?"-->
+    <!--                        android:textSize="20sp"-->
+    <!--                        android:textStyle="bold"-->
+    <!--                        android:visibility="gone"-->
+    <!--                        tools:ignore="HardcodedText"-->
+    <!--                        tools:text="@string/email_not_confirmed"-->
+    <!--                        tools:visibility="visible" />-->
+    <!--                </LinearLayout>-->
+
+    <!--                <com.google.android.material.textview.MaterialTextView-->
+    <!--                    android:id="@+id/tv_name"-->
+    <!--                    android:layout_width="wrap_content"-->
+    <!--                    android:layout_height="wrap_content"-->
+    <!--                    android:layout_gravity="center"-->
+    <!--                    android:ellipsize="end"-->
+    <!--                    android:text="@{bindUser.displayName}"-->
+    <!--                    android:textSize="16sp"-->
+    <!--                    tools:text="@string/app_name" />-->
+
+    <!--                <LinearLayout-->
+    <!--                    android:layout_width="wrap_content"-->
+    <!--                    android:layout_height="70dp"-->
+    <!--                    android:layout_gravity="center_horizontal"-->
+    <!--                    android:layout_marginTop="64dp"-->
+    <!--                    android:gravity="center_vertical"-->
+    <!--                    android:orientation="horizontal">-->
+
+    <!--                    <com.google.android.material.button.MaterialButton-->
+    <!--                        android:id="@+id/m_btn_sign_out"-->
+    <!--                        android:layout_width="150dp"-->
+    <!--                        android:layout_height="match_parent"-->
+    <!--                        android:layout_weight="1"-->
+    <!--                        android:text="@string/sign_out"-->
+    <!--                        android:textColor="?attr/colorOnPrimary"-->
+    <!--                        android:textSize="14sp"-->
+    <!--                        android:textStyle="bold" />-->
+
+    <!--                    <com.google.android.material.button.MaterialButton-->
+    <!--                        android:id="@+id/m_btn_tutorial"-->
+    <!--                        android:layout_width="125dp"-->
+    <!--                        android:layout_height="match_parent"-->
+    <!--                        android:layout_marginStart="16dp"-->
+    <!--                        android:layout_weight="1"-->
+    <!--                        android:ellipsize="end"-->
+    <!--                        android:text="@string/tutorial"-->
+    <!--                        android:textSize="12sp" />-->
+    <!--                </LinearLayout>-->
+
+
+    <!--                <com.google.android.material.textview.MaterialTextView-->
+    <!--                    android:id="@+id/tv_id_text"-->
+    <!--                    android:layout_width="wrap_content"-->
+    <!--                    android:layout_height="30dp"-->
+    <!--                    android:layout_gravity="center"-->
+    <!--                    android:layout_marginTop="12dp"-->
+    <!--                    android:gravity="center"-->
+    <!--                    android:text="@string/copy_user_id"-->
+    <!--                    android:textSize="12sp" />-->
+
+    <!--                <com.google.android.material.textview.MaterialTextView-->
+    <!--                    android:id="@+id/tv_id"-->
+    <!--                    android:layout_width="wrap_content"-->
+    <!--                    android:layout_height="30dp"-->
+    <!--                    android:layout_gravity="center"-->
+    <!--                    android:layout_marginHorizontal="8dp"-->
+    <!--                    android:gravity="center"-->
+    <!--                    android:maxLines="3"-->
+    <!--                    android:paddingHorizontal="8dp"-->
+    <!--                    android:text="@{bindUser.uid}"-->
+    <!--                    android:textSize="14sp"-->
+    <!--                    android:textStyle="bold" />-->
+
+    <!--                <com.google.android.material.textview.MaterialTextView-->
+    <!--                    android:id="@+id/tv_privacy_policy"-->
+    <!--                    android:layout_width="wrap_content"-->
+    <!--                    android:layout_height="30dp"-->
+    <!--                    android:layout_gravity="center"-->
+    <!--                    android:layout_marginHorizontal="8dp"-->
+    <!--                    android:layout_marginTop="4dp"-->
+    <!--                    android:gravity="center"-->
+    <!--                    android:paddingHorizontal="8dp"-->
+    <!--                    android:text="@string/privacy_policy"-->
+    <!--                    android:textSize="12sp"-->
+    <!--                    android:textStyle="bold" />-->
+    <!--            </LinearLayout>-->
+    <!--        </ScrollView>-->
+    <!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
+</layout>

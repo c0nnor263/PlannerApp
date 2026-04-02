@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        >
+
+    <data>
+
+        <variable
+                name="friend"
+                type="com.conboi.core.domain.source.remote.model.FriendType"/>
+    </data>
+
+    <!--    <com.google.android.material.card.MaterialCardView-->
+    <!--        style="@style/Widget.Material3.CardView.Elevated"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="185dp"-->
+    <!--        android:layout_marginHorizontal="8dp"-->
+    <!--        android:layout_marginVertical="8dp"-->
+    <!--        android:background="?attr/selectableItemBackground"-->
+    <!--        android:backgroundTint="?android:colorBackgroundFloating"-->
+    <!--        android:clickable="true"-->
+    <!--        android:focusable="true"-->
+    <!--        android:transitionName="@{@string/friend_transition_name(friend.user_id)}"-->
+    <!--        app:cardCornerRadius="@dimen/material_corner_radius"-->
+    <!--        app:cardElevation="@dimen/cardview_default_elevation">-->
+
+    <!--        <com.google.android.material.card.MaterialCardView-->
+    <!--            style="@style/Widget.Material3.CardView.Elevated"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_gravity="center_horizontal"-->
+    <!--            android:elevation="@dimen/cardview_default_elevation"-->
+    <!--            app:cardCornerRadius="@dimen/material_corner_radius">-->
+
+    <!--            <ImageView-->
+    <!--                android:id="@+id/iv_avatar"-->
+    <!--                ivLoadProfileImage="@{friend.user_photo_url}"-->
+    <!--                android:layout_width="145dp"-->
+    <!--                android:layout_height="145dp"-->
+    <!--                android:layout_gravity="center"-->
+    <!--                android:adjustViewBounds="true"-->
+    <!--                android:contentDescription="@string/profile_photo"-->
+    <!--                android:padding="8dp"-->
+    <!--                android:scaleType="centerCrop"-->
+    <!--                app:layout_constraintStart_toStartOf="parent"-->
+    <!--                app:layout_constraintTop_toTopOf="parent"-->
+    <!--                tools:src="@drawable/splash_gradient" />-->
+
+    <!--            <ImageView-->
+    <!--                android:id="@+id/iv_request_status"-->
+    <!--                ivSetFriendRequestStatus="@{friend.user_request_code}"-->
+    <!--                android:layout_width="24dp"-->
+    <!--                android:layout_height="24dp"-->
+    <!--                android:layout_gravity="top|start"-->
+    <!--                android:layout_margin="8dp"-->
+    <!--                android:contentDescription="@string/request_status"-->
+    <!--                android:visibility="invisible"-->
+    <!--                app:layout_constraintEnd_toEndOf="parent"-->
+    <!--                app:layout_constraintTop_toTopOf="parent"-->
+    <!--                tools:src="@drawable/ic_baseline_pending_24"-->
+    <!--                tools:visibility="visible" />-->
+
+    <!--            <com.google.android.material.textview.MaterialTextView-->
+    <!--                android:id="@+id/tv_total_completed"-->
+    <!--                android:layout_width="wrap_content"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:layout_gravity="top|end"-->
+    <!--                android:layout_margin="8dp"-->
+    <!--                android:text="@{friend.user_count_completed >= 1000 ? @string/max_total_check(999):Integer.toString(friend.user_count_completed)}"-->
+    <!--                android:textSize="14sp"-->
+    <!--                tools:text="25" />-->
+    <!--        </com.google.android.material.card.MaterialCardView>-->
+
+    <!--        <com.google.android.material.textview.MaterialTextView-->
+    <!--            android:id="@+id/tv_name"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_gravity="bottom|center_horizontal"-->
+    <!--            android:layout_margin="14dp"-->
+    <!--            android:ellipsize="end"-->
+    <!--            android:gravity="bottom"-->
+    <!--            android:maxLines="1"-->
+    <!--            android:text="@{friend.user_name}"-->
+    <!--            android:textSize="14sp"-->
+    <!--            tools:text="@string/add_task" />-->
+    <!--    </com.google.android.material.card.MaterialCardView>-->
+</layout>
